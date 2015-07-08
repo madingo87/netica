@@ -21,9 +21,15 @@
     <ClCompile Include="MyFirstNet.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="HandPosition3D.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MyFirstNet.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="HandPosition3D.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

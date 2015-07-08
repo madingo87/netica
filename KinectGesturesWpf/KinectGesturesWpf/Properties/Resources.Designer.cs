@@ -70,6 +70,15 @@ namespace KinectGesturesWpf.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Hände vorne ähnelt.
+        /// </summary>
+        internal static string HandsFront {
+            get {
+                return ResourceManager.GetString("HandsFront", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Hände außen ähnelt.
         /// </summary>
         internal static string HandsOut {

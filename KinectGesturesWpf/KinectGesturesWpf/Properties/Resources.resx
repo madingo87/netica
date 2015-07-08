@@ -135,4 +135,7 @@
   <data name="NoSensor" xml:space="preserve">
     <value>"No Senosor available"</value>
   </data>
+  <data name="HandsFront" xml:space="preserve">
+    <value>Hände vorne</value>
+  </data>
 </root>

@@ -858,7 +858,7 @@ Units + 11, Units + 12, Units + 13, Units + 14, Units + 15, Units + 16,
 
 
 
-int classifyHandPos(float *in, float *out, int init)
+  int classifyFirstNet(float *in, float *out, int init)
 {
   int member, source;
   float sum;

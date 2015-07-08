@@ -11,6 +11,7 @@
     using System.Windows.Media.Imaging;
     using Microsoft.Kinect;
     using System.Collections.Generic;
+    using System.Windows.Media.Media3D;
 
     /// <summary>
     /// Interaction logic for the MainWindow
@@ -41,7 +42,7 @@
         private CoordinateMapper coordinateMapper = null;
         private Body[] bodies = null;
 
-
+        //body(512x424) | color(1920x1080) 
 
         StreamWriter sw;
         int descriptionNumber;
@@ -51,14 +52,16 @@
         string gestureText;        
         private string statusText = null;
 
-        string result = "1 0 0";
+        string resultForFile;
         int[] jointKeys = new[] { 1, 3, 5, 6, 7, 9, 10, 11 };
         int dataInputSize;
         int dataOutputSize;
         
 
+        //[DllImport("NetWrapperLib.dll")]
+        //public unsafe static extern int FirstNet(float* input, float* output);
         [DllImport("NetWrapperLib.dll")]
-        public unsafe static extern int FirstNet(float* input, float* output);
+        public unsafe static extern int HandPosition3D(float* input, float* output);
 
 
         public MainWindow()
@@ -69,7 +72,7 @@
             this.colorFrameDescription = this.kinectSensor.ColorFrameSource.CreateFrameDescription(ColorImageFormat.Bgra);
 
             this.depthFrameReader = this.kinectSensor.DepthFrameSource.OpenReader();
-            this.depthFrameReader.FrameArrived += depthFrameReader_FrameArrived;
+            //this.depthFrameReader.FrameArrived += depthFrameReader_FrameArrived;
             this.depthBitmap = new WriteableBitmap(colorFrameDescription.Width, colorFrameDescription.Height, 96.0, 96.0, PixelFormats.Bgr32, null);
             this.depthPixels = new byte[this.frameDescription.Width * this.frameDescription.Height];
 
@@ -94,11 +97,15 @@
 
             this.DataContext = this;
 
-            descriptionNumber = 1;
-            sw = new StreamWriter(@"c:\temp\gestureData2.txt", true);
-            dataInputSize = jointKeys.Length*2;
-            dataOutputSize = 3;
 
+            //###### DATA TO CHANGE FOR RECORDING ########
+            resultForFile = "0 0 0 1";
+            sw = new StreamWriter(@"c:\temp\gestureData4.txt", true);
+            //---------------------------------------
+
+            descriptionNumber = 1;
+            dataInputSize = jointKeys.Length*3;
+            dataOutputSize = 4;
 
             sw.WriteLine("SNNS pattern definition file V3.2");
             sw.WriteLine(string.Format("generated at {0:d} - {0:t}", DateTime.Now));
@@ -106,9 +113,12 @@
             sw.WriteLine();
             sw.WriteLine("No. of patterns : ??? ");
             sw.WriteLine("No. of input units : " + dataInputSize);
-            sw.WriteLine("No. of output units : 3");
+            sw.WriteLine("No. of output units : 4");
             sw.WriteLine();
-            sw.WriteLine("#================= DATA =====================");
+            sw.WriteLine("#========================================================================");
+            sw.WriteLine("#########################################################################");
+            sw.WriteLine("#=============================== DATA ===================================");
+            //############################################
 
             this.InitializeComponent();
         }
@@ -292,7 +302,7 @@
                             IReadOnlyDictionary<JointType, Joint> joints = body.Joints;
 
                             // convert the joint points to depth (display) space
-                            Dictionary<JointType, Point> jointPoints = new Dictionary<JointType, Point>();
+                            Dictionary<JointType, Point3D> jointPoints = new Dictionary<JointType, Point3D>();
 
                             foreach (JointType jointType in jointKeys)
                             {
@@ -304,9 +314,8 @@
                                     position.Z = InferredZPositionClamp;
                                 }
 
-                                DepthSpacePoint depthSpacePoint = this.coordinateMapper.MapCameraPointToDepthSpace(position);
-                                //1920x1080 colorframe   -->  body(512x424) vs color(1920x1080) 
-                                jointPoints[jointType] = new Point(depthSpacePoint.X, depthSpacePoint.Y);
+                                //Collect joint Coordinates (Camera) for clasification
+                                if (!recordMode) jointPoints[jointType] = new Point3D(position.X, position.Y, position.Z);
 
                                 //Collect JointPoint
                                 if (collectData) sw.WriteLine(string.Format("{0} {1} {2}", position.X, position.Y, position.Z));                                                                 
@@ -315,7 +324,7 @@
                             if (collectData)
                             {
                                 sw.WriteLine("#result ");
-                                sw.WriteLine(this.result);
+                                sw.WriteLine(this.resultForFile);
                                 sw.WriteLine();
                             }
                             //reset collectData
@@ -327,22 +336,17 @@
                             dc.DrawRectangle(null, new Pen(Brushes.White, 10), new Rect(0.0, 0.0, this.frameDescription.Width+20, this.frameDescription.Height+20));
 
                             //draw markings for joints and hands
-                            this.DrawJoints(joints, jointPoints, dc, jointPen);
-                            this.DrawHand(body.HandLeftState, jointPoints[JointType.HandLeft], dc);
-                            this.DrawHand(body.HandRightState, jointPoints[JointType.HandRight], dc);
+                            this.DrawJoints(joints, dc, jointPen);
+                            this.DrawHand(body.HandLeftState, joints, JointType.HandLeft, dc);
+                            this.DrawHand(body.HandRightState, joints,JointType.HandRight, dc);
 
 
                             //Classify Gesture
                             if (!recordMode)
                             {
                                 var output = classifyGesture(jointPoints);
-
-                                if (output[0] > output[1] && output[0] > output[2]) GestureText = Properties.Resources.HandsDown;
-                                else if (output[1] > output[2] && output[1] > output[0]) GestureText = Properties.Resources.HandsOut;
-                                else if (output[2] > output[1] && output[2] > output[0]) GestureText = Properties.Resources.HandsUp;
-                                else GestureText = Properties.Resources.None;                              
+                                updateStatusText(output);                       
                             }
-
                         }
                     }
 
@@ -352,46 +356,28 @@
             }
         }
 
-        private void depthFrameReader_FrameArrived(object sender, DepthFrameArrivedEventArgs e)
-        {
-            bool depthFrameProcessed = false;
-
-            using (DepthFrame depthFrame = e.FrameReference.AcquireFrame())
-            {
-                if (depthFrame != null)
-                {
-                    // the fastest way to process the body index data is to directly access 
-                    // the underlying buffer
-                    using (Microsoft.Kinect.KinectBuffer depthBuffer = depthFrame.LockImageBuffer())
-                    {
-                        // verify data and write the color data to the display bitmap
-                        if (((this.frameDescription.Width * this.frameDescription.Height) == (depthBuffer.Size / this.frameDescription.BytesPerPixel)) &&
-                            (this.frameDescription.Width == this.depthBitmap.PixelWidth) && (this.frameDescription.Height == this.depthBitmap.PixelHeight))
-                        {
-                            // Note: In order to see the full range of depth (including the less reliable far field depth)
-                            // we are setting maxDepth to the extreme potential depth threshold
-                            ushort maxDepth = ushort.MaxValue;
-
-                            // If you wish to filter by reliable depth distance, uncomment the following line:
-                            //// maxDepth = depthFrame.DepthMaxReliableDistance
-                            
-                            this.ProcessDepthFrameData(depthBuffer.UnderlyingBuffer, depthBuffer.Size, depthFrame.DepthMinReliableDistance, maxDepth);
-                            depthFrameProcessed = true;
-                        }
-                    }
-                }
-            }
-            if (depthFrameProcessed)
-            {
-                this.RenderDepthPixels();
-            }
-        }
-        //*******************
+        //********************
         #endregion
 
         #region Helper
 
-        private unsafe float[] classifyGesture(Dictionary<JointType, Point> jointPoints)
+        private void updateStatusText(float[] output)
+        {
+            var highest = 0;
+            for (var i = 1; i< output.Length; i++)
+            {
+                highest = output[i] >= output[i-1] ? i : highest;
+            }
+
+            //MUSS mit dem Input für die Trainingsdaten übereinstimmen!!!!
+            if (highest == 0) GestureText = Properties.Resources.HandsDown;
+            else if (highest == 1) GestureText = Properties.Resources.HandsOut;
+            else if (highest == 2) GestureText = Properties.Resources.HandsUp;
+            else if (highest == 3) GestureText = Properties.Resources.HandsFront;   
+            else GestureText = Properties.Resources.None;
+        }
+
+        private unsafe float[] classifyGesture(Dictionary<JointType, Point3D> jointPoints)
         {
             float[] inputArray = new float[dataInputSize];
             float[] outputArray = new float[dataOutputSize];
@@ -403,55 +389,37 @@
             {
                 inputArray[counter++] = (float)point.Value.X;
                 inputArray[counter++] = (float)point.Value.Y;
+                inputArray[counter++] = (float)point.Value.Z;
             }
 
             fixed (float* input = inputArray)
             {
                 fixed (float* output = outputArray)
                 {
-                    res = FirstNet(input, output);
+                    res = HandPosition3D(input, output);
                 }
             }
 
             return outputArray;
         }
 
-
-        private unsafe void ProcessDepthFrameData(IntPtr depthFrameData, uint depthFrameDataSize, ushort minDepth, ushort maxDepth)
-        {
-            // depth frame data is a 16 bit value
-            ushort* frameData = (ushort*)depthFrameData;
-
-            // convert depth to a visual representation
-            for (int i = 0; i < (int)(depthFrameDataSize / this.frameDescription.BytesPerPixel); ++i)
-            {
-                // Get the depth for this pixel
-                ushort depth = frameData[i];
-
-                // To convert to a byte, we're mapping the depth value to the byte range.
-                // Values outside the reliable depth range are mapped to 0 (black).
-                this.depthPixels[i] = (byte)(depth >= minDepth && depth <= maxDepth ? (depth / MapDepthToByte) : 0);
-            }
-        }
-
-        private void RenderDepthPixels()
-        {
-            //this.depthBitmap.WritePixels(
-            //    new Int32Rect(0, 0, this.depthBitmap.PixelWidth, this.depthBitmap.PixelHeight),
-            //    this.depthPixels,
-            //    this.depthBitmap.PixelWidth,
-            //    0);
-        }
-
-        private readonly Brush trackedJointBrush = new SolidColorBrush(Color.FromArgb(128, 192, 64, 64));
-        private readonly Brush inferredJointBrush = new SolidColorBrush(Color.FromArgb(128, 64, 64, 192));
+        private Brush trackedJointBrush = new SolidColorBrush(Color.FromArgb(224, 192, 64, 64));
+        private Brush inferredJointBrush = new SolidColorBrush(Color.FromArgb(224, 64, 64, 192));
         private readonly double circleSize = 30;
 
-        private void DrawJoints(IReadOnlyDictionary<JointType, Joint> joints, IDictionary<JointType, Point> jointPoints, DrawingContext drawingContext, Pen drawingPen)
+        private void DrawJoints(IReadOnlyDictionary<JointType, Joint> joints, DrawingContext drawingContext, Pen drawingPen)
         {
             // Draw the joints
             foreach (JointType jointType in jointKeys)
             {
+                
+                //DepthSpacePoint depthSpacePoint = this.coordinateMapper.MapCameraPointToDepthSpace(position);
+                //ColorSpacePoint colorSpacePoint = this.coordinateMapper.MapCameraPointsToColorSpace(position);
+                CameraSpacePoint position = joints[jointType].Position;
+                DepthSpacePoint depthSpacePoint = this.coordinateMapper.MapCameraPointToDepthSpace(position);
+
+                Point jointPoint = new Point(depthSpacePoint.X, depthSpacePoint.Y);
+
                 Brush drawBrush = null;
 
                 TrackingState trackingState = joints[jointType].TrackingState;
@@ -467,7 +435,12 @@
 
                 if (drawBrush != null)
                 {
-                    drawingContext.DrawEllipse(drawBrush, null, jointPoints[jointType], circleSize, circleSize);
+                    //Z in meter | Opacity 0-1 --> -0.5 da bereich 0.5m - 1.5m interessant
+                    var opacity = 1 - (position.Z - 0.5);
+                    if (opacity > 1) opacity = 1;
+                    if (opacity < 0) opacity = 0;
+                    drawBrush.Opacity = opacity;
+                    drawingContext.DrawEllipse(drawBrush, null, jointPoint, circleSize, circleSize);
                 }
             }
         }
@@ -476,16 +449,19 @@
         private readonly Brush handClosedBrush = new SolidColorBrush(Color.FromArgb(128, 255, 0, 0));
         private readonly Brush handOpenBrush = new SolidColorBrush(Color.FromArgb(128, 0, 255, 0));
 
-        private void DrawHand(HandState handState, Point handPosition, DrawingContext drawingContext)
+        private void DrawHand(HandState handState, IReadOnlyDictionary<JointType, Joint> joints, JointType jointType, DrawingContext drawingContext)
         {
+            CameraSpacePoint position = joints[jointType].Position;
+            DepthSpacePoint depthSpacePoint = this.coordinateMapper.MapCameraPointToDepthSpace(position);
+
             switch (handState)
             {
                 case HandState.Closed:
-                    drawingContext.DrawEllipse(this.handClosedBrush, null, handPosition, HandSize, HandSize);
+                    drawingContext.DrawEllipse(this.handClosedBrush, null, new Point(depthSpacePoint.X, depthSpacePoint.Y), HandSize, HandSize);
                     break;
 
                 case HandState.Open:
-                    drawingContext.DrawEllipse(this.handOpenBrush, null, handPosition, HandSize, HandSize);
+                    drawingContext.DrawEllipse(this.handOpenBrush, null, new Point(depthSpacePoint.X, depthSpacePoint.Y), HandSize, HandSize);
                     break;
             }
         }
