@@ -53,7 +53,7 @@
         private string statusText = null;
 
         string resultForFile;
-        int[] jointKeys = new[] { 1, 3, 5, 6, 7, 9, 10, 11 };
+        int[] jointKeys = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 20 };
         int dataInputSize;
         int dataOutputSize;
         
@@ -317,6 +317,8 @@
                                 //Collect joint Coordinates (Camera) for clasification
                                 if (!recordMode) jointPoints[jointType] = new Point3D(position.X, position.Y, position.Z);
 
+                                var angles = calculateAngles(position);
+
                                 //Collect JointPoint
                                 if (collectData) sw.WriteLine(string.Format("{0} {1} {2}", position.X, position.Y, position.Z));                                                                 
                             }
@@ -332,8 +334,6 @@
                                                         
                             //draw colorImage as Background
                             dc.DrawImage(colorBitmap, new Rect(0.0, 0.0, this.colorFrameDescription.Width, this.colorFrameDescription.Height));
-                            // Draw borders for JointImage
-                            dc.DrawRectangle(null, new Pen(Brushes.White, 10), new Rect(0.0, 0.0, this.frameDescription.Width+20, this.frameDescription.Height+20));
 
                             //draw markings for joints and hands
                             this.DrawJoints(joints, dc, jointPen);
@@ -360,6 +360,11 @@
         #endregion
 
         #region Helper
+
+        private float[] calculateAngles(CameraSpacePoint points)
+        {
+            return null;
+        }
 
         private void updateStatusText(float[] output)
         {
@@ -403,20 +408,17 @@
             return outputArray;
         }
 
-        private Brush trackedJointBrush = new SolidColorBrush(Color.FromArgb(224, 192, 64, 64));
-        private Brush inferredJointBrush = new SolidColorBrush(Color.FromArgb(224, 64, 64, 192));
-        private readonly double circleSize = 30;
+        private Brush trackedJointBrush = new SolidColorBrush(Color.FromArgb(255, 192, 64, 64));
+        private Brush inferredJointBrush = new SolidColorBrush(Color.FromArgb(255, 64, 64, 192));
+        private readonly double circleSize = 50;
 
         private void DrawJoints(IReadOnlyDictionary<JointType, Joint> joints, DrawingContext drawingContext, Pen drawingPen)
         {
             // Draw the joints
             foreach (JointType jointType in jointKeys)
             {
-                
-                //DepthSpacePoint depthSpacePoint = this.coordinateMapper.MapCameraPointToDepthSpace(position);
-                //ColorSpacePoint colorSpacePoint = this.coordinateMapper.MapCameraPointsToColorSpace(position);
                 CameraSpacePoint position = joints[jointType].Position;
-                DepthSpacePoint depthSpacePoint = this.coordinateMapper.MapCameraPointToDepthSpace(position);
+                ColorSpacePoint depthSpacePoint = this.coordinateMapper.MapCameraPointToColorSpace(position);
 
                 Point jointPoint = new Point(depthSpacePoint.X, depthSpacePoint.Y);
 
@@ -445,14 +447,14 @@
             }
         }
 
-        private const double HandSize = 40;
+        private const double HandSize = 80;
         private readonly Brush handClosedBrush = new SolidColorBrush(Color.FromArgb(128, 255, 0, 0));
         private readonly Brush handOpenBrush = new SolidColorBrush(Color.FromArgb(128, 0, 255, 0));
 
         private void DrawHand(HandState handState, IReadOnlyDictionary<JointType, Joint> joints, JointType jointType, DrawingContext drawingContext)
         {
             CameraSpacePoint position = joints[jointType].Position;
-            DepthSpacePoint depthSpacePoint = this.coordinateMapper.MapCameraPointToDepthSpace(position);
+            ColorSpacePoint depthSpacePoint = this.coordinateMapper.MapCameraPointToColorSpace(position);
 
             switch (handState)
             {
