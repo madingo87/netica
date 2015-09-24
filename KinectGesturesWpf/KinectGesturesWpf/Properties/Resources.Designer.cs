@@ -61,38 +61,20 @@ namespace KinectGesturesWpf.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Hände unten ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Hände auf der Brust ähnelt.
         /// </summary>
-        internal static string HandsDown {
+        internal static string HandsBody {
             get {
-                return ResourceManager.GetString("HandsDown", resourceCulture);
+                return ResourceManager.GetString("HandsBody", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Hände vorne ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Kopf zur Seite ähnelt.
         /// </summary>
-        internal static string HandsFront {
+        internal static string HeadSide {
             get {
-                return ResourceManager.GetString("HandsFront", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Hände außen ähnelt.
-        /// </summary>
-        internal static string HandsOut {
-            get {
-                return ResourceManager.GetString("HandsOut", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Hände oben ähnelt.
-        /// </summary>
-        internal static string HandsUp {
-            get {
-                return ResourceManager.GetString("HandsUp", resourceCulture);
+                return ResourceManager.GetString("HeadSide", resourceCulture);
             }
         }
         
@@ -102,6 +84,15 @@ namespace KinectGesturesWpf.Properties {
         internal static string KinectReady {
             get {
                 return ResourceManager.GetString("KinectReady", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Linke Hand hoch ähnelt.
+        /// </summary>
+        internal static string LeftUp {
+            get {
+                return ResourceManager.GetString("LeftUp", resourceCulture);
             }
         }
         
@@ -120,6 +111,15 @@ namespace KinectGesturesWpf.Properties {
         internal static string NoSensor {
             get {
                 return ResourceManager.GetString("NoSensor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Rechte Hand hoch ähnelt.
+        /// </summary>
+        internal static string RigthUp {
+            get {
+                return ResourceManager.GetString("RigthUp", resourceCulture);
             }
         }
     }

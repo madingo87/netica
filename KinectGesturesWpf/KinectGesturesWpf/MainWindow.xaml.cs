@@ -22,6 +22,7 @@
         /// Size of the RGB pixel in the bitmap
         /// </summary>
         private const int BytesPerPixel = 4;
+        //body(512x424) | color(1920x1080) 
 
         private KinectSensor kinectSensor = null;
         private FrameDescription frameDescription = null;
@@ -42,18 +43,31 @@
         private CoordinateMapper coordinateMapper = null;
         private Body[] bodies = null;
 
-        //body(512x424) | color(1920x1080) 
-
-        StreamWriter sw;
+        StreamWriter swData;
         int descriptionNumber;
+        string resultForFile;
 
         //sets the falg for recording new JointPosition Data
-        bool recordMode = false;     
+        bool recordMode = false;
+        bool classifyEnabled = false;
         string gestureText;        
         private string statusText = null;
 
-        string resultForFile;
-        int[] jointKeys = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 20 };
+        
+        int[] allJointKeys = new[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 20 };
+        List<int> jointKeysWithoutAngles = new List<int> { 3, 7, 11 };
+        int numberOfAngles = 8; // allJoints - jointsWithoutAngles
+        Dictionary<int, int[]> jointNeighbours = new Dictionary<int, int[]> { 
+            {2, new int[] { 3, 20 }},
+            {4, new int[] { 5, 20 }},
+            {5, new int[] { 4, 6 }},
+            {6, new int[] { 5, 7 }},
+            {8, new int[] { 20,9 }},
+            {9, new int[] { 8, 10 }},
+            {10, new int[] { 9, 11 }},
+            {20, new int[] { 4, 8 }}
+        };
+
         int dataInputSize;
         int dataOutputSize;
         
@@ -99,25 +113,34 @@
 
 
             //###### DATA TO CHANGE FOR RECORDING ########
+            //var maxTrainData = 300;
+            //var maxTestData = 100;
             resultForFile = "0 0 0 1";
-            sw = new StreamWriter(@"c:\temp\gestureData4.txt", true);
-            //---------------------------------------
+            var firstRecording = false;
+            //---------------------------------------------         
 
             descriptionNumber = 1;
-            dataInputSize = jointKeys.Length*3;
+            dataInputSize = numberOfAngles * 2;
             dataOutputSize = 4;
 
-            sw.WriteLine("SNNS pattern definition file V3.2");
-            sw.WriteLine(string.Format("generated at {0:d} - {0:t}", DateTime.Now));
-            sw.WriteLine("#(c) Martin Weschta - HAW Hamburg");
-            sw.WriteLine();
-            sw.WriteLine("No. of patterns : ??? ");
-            sw.WriteLine("No. of input units : " + dataInputSize);
-            sw.WriteLine("No. of output units : 4");
-            sw.WriteLine();
-            sw.WriteLine("#========================================================================");
-            sw.WriteLine("#########################################################################");
-            sw.WriteLine("#=============================== DATA ===================================");
+            swData = new StreamWriter(@"c:/temp/data.txt", true);
+            if (firstRecording)
+            {
+                swData.WriteLine("SNNS pattern definition file V3.2");
+                swData.WriteLine(string.Format("generated at {0:d} - {0:t}", DateTime.Now));
+                swData.WriteLine("#(c) Martin Weschta - HAW Hamburg");
+                swData.WriteLine();
+                swData.WriteLine("No. of patterns : ??? ");
+                swData.WriteLine("No. of input units : " + dataInputSize);
+                swData.WriteLine("No. of output units : 4");
+            }
+            swData.WriteLine();
+            swData.WriteLine("#========================================================================");
+            swData.WriteLine("#########################################################################");
+            swData.WriteLine("#=============================== NEXT ===================================");
+
+            swData.Flush();
+
             //############################################
 
             this.InitializeComponent();
@@ -187,10 +210,18 @@
         {
             this.recordMode = true;
         }
-
         private void chk_Record_Unchecked(object sender, RoutedEventArgs e)
         {
             this.recordMode = false;
+        }
+        private void chk_Classify_Checked(object sender, RoutedEventArgs e)
+        {
+            this.classifyEnabled = true;
+            this.recordMode = false;
+        }
+        private void chk_Classify_Unchecked(object sender, RoutedEventArgs e)
+        {
+            this.classifyEnabled = false;
         }
 
         private void Sensor_IsAvailableChanged(object sender, IsAvailableChangedEventArgs e)
@@ -201,8 +232,11 @@
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            sw.Flush();
-            sw.Close();
+            if (swData != null)
+            {
+                swData.Flush();
+                swData.Close();
+            }
 
             if (this.colorFrameReader != null)
             {
@@ -228,10 +262,11 @@
             }
         }
 
-
+      
         //** FRAME READER ***
         private void colorFrameReader_FrameArrived(object sender, ColorFrameArrivedEventArgs e)
         {
+
             // ColorFrame is IDisposable
             using (ColorFrame colorFrame = e.FrameReference.AcquireFrame())
             {
@@ -260,9 +295,13 @@
             }
         }
 
+        int frameCounter = 0;
         private const float InferredZPositionClamp = 0.1f;
         private void bodyFrameReader_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
         {
+            //take only every second picture
+            if (frameCounter++ % 2 == 0) return;
+
             bool dataReceived = false;
 
             using (BodyFrame bodyFrame = e.FrameReference.AcquireFrame())
@@ -295,56 +334,71 @@
 
                         if (body.IsTracked)
                         {
-                            var collectData = body.HandRightState.Equals(HandState.Open) && recordMode;
-                            if (collectData) sw.WriteLine("#image description number " + descriptionNumber++);
-
-                            //this.DrawClippedEdges(body, dc);
-                            IReadOnlyDictionary<JointType, Joint> joints = body.Joints;
-
-                            // convert the joint points to depth (display) space
-                            Dictionary<JointType, Point3D> jointPoints = new Dictionary<JointType, Point3D>();
-
-                            foreach (JointType jointType in jointKeys)
+                            var collectData = descriptionNumber < 400 && recordMode && body.HandLeftState.Equals(HandState.Open);
+                            if (collectData)
                             {
-                                // sometimes the depth(Z) of an inferred joint may show as negative
-                                // clamp down to 0.1f to prevent coordinatemapper from returning (-Infinity, -Infinity)
-                                CameraSpacePoint position = joints[jointType].Position;
-                                if (position.Z < 0)
+                                if (descriptionNumber == 301)
                                 {
-                                    position.Z = InferredZPositionClamp;
-                                }
+                                    swData.WriteLine("#========================================================================");
+                                    swData.WriteLine("#########################################################################");
+                                    swData.WriteLine("#=============================== NEXT ===================================");
+                                } 
+                                if (descriptionNumber >= 400) GestureText = "Done";
+                                swData.WriteLine("#image description number " + descriptionNumber++);
+                            }      
 
-                                //Collect joint Coordinates (Camera) for clasification
-                                if (!recordMode) jointPoints[jointType] = new Point3D(position.X, position.Y, position.Z);
+                            IReadOnlyDictionary<JointType, Joint> joints = body.Joints;
+                            //Dictionary<JointType, Point3D> jointPoints = new Dictionary<JointType, Point3D>();
 
-                                var angles = calculateAngles(position);
+                            double[] allAngles = new double[numberOfAngles * 2];
+                            int index = 0;
 
-                                //Collect JointPoint
-                                if (collectData) sw.WriteLine(string.Format("{0} {1} {2}", position.X, position.Y, position.Z));                                                                 
+                            foreach (JointType jointType in allJointKeys)
+                            {
+                                // sometimes depth(Z) of an inferred joint may show as negative -> clamp down to 0.1f to prevent coordinatemapper from returning (-Infinity, -Infinity)
+                                CameraSpacePoint position = joints[jointType].Position;
+                                if (position.Z < 0) position.Z = InferredZPositionClamp;
+
+                                double[] angles = new double[2];                           
+                                if (!jointKeysWithoutAngles.Contains((int)jointType))
+                                {
+                                    angles = calculateAngles(position, (int)jointType, joints);
+
+                                    //data for classification
+                                    if (classifyEnabled)
+                                    {
+                                        allAngles[index++] = angles[0];
+                                        allAngles[index++] = angles[1];
+                                    }
+
+                                    //Collect Angles
+                                    if (collectData)
+                                    {
+                                        swData.WriteLine(string.Format("{0} {1}", angles[0], angles[1])); 
+                                        swData.Flush();
+                                    }
+                                }                                                                                   
                             }
 
                             if (collectData)
                             {
-                                sw.WriteLine("#result ");
-                                sw.WriteLine(this.resultForFile);
-                                sw.WriteLine();
-                            }
-                            //reset collectData
-                            collectData = false;
-                                                        
-                            //draw colorImage as Background
-                            dc.DrawImage(colorBitmap, new Rect(0.0, 0.0, this.colorFrameDescription.Width, this.colorFrameDescription.Height));
+                                swData.WriteLine("#result ");
+                                swData.WriteLine(this.resultForFile);
+                                swData.WriteLine();
 
-                            //draw markings for joints and hands
+                                swData.Flush();
+                            }
+                                   
+                            //DRAW
+                            dc.DrawImage(colorBitmap, new Rect(0.0, 0.0, this.colorFrameDescription.Width, this.colorFrameDescription.Height));
                             this.DrawJoints(joints, dc, jointPen);
                             this.DrawHand(body.HandLeftState, joints, JointType.HandLeft, dc);
                             this.DrawHand(body.HandRightState, joints,JointType.HandRight, dc);
 
-
-                            //Classify Gesture
-                            if (!recordMode)
+                            //CLASSIFY
+                            if (classifyEnabled)
                             {
-                                var output = classifyGesture(jointPoints);
+                                var output = classifyGesture(allAngles);
                                 updateStatusText(output);                       
                             }
                         }
@@ -361,9 +415,35 @@
 
         #region Helper
 
-        private float[] calculateAngles(CameraSpacePoint points)
+        private double[] calculateAngles(CameraSpacePoint point, int jointType, IReadOnlyDictionary<JointType, Joint> joints)
         {
-            return null;
+            int[] neighbours = new int[2];
+
+            //try to find neighbours for this joint
+            var found = jointNeighbours.TryGetValue(jointType, out neighbours);
+            if (found)
+            {
+                //Collect Coordinates for joint and its neighbours and convert to ColorSpace
+                var coords = new CameraSpacePoint[3] { joints[(JointType)jointType].Position, joints[(JointType)neighbours[0]].Position, joints[(JointType)neighbours[1]].Position };
+
+                //TODO xa-xb usw vorberechnen
+                //Get SideLenghts of Triangle
+                var lengthA_y = Math.Abs(Math.Sqrt(Math.Pow(coords[1].X - coords[2].X,2) + Math.Pow(coords[1].Y - coords[2].Y,2))); // Sqrt((xb - xc)^2 + (yb - yc)^2)
+                var lengthB_y = Math.Abs(Math.Sqrt(Math.Pow(coords[1].X - coords[0].X,2) + Math.Pow(coords[1].Y - coords[0].Y,2))); // Sqrt((xb - xa)^2 + (yb - ya)^2)
+                var lengthC_y = Math.Abs(Math.Sqrt(Math.Pow(coords[0].X - coords[2].X,2) + Math.Pow(coords[0].Y - coords[2].Y,2))); // Sqrt((xa - xc)^2 + (ya - yc)^2)
+                var lengthA_z = Math.Abs(Math.Sqrt(Math.Pow(coords[1].X - coords[2].X,2) + Math.Pow(coords[1].Z - coords[2].Z,2))); // Sqrt((xb - xc)^2 + (zb - zc)^2)
+                var lengthB_z = Math.Abs(Math.Sqrt(Math.Pow(coords[1].X - coords[0].X,2) + Math.Pow(coords[1].Z - coords[0].Z,2))); // Sqrt((xb - xa)^2 + (zb - za)^2)
+                var lengthC_z = Math.Abs(Math.Sqrt(Math.Pow(coords[0].X - coords[2].X,2) + Math.Pow(coords[0].Z - coords[2].Z,2))); // Sqrt((xa - xc)^2 + (za - zc)^2)
+
+                //calculate Angle
+                var val_y = (Math.Pow(lengthB_y, 2) + Math.Pow(lengthC_y, 2) - Math.Pow(lengthA_y, 2)) / (2 * lengthB_y * lengthC_y);
+                var val_z = (Math.Pow(lengthB_z, 2) + Math.Pow(lengthC_z, 2) - Math.Pow(lengthA_z, 2)) / (2 * lengthB_z * lengthC_z);
+                var angle_y = RadianToDegree(Math.Acos(val_y));
+                var angle_z = RadianToDegree(Math.Acos(val_z));
+
+                return new double[2] {angle_y, angle_z};
+            }
+            throw new Exception("Wrong jointType in \"calculateAngles\"!!");
         }
 
         private void updateStatusText(float[] output)
@@ -375,52 +455,52 @@
             }
 
             //MUSS mit dem Input für die Trainingsdaten übereinstimmen!!!!
-            if (highest == 0) GestureText = Properties.Resources.HandsDown;
-            else if (highest == 1) GestureText = Properties.Resources.HandsOut;
-            else if (highest == 2) GestureText = Properties.Resources.HandsUp;
-            else if (highest == 3) GestureText = Properties.Resources.HandsFront;   
+            if (highest == 0) GestureText = Properties.Resources.LeftUp;
+            else if (highest == 1) GestureText = Properties.Resources.HeadSide;
+            else if (highest == 2) GestureText = Properties.Resources.HandsBody;
+            else if (highest == 3) GestureText = Properties.Resources.RigthUp;   
             else GestureText = Properties.Resources.None;
         }
 
-        private unsafe float[] classifyGesture(Dictionary<JointType, Point3D> jointPoints)
+        private unsafe float[] classifyGesture(double[] angles)
         {
             float[] inputArray = new float[dataInputSize];
             float[] outputArray = new float[dataOutputSize];
 
-            int counter = 0;
-            int res;
+            //int counter = 0;
+            //int res;
 
-            foreach (var point in jointPoints)
-            {
-                inputArray[counter++] = (float)point.Value.X;
-                inputArray[counter++] = (float)point.Value.Y;
-                inputArray[counter++] = (float)point.Value.Z;
-            }
+            //foreach (var point in jointPoints)
+            //{
+            //    inputArray[counter++] = (float)point.Value.X;
+            //    inputArray[counter++] = (float)point.Value.Y;
+            //    inputArray[counter++] = (float)point.Value.Z;
+            //}
 
-            fixed (float* input = inputArray)
-            {
-                fixed (float* output = outputArray)
-                {
-                    res = HandPosition3D(input, output);
-                }
-            }
+            //fixed (float* input = inputArray)
+            //{
+            //    fixed (float* output = outputArray)
+            //    {
+            //        res = HandPosition3D(input, output);
+            //    }
+            //}
 
             return outputArray;
         }
 
         private Brush trackedJointBrush = new SolidColorBrush(Color.FromArgb(255, 192, 64, 64));
         private Brush inferredJointBrush = new SolidColorBrush(Color.FromArgb(255, 64, 64, 192));
-        private readonly double circleSize = 50;
+        private readonly double circleSize = 30;
 
         private void DrawJoints(IReadOnlyDictionary<JointType, Joint> joints, DrawingContext drawingContext, Pen drawingPen)
         {
             // Draw the joints
-            foreach (JointType jointType in jointKeys)
+            foreach (JointType jointType in allJointKeys)
             {
                 CameraSpacePoint position = joints[jointType].Position;
-                ColorSpacePoint depthSpacePoint = this.coordinateMapper.MapCameraPointToColorSpace(position);
+                ColorSpacePoint colorSpacePoint = this.coordinateMapper.MapCameraPointToColorSpace(position);
 
-                Point jointPoint = new Point(depthSpacePoint.X, depthSpacePoint.Y);
+                Point jointPoint = new Point(colorSpacePoint.X, colorSpacePoint.Y);
 
                 Brush drawBrush = null;
 
@@ -437,11 +517,8 @@
 
                 if (drawBrush != null)
                 {
-                    //Z in meter | Opacity 0-1 --> -0.5 da bereich 0.5m - 1.5m interessant
-                    var opacity = 1 - (position.Z - 0.5);
-                    if (opacity > 1) opacity = 1;
-                    if (opacity < 0) opacity = 0;
-                    drawBrush.Opacity = opacity;
+                    //Z in meter | Opacity 0-1 --> bereich 0.7m - 1.7m interessant
+                    drawBrush.Opacity = 0.5f;
                     drawingContext.DrawEllipse(drawBrush, null, jointPoint, circleSize, circleSize);
                 }
             }
@@ -468,6 +545,10 @@
             }
         }
 
+        private double RadianToDegree(double angle)
+        {
+            return angle * (180.0 / Math.PI);
+        }
         #endregion
     }
 }

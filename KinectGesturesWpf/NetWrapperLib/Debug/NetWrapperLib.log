@@ -1,4 +1,4 @@
-﻿Der Buildvorgang wurde am 08.07.2015 16:02:31 gestartet.
+﻿Der Buildvorgang wurde am 09.07.2015 17:55:30 gestartet.
      1>Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\NetWrapperLib\NetWrapperLib.vcxproj" auf Knoten "2", Rebuild Ziel(e).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D NETWRAPPERLIB_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TC /analyze- /errorReport:prompt HandPosition3D.c MyFirstNet.c
@@ -27,4 +27,4 @@
 
 Build erfolgreich.
 
-Verstrichene Zeit 00:00:01.30
+Verstrichene Zeit 00:00:01.80

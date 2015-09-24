@@ -22,8 +22,9 @@
         </Viewbox>
         <StatusBar Grid.Row="1" HorizontalAlignment="Stretch" Name="statusBar" VerticalAlignment="Bottom" Background="White" Foreground="{StaticResource MediumGreyBrush}">
             <StatusBarItem Content="{Binding StatusText}" />
-                <CheckBox Name="chk_Record" Margin="300 0 0 0" Content="Record Mode" Checked="chk_Record_Checked" Unchecked="chk_Record_Unchecked"/>
+            <CheckBox Name="chk_Record" Margin="300 0 0 0" Content="Record Mode" Checked="chk_Record_Checked" Unchecked="chk_Record_Unchecked"/>
+            <CheckBox Name="chk_Classify" Margin="50 0 0 0" Content="Classify" Checked="chk_Classify_Checked" Unchecked="chk_Classify_Unchecked"/>
             <StatusBarItem Content="{Binding GestureText}" HorizontalAlignment="Right" FontWeight="Bold" FontSize="14"/>
-        </StatusBar>
+            </StatusBar>
     </Grid>
 </Window>

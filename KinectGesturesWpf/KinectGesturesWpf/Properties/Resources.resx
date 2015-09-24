@@ -117,14 +117,14 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="HandsDown" xml:space="preserve">
-    <value>Hände unten</value>
+  <data name="LeftUp" xml:space="preserve">
+    <value>Linke Hand hoch</value>
   </data>
-  <data name="HandsOut" xml:space="preserve">
-    <value>Hände außen</value>
+  <data name="HeadSide" xml:space="preserve">
+    <value>Kopf zur Seite</value>
   </data>
-  <data name="HandsUp" xml:space="preserve">
-    <value>Hände oben</value>
+  <data name="HandsBody" xml:space="preserve">
+    <value>Hände auf der Brust</value>
   </data>
   <data name="KinectReady" xml:space="preserve">
     <value>Kinect Ready :)</value>
@@ -135,7 +135,7 @@
   <data name="NoSensor" xml:space="preserve">
     <value>"No Senosor available"</value>
   </data>
-  <data name="HandsFront" xml:space="preserve">
-    <value>Hände vorne</value>
+  <data name="RigthUp" xml:space="preserve">
+    <value>Rechte Hand hoch</value>
   </data>
 </root>
