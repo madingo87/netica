@@ -12,6 +12,7 @@
     using Microsoft.Kinect;
     using System.Collections.Generic;
     using System.Windows.Media.Media3D;
+using System.Linq;
 
     /// <summary>
     /// Interaction logic for the MainWindow
@@ -54,28 +55,29 @@
         private string statusText = null;
 
         
-        int[] allJointKeys = new[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 20 };
+        int[] allJointKeys = new[] { 3, 4, 5, 6, 7, 8, 9, 10, 11, 20 };
         List<int> jointKeysWithoutAngles = new List<int> { 3, 7, 11 };
-        int numberOfAngles = 8; // allJoints - jointsWithoutAngles
-        Dictionary<int, int[]> jointNeighbours = new Dictionary<int, int[]> { 
-            {2, new int[] { 3, 20 }},
-            {4, new int[] { 5, 20 }},
-            {5, new int[] { 4, 6 }},
-            {6, new int[] { 5, 7 }},
-            {8, new int[] { 20,9 }},
-            {9, new int[] { 8, 10 }},
-            {10, new int[] { 9, 11 }},
-            {20, new int[] { 4, 8 }}
+        List<KeyValuePair<int, int[]>> jointNeighbours = new List<KeyValuePair<int, int[]>> { 
+            new KeyValuePair<int, int[]>(4, new int[] { 20, 5 }),
+            new KeyValuePair<int, int[]>(5, new int[] { 4, 6 }),
+            new KeyValuePair<int, int[]>(6, new int[] { 5, 7 }),
+            new KeyValuePair<int, int[]>(8, new int[] { 20, 9 }),
+            new KeyValuePair<int, int[]>(9, new int[] { 8, 10 }),
+            new KeyValuePair<int, int[]>(10, new int[] { 9, 11 }),
+            new KeyValuePair<int, int[]>(20, new int[] { 3, 4 }),
+            new KeyValuePair<int, int[]>(20, new int[] { 3, 8 }),
+            new KeyValuePair<int, int[]>(20, new int[] { 4, 8 })
         };
-
+        int numberOfAngles = 9; //jointNeighbours.Count;
+        
         int dataInputSize;
         int dataOutputSize;
         
 
         //[DllImport("NetWrapperLib.dll")]
-        //public unsafe static extern int FirstNet(float* input, float* output);
+        //public unsafe static extern int HandPosition3D(float* input, float* output);
         [DllImport("NetWrapperLib.dll")]
-        public unsafe static extern int HandPosition3D(float* input, float* output);
+        public unsafe static extern int AngleSimple(float* input, float* output);
 
 
         public MainWindow()
@@ -107,33 +109,30 @@
             this.kinectSensor.Open();
     
             this.StatusText = this.kinectSensor.IsAvailable ? Properties.Resources.KinectReady : Properties.Resources.NoSensor;
-            this.gestureText = Properties.Resources.None;
+            this.gestureText = Properties.Resources.NotAvailable;
 
             this.DataContext = this;
-
 
             //###### DATA TO CHANGE FOR RECORDING ########
             //var maxTrainData = 300;
             //var maxTestData = 100;
-            resultForFile = "0 0 0 1";
-            var firstRecording = false;
+            resultForFile = Properties.Resources.Result;
+            dataOutputSize = Int32.Parse(Properties.Resources.OutputSize);
             //---------------------------------------------         
 
             descriptionNumber = 1;
             dataInputSize = numberOfAngles * 2;
-            dataOutputSize = 4;
 
             swData = new StreamWriter(@"c:/temp/data.txt", true);
-            if (firstRecording)
-            {
-                swData.WriteLine("SNNS pattern definition file V3.2");
-                swData.WriteLine(string.Format("generated at {0:d} - {0:t}", DateTime.Now));
-                swData.WriteLine("#(c) Martin Weschta - HAW Hamburg");
-                swData.WriteLine();
-                swData.WriteLine("No. of patterns : ??? ");
-                swData.WriteLine("No. of input units : " + dataInputSize);
-                swData.WriteLine("No. of output units : 4");
-            }
+                    
+            //SNNS pattern definition file V3.2
+            //generated at 24.9.2015 - 13.45
+            //#(c) Martin Weschta - HAW Hamburg");
+            //
+            //No. of patterns : ??? 
+            //No. of input units : ???
+            //No. of output units : ???
+            
             swData.WriteLine();
             swData.WriteLine("#========================================================================");
             swData.WriteLine("#########################################################################");
@@ -209,19 +208,23 @@
         private void chk_Record_Checked(object sender, RoutedEventArgs e)
         {
             this.recordMode = true;
+            StatusText = "Collecting...";
         }
         private void chk_Record_Unchecked(object sender, RoutedEventArgs e)
         {
             this.recordMode = false;
+            StatusText = "Idle";
         }
         private void chk_Classify_Checked(object sender, RoutedEventArgs e)
         {
             this.classifyEnabled = true;
             this.recordMode = false;
+            StatusText = "Classifying...";
         }
         private void chk_Classify_Unchecked(object sender, RoutedEventArgs e)
         {
             this.classifyEnabled = false;
+            StatusText = "Idle";
         }
 
         private void Sensor_IsAvailableChanged(object sender, IsAvailableChangedEventArgs e)
@@ -295,12 +298,13 @@
             }
         }
 
-        int frameCounter = 0;
+        bool takeFrame = true;
         private const float InferredZPositionClamp = 0.1f;
         private void bodyFrameReader_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
         {
             //take only every second picture
-            if (frameCounter++ % 2 == 0) return;
+            takeFrame = !takeFrame;
+            if (!takeFrame) return; 
 
             bool dataReceived = false;
 
@@ -334,7 +338,7 @@
 
                         if (body.IsTracked)
                         {
-                            var collectData = descriptionNumber < 400 && recordMode && body.HandLeftState.Equals(HandState.Open);
+                            var collectData = descriptionNumber <= 400 && recordMode;// && body.HandLeftState.Equals(HandState.Open);
                             if (collectData)
                             {
                                 if (descriptionNumber == 301)
@@ -343,7 +347,7 @@
                                     swData.WriteLine("#########################################################################");
                                     swData.WriteLine("#=============================== NEXT ===================================");
                                 } 
-                                if (descriptionNumber >= 400) GestureText = "Done";
+                                if (descriptionNumber == 400) StatusText = "Collecting Done";
                                 swData.WriteLine("#image description number " + descriptionNumber++);
                             }      
 
@@ -359,23 +363,27 @@
                                 CameraSpacePoint position = joints[jointType].Position;
                                 if (position.Z < 0) position.Z = InferredZPositionClamp;
 
-                                double[] angles = new double[2];                           
-                                if (!jointKeysWithoutAngles.Contains((int)jointType))
+                                double[] angles = new double[2];
+                                int thisJoint = (int)jointType;
+                                //Wenn der Joint nicht am Rand liegt, also der Winkel nicht berrechnet werden muss
+                                if (!jointKeysWithoutAngles.Contains(thisJoint))
                                 {
-                                    angles = calculateAngles(position, (int)jointType, joints);
+                                    //Wähle Nachbar des derzeitigen Joints - bei Joint 20 sind es drei Winkel, daher foreach!
+                                    var neighbourCollection = jointNeighbours.Where(i => i.Key == thisJoint).Select(i => i.Value);
+                                    if (!neighbourCollection.Any()) continue;
 
-                                    //data for classification
-                                    if (classifyEnabled)
-                                    {
+                                    foreach (var neighbour in neighbourCollection) 
+                                    { 
+                                        angles = calculateAngles(position, thisJoint, neighbour, joints);
                                         allAngles[index++] = angles[0];
                                         allAngles[index++] = angles[1];
-                                    }
 
-                                    //Collect Angles
-                                    if (collectData)
-                                    {
-                                        swData.WriteLine(string.Format("{0} {1}", angles[0], angles[1])); 
-                                        swData.Flush();
+                                        //Collect Angles
+                                        if (collectData)
+                                        {
+                                            swData.WriteLine(string.Format("{0} {1}", angles[0], angles[1]));
+                                            swData.Flush();
+                                        }
                                     }
                                 }                                                                                   
                             }
@@ -388,6 +396,11 @@
 
                                 swData.Flush();
                             }
+
+                            this.txtAngles.Text = String.Format("04  x: {0:0}   z: {1:0}\n05  x: {2:0}   z: {3:0}\n06  x: {4:0}   z: {5:0}\n08  x: {6:0}   z: {7:0}\n" +
+                                                                "09  x: {8:0}   z: {9:0}\n10  x: {10:0}   z: {11:0}\n20l x: {12:0}   z: {13:0}\n20r x: {14:0}   z: {15:0}\n20u x: {16:0}   z: {17:0}",
+                                        allAngles[0], allAngles[1], allAngles[2], allAngles[3], allAngles[4], allAngles[5], allAngles[6], allAngles[7], allAngles[8], allAngles[9], 
+                                        allAngles[10], allAngles[11], allAngles[12], allAngles[13], allAngles[14], allAngles[15], allAngles[16], allAngles[17]);
                                    
                             //DRAW
                             dc.DrawImage(colorBitmap, new Rect(0.0, 0.0, this.colorFrameDescription.Width, this.colorFrameDescription.Height));
@@ -415,35 +428,27 @@
 
         #region Helper
 
-        private double[] calculateAngles(CameraSpacePoint point, int jointType, IReadOnlyDictionary<JointType, Joint> joints)
+        private double[] calculateAngles(CameraSpacePoint point, int jointType, int[] neighbours, IReadOnlyDictionary<JointType, Joint> joints)
         {
-            int[] neighbours = new int[2];
+            //Collect Coordinates for joint and its neighbours and convert to ColorSpace
+            var coords = new CameraSpacePoint[3] { joints[(JointType)jointType].Position, joints[(JointType)neighbours[0]].Position, joints[(JointType)neighbours[1]].Position };
 
-            //try to find neighbours for this joint
-            var found = jointNeighbours.TryGetValue(jointType, out neighbours);
-            if (found)
-            {
-                //Collect Coordinates for joint and its neighbours and convert to ColorSpace
-                var coords = new CameraSpacePoint[3] { joints[(JointType)jointType].Position, joints[(JointType)neighbours[0]].Position, joints[(JointType)neighbours[1]].Position };
+            //TODO xa-xb usw vorberechnen
+            //Get SideLenghts of Triangle
+            var lengthA_y = Math.Abs(Math.Sqrt(Math.Pow(coords[1].X - coords[2].X,2) + Math.Pow(coords[1].Y - coords[2].Y,2))); // Sqrt((xb - xc)^2 + (yb - yc)^2)
+            var lengthB_y = Math.Abs(Math.Sqrt(Math.Pow(coords[1].X - coords[0].X,2) + Math.Pow(coords[1].Y - coords[0].Y,2))); // Sqrt((xb - xa)^2 + (yb - ya)^2)
+            var lengthC_y = Math.Abs(Math.Sqrt(Math.Pow(coords[0].X - coords[2].X,2) + Math.Pow(coords[0].Y - coords[2].Y,2))); // Sqrt((xa - xc)^2 + (ya - yc)^2)
+            var lengthA_z = Math.Abs(Math.Sqrt(Math.Pow(coords[1].X - coords[2].X,2) + Math.Pow(coords[1].Z - coords[2].Z,2))); // Sqrt((xb - xc)^2 + (zb - zc)^2)
+            var lengthB_z = Math.Abs(Math.Sqrt(Math.Pow(coords[1].X - coords[0].X,2) + Math.Pow(coords[1].Z - coords[0].Z,2))); // Sqrt((xb - xa)^2 + (zb - za)^2)
+            var lengthC_z = Math.Abs(Math.Sqrt(Math.Pow(coords[0].X - coords[2].X,2) + Math.Pow(coords[0].Z - coords[2].Z,2))); // Sqrt((xa - xc)^2 + (za - zc)^2)
 
-                //TODO xa-xb usw vorberechnen
-                //Get SideLenghts of Triangle
-                var lengthA_y = Math.Abs(Math.Sqrt(Math.Pow(coords[1].X - coords[2].X,2) + Math.Pow(coords[1].Y - coords[2].Y,2))); // Sqrt((xb - xc)^2 + (yb - yc)^2)
-                var lengthB_y = Math.Abs(Math.Sqrt(Math.Pow(coords[1].X - coords[0].X,2) + Math.Pow(coords[1].Y - coords[0].Y,2))); // Sqrt((xb - xa)^2 + (yb - ya)^2)
-                var lengthC_y = Math.Abs(Math.Sqrt(Math.Pow(coords[0].X - coords[2].X,2) + Math.Pow(coords[0].Y - coords[2].Y,2))); // Sqrt((xa - xc)^2 + (ya - yc)^2)
-                var lengthA_z = Math.Abs(Math.Sqrt(Math.Pow(coords[1].X - coords[2].X,2) + Math.Pow(coords[1].Z - coords[2].Z,2))); // Sqrt((xb - xc)^2 + (zb - zc)^2)
-                var lengthB_z = Math.Abs(Math.Sqrt(Math.Pow(coords[1].X - coords[0].X,2) + Math.Pow(coords[1].Z - coords[0].Z,2))); // Sqrt((xb - xa)^2 + (zb - za)^2)
-                var lengthC_z = Math.Abs(Math.Sqrt(Math.Pow(coords[0].X - coords[2].X,2) + Math.Pow(coords[0].Z - coords[2].Z,2))); // Sqrt((xa - xc)^2 + (za - zc)^2)
+            //calculate Angle
+            var val_y = (Math.Pow(lengthB_y, 2) + Math.Pow(lengthC_y, 2) - Math.Pow(lengthA_y, 2)) / (2 * lengthB_y * lengthC_y);
+            var val_z = (Math.Pow(lengthB_z, 2) + Math.Pow(lengthC_z, 2) - Math.Pow(lengthA_z, 2)) / (2 * lengthB_z * lengthC_z);
+            var angle_y = RadianToDegree(Math.Acos(val_y));
+            var angle_z = RadianToDegree(Math.Acos(val_z));
 
-                //calculate Angle
-                var val_y = (Math.Pow(lengthB_y, 2) + Math.Pow(lengthC_y, 2) - Math.Pow(lengthA_y, 2)) / (2 * lengthB_y * lengthC_y);
-                var val_z = (Math.Pow(lengthB_z, 2) + Math.Pow(lengthC_z, 2) - Math.Pow(lengthA_z, 2)) / (2 * lengthB_z * lengthC_z);
-                var angle_y = RadianToDegree(Math.Acos(val_y));
-                var angle_z = RadianToDegree(Math.Acos(val_z));
-
-                return new double[2] {angle_y, angle_z};
-            }
-            throw new Exception("Wrong jointType in \"calculateAngles\"!!");
+            return new double[2] {angle_y, angle_z};
         }
 
         private void updateStatusText(float[] output)
@@ -455,35 +460,28 @@
             }
 
             //MUSS mit dem Input für die Trainingsdaten übereinstimmen!!!!
-            if (highest == 0) GestureText = Properties.Resources.LeftUp;
-            else if (highest == 1) GestureText = Properties.Resources.HeadSide;
-            else if (highest == 2) GestureText = Properties.Resources.HandsBody;
-            else if (highest == 3) GestureText = Properties.Resources.RigthUp;   
-            else GestureText = Properties.Resources.None;
+            if (highest == 0) GestureText = Properties.Resources.None;
+            else if (highest == 1) GestureText = Properties.Resources.Left;
+            else if (highest == 2) GestureText = Properties.Resources.Right; 
+            else GestureText = Properties.Resources.NotAvailable;
         }
 
         private unsafe float[] classifyGesture(double[] angles)
         {
             float[] inputArray = new float[dataInputSize];
             float[] outputArray = new float[dataOutputSize];
+            int res;
 
-            //int counter = 0;
-            //int res;
+            for (int i = 0; i < angles.Length; i++)
+                inputArray[i] = (float)angles[i];
 
-            //foreach (var point in jointPoints)
-            //{
-            //    inputArray[counter++] = (float)point.Value.X;
-            //    inputArray[counter++] = (float)point.Value.Y;
-            //    inputArray[counter++] = (float)point.Value.Z;
-            //}
-
-            //fixed (float* input = inputArray)
-            //{
-            //    fixed (float* output = outputArray)
-            //    {
-            //        res = HandPosition3D(input, output);
-            //    }
-            //}
+            fixed (float* input = inputArray)
+            {
+                fixed (float* output = outputArray)
+                {
+                    res = AngleSimple(input, output);
+                }
+            }
 
             return outputArray;
         }
@@ -524,7 +522,7 @@
             }
         }
 
-        private const double HandSize = 80;
+        private const double HandSize = 50;
         private readonly Brush handClosedBrush = new SolidColorBrush(Color.FromArgb(128, 255, 0, 0));
         private readonly Brush handOpenBrush = new SolidColorBrush(Color.FromArgb(128, 0, 255, 0));
 

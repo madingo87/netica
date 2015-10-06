@@ -61,24 +61,6 @@ namespace KinectGesturesWpf.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Hände auf der Brust ähnelt.
-        /// </summary>
-        internal static string HandsBody {
-            get {
-                return ResourceManager.GetString("HandsBody", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Kopf zur Seite ähnelt.
-        /// </summary>
-        internal static string HeadSide {
-            get {
-                return ResourceManager.GetString("HeadSide", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Kinect Ready :) ähnelt.
         /// </summary>
         internal static string KinectReady {
@@ -88,16 +70,16 @@ namespace KinectGesturesWpf.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Linke Hand hoch ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Links ähnelt.
         /// </summary>
-        internal static string LeftUp {
+        internal static string Left {
             get {
-                return ResourceManager.GetString("LeftUp", resourceCulture);
+                return ResourceManager.GetString("Left", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die N/A ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Keine ähnelt.
         /// </summary>
         internal static string None {
             get {
@@ -115,11 +97,38 @@ namespace KinectGesturesWpf.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Rechte Hand hoch ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die N/A ähnelt.
         /// </summary>
-        internal static string RigthUp {
+        internal static string NotAvailable {
             get {
-                return ResourceManager.GetString("RigthUp", resourceCulture);
+                return ResourceManager.GetString("NotAvailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die 3 ähnelt.
+        /// </summary>
+        internal static string OutputSize {
+            get {
+                return ResourceManager.GetString("OutputSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die 0 0 1  ähnelt.
+        /// </summary>
+        internal static string Result {
+            get {
+                return ResourceManager.GetString("Result", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Rechts ähnelt.
+        /// </summary>
+        internal static string Right {
+            get {
+                return ResourceManager.GetString("Right", resourceCulture);
             }
         }
     }

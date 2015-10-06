@@ -140,12 +140,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="HandPosition3D.c" />
-    <ClCompile Include="MyFirstNet.c" />
     <ClCompile Include="MyWrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HandPosition3D.h" />
-    <ClInclude Include="MyFirstNet.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
