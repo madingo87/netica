@@ -55,20 +55,21 @@ using System.Linq;
         private string statusText = null;
 
         
-        int[] allJointKeys = new[] { 3, 4, 5, 6, 7, 8, 9, 10, 11, 20 };
-        List<int> jointKeysWithoutAngles = new List<int> { 3, 7, 11 };
-        List<KeyValuePair<int, int[]>> jointNeighbours = new List<KeyValuePair<int, int[]>> { 
+        int[] allJointKeys = new[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 20 };
+        List<int> jointKeysWithoutAngles = new List<int> { 3, 7, 11, 20 }; //alle die nicht in jointNeighbours enthalten sind
+        List<KeyValuePair<int, int[]>> jointNeighbours = new List<KeyValuePair<int, int[]>> {  
+            new KeyValuePair<int, int[]>(2, new int[] { 20, 3 }),
             new KeyValuePair<int, int[]>(4, new int[] { 20, 5 }),
             new KeyValuePair<int, int[]>(5, new int[] { 4, 6 }),
             new KeyValuePair<int, int[]>(6, new int[] { 5, 7 }),
             new KeyValuePair<int, int[]>(8, new int[] { 20, 9 }),
             new KeyValuePair<int, int[]>(9, new int[] { 8, 10 }),
             new KeyValuePair<int, int[]>(10, new int[] { 9, 11 }),
-            new KeyValuePair<int, int[]>(20, new int[] { 3, 4 }),
-            new KeyValuePair<int, int[]>(20, new int[] { 3, 8 }),
-            new KeyValuePair<int, int[]>(20, new int[] { 4, 8 })
+            //new KeyValuePair<int, int[]>(20, new int[] { 3, 4 }),
+            //new KeyValuePair<int, int[]>(20, new int[] { 3, 8 }),
+            //new KeyValuePair<int, int[]>(20, new int[] { 4, 8 })
         };
-        int numberOfAngles = 9; //jointNeighbours.Count;
+        int numberOfJoints = 7; // => jointNeighbours.Count;
         
         int dataInputSize;
         int dataOutputSize;
@@ -121,7 +122,7 @@ using System.Linq;
             //---------------------------------------------         
 
             descriptionNumber = 1;
-            dataInputSize = numberOfAngles * 2;
+            dataInputSize = numberOfJoints * 2;
 
             swData = new StreamWriter(@"c:/temp/data.txt", true);
                     
@@ -354,7 +355,7 @@ using System.Linq;
                             IReadOnlyDictionary<JointType, Joint> joints = body.Joints;
                             //Dictionary<JointType, Point3D> jointPoints = new Dictionary<JointType, Point3D>();
 
-                            double[] allAngles = new double[numberOfAngles * 2];
+                            double[] allAngles = new double[numberOfJoints * 2];
                             int index = 0;
 
                             foreach (JointType jointType in allJointKeys)
@@ -369,12 +370,13 @@ using System.Linq;
                                 if (!jointKeysWithoutAngles.Contains(thisJoint))
                                 {
                                     //Wähle Nachbar des derzeitigen Joints - bei Joint 20 sind es drei Winkel, daher foreach!
-                                    var neighbourCollection = jointNeighbours.Where(i => i.Key == thisJoint).Select(i => i.Value);
-                                    if (!neighbourCollection.Any()) continue;
+                                    //var neighbourCollection = jointNeighbours.Where(i => i.Key == thisJoint).Select(i => i.Value);
+                                    //if (!neighbourCollection.Any()) continue;
+                                    var neighbours = jointNeighbours.Single(i => i.Key == thisJoint).Value;
 
-                                    foreach (var neighbour in neighbourCollection) 
-                                    { 
-                                        angles = calculateAngles(position, thisJoint, neighbour, joints);
+                                    //foreach (var neighbours in neighbourCollection) 
+                                    //{ 
+                                        angles = calculateAngles(position, thisJoint, neighbours, joints);
                                         allAngles[index++] = angles[0];
                                         allAngles[index++] = angles[1];
 
@@ -384,7 +386,7 @@ using System.Linq;
                                             swData.WriteLine(string.Format("{0} {1}", angles[0], angles[1]));
                                             swData.Flush();
                                         }
-                                    }
+                                    //}
                                 }                                                                                   
                             }
 
@@ -397,10 +399,12 @@ using System.Linq;
                                 swData.Flush();
                             }
 
-                            this.txtAngles.Text = String.Format("04  x: {0:0}   z: {1:0}\n05  x: {2:0}   z: {3:0}\n06  x: {4:0}   z: {5:0}\n08  x: {6:0}   z: {7:0}\n" +
-                                                                "09  x: {8:0}   z: {9:0}\n10  x: {10:0}   z: {11:0}\n20l x: {12:0}   z: {13:0}\n20r x: {14:0}   z: {15:0}\n20u x: {16:0}   z: {17:0}",
-                                        allAngles[0], allAngles[1], allAngles[2], allAngles[3], allAngles[4], allAngles[5], allAngles[6], allAngles[7], allAngles[8], allAngles[9], 
-                                        allAngles[10], allAngles[11], allAngles[12], allAngles[13], allAngles[14], allAngles[15], allAngles[16], allAngles[17]);
+                            int angleCounter = 0;
+                            string text = "";
+                            for (int i = 0; i < jointNeighbours.Count; i++)
+                                text += String.Format("{0:00}\t x: {1:000}\t z: {2:000}\n", jointNeighbours.ElementAt(i).Key, allAngles[angleCounter++], allAngles[angleCounter++]);               
+                            this.txtAngles.Text = text;
+
                                    
                             //DRAW
                             dc.DrawImage(colorBitmap, new Rect(0.0, 0.0, this.colorFrameDescription.Width, this.colorFrameDescription.Height));
@@ -432,7 +436,7 @@ using System.Linq;
         {
             //Collect Coordinates for joint and its neighbours and convert to ColorSpace
             var coords = new CameraSpacePoint[3] { joints[(JointType)jointType].Position, joints[(JointType)neighbours[0]].Position, joints[(JointType)neighbours[1]].Position };
-
+            
             //TODO xa-xb usw vorberechnen
             //Get SideLenghts of Triangle
             var lengthA_y = Math.Abs(Math.Sqrt(Math.Pow(coords[1].X - coords[2].X,2) + Math.Pow(coords[1].Y - coords[2].Y,2))); // Sqrt((xb - xc)^2 + (yb - yc)^2)
@@ -447,6 +451,36 @@ using System.Linq;
             var val_z = (Math.Pow(lengthB_z, 2) + Math.Pow(lengthC_z, 2) - Math.Pow(lengthA_z, 2)) / (2 * lengthB_z * lengthC_z);
             var angle_y = RadianToDegree(Math.Acos(val_y));
             var angle_z = RadianToDegree(Math.Acos(val_z));
+
+            //Wenn überstumpfer Winkel 
+            bool yOver180degrees = false;
+            bool zOver180degrees = false;
+            switch (jointType)
+            {
+                case 8:
+                    yOver180degrees = coords[2].Y < coords[0].Y;
+                    zOver180degrees = coords[2].Z > coords[0].Z; break;
+                case 9:
+                    yOver180degrees = coords[2].Y < coords[0].Y; break;
+                case 10:
+                    yOver180degrees = coords[2].X > coords[0].X;
+                    zOver180degrees = coords[2].Z > coords[0].Z; break;
+                case 4:
+                    yOver180degrees = coords[2].Y < coords[0].Y;
+                    zOver180degrees = coords[2].Z > coords[0].Z; break;
+                case 5:
+                    yOver180degrees = coords[2].Y < coords[0].Y; break;
+                case 6:
+                    yOver180degrees = coords[2].X < coords[0].X;
+                    zOver180degrees = coords[2].Z > coords[0].Z; break;
+                case 2:
+                    yOver180degrees = coords[2].X > coords[0].X;
+                    zOver180degrees = coords[2].Z > coords[0].Z; break;
+            }
+
+            //Wenn überstumpfer winkel dann 180 + (180 - Winkel)
+            angle_y = yOver180degrees ? 180 + (180 - angle_y) : angle_y;
+            angle_z = zOver180degrees ? 180 + (180 - angle_z) : angle_z;
 
             return new double[2] {angle_y, angle_z};
         }
