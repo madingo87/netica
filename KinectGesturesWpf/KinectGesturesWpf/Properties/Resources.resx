@@ -120,25 +120,37 @@
   <data name="KinectReady" xml:space="preserve">
     <value>Kinect Ready :)</value>
   </data>
-  <data name="NotAvailable" xml:space="preserve">
-    <value>N/A</value>
-  </data>
   <data name="NoSensor" xml:space="preserve">
-    <value>"No Senosor available"</value>
-  </data>
-  <data name="Left" xml:space="preserve">
-    <value>Links</value>
-  </data>
-  <data name="None" xml:space="preserve">
-    <value>Keine</value>
+    <value>No Senosor available</value>
   </data>
   <data name="OutputSize" xml:space="preserve">
-    <value>3</value>
+    <value>5</value>
   </data>
   <data name="Result" xml:space="preserve">
-    <value>0 0 1 </value>
+    <value>0 0 0 0 1  </value>
   </data>
-  <data name="Right" xml:space="preserve">
-    <value>Rechts</value>
+  <data name="MaxTestData" xml:space="preserve">
+    <value>200</value>
+  </data>
+  <data name="MaxTrainData" xml:space="preserve">
+    <value>600</value>
+  </data>
+  <data name="Precarriage" xml:space="preserve">
+    <value>-100</value>
+  </data>
+  <data name="_NoIdea" xml:space="preserve">
+    <value>Keine Ahnung</value>
+  </data>
+  <data name="_None" xml:space="preserve">
+    <value>Nichts</value>
+  </data>
+  <data name="_ToLeft" xml:space="preserve">
+    <value>Nach Links</value>
+  </data>
+  <data name="_Touchdown" xml:space="preserve">
+    <value>Touchdown</value>
+  </data>
+  <data name="_Wink" xml:space="preserve">
+    <value>Winken</value>
   </data>
 </root>

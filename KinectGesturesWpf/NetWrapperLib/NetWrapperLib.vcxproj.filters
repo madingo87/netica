@@ -21,9 +21,27 @@
     <ClCompile Include="HandPosition3D.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="AngleAdvanced.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="AA2.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="SimpleGestures.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HandPosition3D.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="AngleAdvanced.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="AA2.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleGestures.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

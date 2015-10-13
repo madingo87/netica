@@ -139,11 +139,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AA2.c" />
+    <ClCompile Include="AngleAdvanced.c" />
     <ClCompile Include="HandPosition3D.c" />
     <ClCompile Include="MyWrapper.cpp" />
+    <ClCompile Include="SimpleGestures.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AA2.h" />
+    <ClInclude Include="AngleAdvanced.h" />
     <ClInclude Include="HandPosition3D.h" />
+    <ClInclude Include="SimpleGestures.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
