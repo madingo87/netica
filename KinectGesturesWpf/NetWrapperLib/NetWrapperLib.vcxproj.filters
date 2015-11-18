@@ -18,30 +18,30 @@
     <ClCompile Include="MyWrapper.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="HandPosition3D.c">
+    <ClCompile Include="position.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="AngleAdvanced.c">
+    <ClCompile Include="v35.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="AA2.c">
+    <ClCompile Include="v41.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="SimpleGestures.c">
+    <ClCompile Include="..\..\..\..\..\..\..\..\JavaNNS-Win\Nets\v51\v51.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="HandPosition3D.h">
+    <ClInclude Include="position.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="AngleAdvanced.h">
+    <ClInclude Include="v35.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="AA2.h">
+    <ClInclude Include="v41.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="SimpleGestures.h">
+    <ClInclude Include="v51.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

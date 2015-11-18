@@ -50,31 +50,29 @@ using System.Linq;
         //sets the falg for recording new JointPosition Data
         bool recordMode = false;
         bool classifyEnabled = false;
-        string gestureText;        
+        private string gestureText;        
         private string statusText = null;
 
         int maxTestData;
         int maxTrainData;
-        
-        int[] allJointKeys = new[] { 4, 5, 6, 8, 9, 10, 20 };
-        List<int> jointKeysWithoutAngles = new List<int> { 6,  10, 20 }; //alle die nicht in jointNeighbours enthalten sind
+
+        //int[] allJointKeys = new[] { 4, 5, 6, 8, 9, 10, 20 };
+        //List<int> jointKeysWithoutAngles = new List<int> { 6, 10, 20 }; //alle die nicht in jointNeighbours enthalten sind
+        int[] allJointKeys = new[] { 5, 6, 9, 10 };
+        List<int> jointKeysWithoutAngles = new List<int> { 6, 10 }; //alle die nicht in jointNeighbours enthalten sind
         List<KeyValuePair<int, int[]>> jointNeighbours = new List<KeyValuePair<int, int[]>> {  
-            new KeyValuePair<int, int[]>(4, new int[] { 20, 5 }),
-            new KeyValuePair<int, int[]>(5, new int[] { 4, 6 }),
-            new KeyValuePair<int, int[]>(8, new int[] { 20, 9 }),
-            new KeyValuePair<int, int[]>(9, new int[] { 8, 10 })
+            //new KeyValuePair<int, int[]>(4, new int[] { 20, 5 }),
+            //new KeyValuePair<int, int[]>(5, new int[] { 4, 6 }),
+            //new KeyValuePair<int, int[]>(8, new int[] { 20, 9 }),
+            //new KeyValuePair<int, int[]>(9, new int[] { 8, 10 })
+            new KeyValuePair<int, int[]>(5, new int[] { 6 }),
+            new KeyValuePair<int, int[]>(9, new int[] { 10 })
         };
-        int numberOfJoints = 4; // => jointNeighbours.Count;
+        int numberOfJoints = 2; // => jointNeighbours.Count;
         
         int dataInputSize;
         int dataOutputSize;
-        
-
-        [DllImport("NetWrapperLib.dll")]
-        //public unsafe static extern int HandPosition3D(float* input, float* output);
-        //public unsafe static extern int AngleAdvanced2(float* input, float* output);
-        public unsafe static extern int SimpleGestures(float* input, float* output);
-
+    
 
         public MainWindow()
         {
@@ -105,12 +103,12 @@ using System.Linq;
             this.kinectSensor.Open();
     
             this.StatusText = this.kinectSensor.IsAvailable ? Properties.Resources.KinectReady : Properties.Resources.NoSensor;
-            this.gestureText = "";
+            this.GestureText = "";
 
             this.DataContext = this;
 
             dataOutputSize = Int32.Parse(Properties.Resources.OutputSize);
-            descriptionNumber = Convert.ToInt32(Properties.Resources.Precarriage); //Vorlauf 50 Frames
+            descriptionNumber = Convert.ToInt32(Properties.Resources.Precarriage); //Vorlauf Frames
             dataInputSize = numberOfJoints * 2;
             swData = new StreamWriter(@"c:/temp/trainData.pat", true);
             maxTrainData = Convert.ToInt32(Properties.Resources.MaxTrainData);
@@ -307,13 +305,13 @@ using System.Linq;
                     // Draw a transparent background to set the render size 
                     dc.DrawRectangle(Brushes.Black, null, new Rect(0.0, 0.0, this.colorFrameDescription.Width, this.colorFrameDescription.Height));
                     // prevent drawing outside of our render area
-                    this.bodyDrawingGroup.ClipGeometry = new RectangleGeometry(new Rect(0.0, 0.0, this.colorFrameDescription.Width, this.colorFrameDescription.Height));
+                    bodyDrawingGroup.ClipGeometry = new RectangleGeometry(new Rect(0.0, 0.0, this.colorFrameDescription.Width, this.colorFrameDescription.Height));
 
                     foreach (Body body in this.bodies)
                     {
                         if (body.IsTracked)
                         {
-                            var collectData = descriptionNumber <= (maxTrainData+maxTestData) && recordMode;// && body.HandLeftState.Equals(HandState.Open);
+                            var collectData = descriptionNumber <= (maxTrainData+maxTestData) && recordMode;
                             if (collectData)
                             {
                                 if (descriptionNumber < 1)
@@ -353,26 +351,23 @@ using System.Linq;
                             double[] allAngles = new double[numberOfJoints * 2];
                             int index = 0;
 
-                            //calculateOffset   // Sqrt((a - b)^2 + (a - c)^2)
-                            var deltaZ = joints[(JointType)4].Position.Z - joints[(JointType)8].Position.Z;
-                            var deltaX = joints[(JointType)4].Position.X - joints[(JointType)8].Position.X;
-                            var bodyOffset_z = Math.Atan(deltaZ / deltaX);
-
                             foreach (JointType jointType in allJointKeys)
                             {
+
                                 // sometimes depth(Z) of an inferred joint may show as negative -> clamp down to 0.1f to prevent coordinatemapper from returning (-Infinity, -Infinity)
                                 CameraSpacePoint position = joints[jointType].Position;
                                 if (position.Z < 0) position.Z = InferredZPositionClamp;
 
                                 double[] angles = new double[2];
                                 int thisJoint = (int)jointType;
-                                //Wenn der Joint nicht am Rand liegt, also der Winkel nicht berrechnet werden muss
+
+                                //Wenn der Joint nicht am Rand liegt, also der Winkel berechnet werden muss
                                 if (!jointKeysWithoutAngles.Contains(thisJoint))
                                 {
                                     //Wähle Nachbar des derzeitigen Joints 
                                     var neighbours = jointNeighbours.Single(i => i.Key == thisJoint).Value;
 
-                                    angles = calculateAngles(thisJoint, neighbours, joints, bodyOffset_z);
+                                    angles = calculateAngles(thisJoint, neighbours, joints);
                                     allAngles[index++] = angles[0];
                                     allAngles[index++] = angles[1];
 
@@ -397,8 +392,7 @@ using System.Linq;
                             int angleCounter = 0;
                             string text = "";
                             for (int i = 0; i < jointNeighbours.Count; i++)
-                                text += String.Format("{0:00}\t Y: {1:0.000}\t Z: {2:0.000}\n", jointNeighbours.ElementAt(i).Key, allAngles[angleCounter++], allAngles[angleCounter++]);
-                            text += String.Format("\n\nOffset Body Z-Axis:\t {0:000}", RadianToDegree(bodyOffset_z));
+                                text += String.Format("{0:00}\t Y: {1:0.00}\t Z: {2:0.00}\n", jointNeighbours.ElementAt(i).Key, allAngles[angleCounter++], allAngles[angleCounter++]);
                             this.txtAngles.Text = text;
 
                                    
@@ -425,54 +419,33 @@ using System.Linq;
 
         #region Helper
 
-        private double[] calculateAngles(int jointType, int[] neighbours, IReadOnlyDictionary<JointType, Joint> joints, double bodyOffset_z)
+        private double[] calculateAngles(int jointType, int[] neighbours, IReadOnlyDictionary<JointType, Joint> joints)
         {
             //Collect Coordinates for joint and its neighbours and convert to ColorSpace
-            var coords = new CameraSpacePoint[3] { joints[(JointType)jointType].Position, joints[(JointType)neighbours[0]].Position, joints[(JointType)neighbours[1]].Position };
-            
-            //Get SideLenghts of Triangle
-            var lengthA_y = Math.Abs(Math.Sqrt(Math.Pow(coords[1].X - coords[2].X,2) + Math.Pow(coords[1].Y - coords[2].Y,2))); // Sqrt((xb - xc)^2 + (yb - yc)^2)
-            var lengthB_y = Math.Abs(Math.Sqrt(Math.Pow(coords[1].X - coords[0].X,2) + Math.Pow(coords[1].Y - coords[0].Y,2))); // Sqrt((xb - xa)^2 + (yb - ya)^2)
-            var lengthC_y = Math.Abs(Math.Sqrt(Math.Pow(coords[0].X - coords[2].X,2) + Math.Pow(coords[0].Y - coords[2].Y,2))); // Sqrt((xa - xc)^2 + (ya - yc)^2)
-            var lengthA_z = Math.Abs(Math.Sqrt(Math.Pow(coords[1].X - coords[2].X,2) + Math.Pow(coords[1].Z - coords[2].Z,2))); // Sqrt((xb - xc)^2 + (zb - zc)^2)
-            var lengthB_z = Math.Abs(Math.Sqrt(Math.Pow(coords[1].X - coords[0].X,2) + Math.Pow(coords[1].Z - coords[0].Z,2))); // Sqrt((xb - xa)^2 + (zb - za)^2)
-            var lengthC_z = Math.Abs(Math.Sqrt(Math.Pow(coords[0].X - coords[2].X,2) + Math.Pow(coords[0].Z - coords[2].Z,2))); // Sqrt((xa - xc)^2 + (za - zc)^2)
+            var coords = new CameraSpacePoint[2] { joints[(JointType)jointType].Position, joints[(JointType)neighbours[0]].Position };
 
             //calculate Angle(Radian)
-            var val_y = (Math.Pow(lengthB_y, 2) + Math.Pow(lengthC_y, 2) - Math.Pow(lengthA_y, 2)) / (2 * lengthB_y * lengthC_y);
-            var val_z = (Math.Pow(lengthB_z, 2) + Math.Pow(lengthC_z, 2) - Math.Pow(lengthA_z, 2)) / (2 * lengthB_z * lengthC_z);
-            var angle_y = Math.Acos(val_y); //RadianToDegree(Math.Acos(val_y));
-            var angle_z = Math.Acos(val_z); //RadianToDegree(Math.Acos(val_z));
+            var ax = coords[1].X - coords[0].X;
+            var length_ay = Math.Abs(Math.Sqrt(Math.Pow(coords[1].X - coords[0].X, 2) + Math.Pow(coords[1].Y - coords[0].Y, 2)));
+            var length_az = Math.Abs(Math.Sqrt(Math.Pow(coords[1].X - coords[0].X, 2) + Math.Pow(coords[1].Z - coords[0].Z, 2)));
+            var angle_y = Math.Acos(ax / length_ay);
+            var angle_z = Math.Acos(ax / length_az);
 
-            
             //Wenn überstumpfer Winkel 
-            var yOver180degrees = coords[2].Y < coords[0].Y;
-            var zOver180degrees = coords[2].Z > coords[0].Z;            
+            var yOver180degrees = coords[1].Y < coords[0].Y;
+            var zOver180degrees = coords[1].Z > coords[0].Z;
 
             //Wenn überstumpfer winkel dann PI + (PI - WinkelRadian)
             angle_y = yOver180degrees ? Math.PI + (Math.PI - angle_y) : angle_y;
             angle_z = zOver180degrees ? Math.PI + (Math.PI - angle_z) : angle_z;
 
-            double max = 0, min = 0;
-            //auf den Raum [0;1] zu normalisieren
-            if (jointType == 8 || jointType == 4)
-            {
-                max = 1.2777*Math.PI; // 230 degrees (== 127,77% PI)
-                min = 0.2777*Math.PI; //  60 degrees (==  27,77% PI)
-            }
-            if (jointType == 5 || jointType == 9)
-            {
-                max = 1.1111*Math.PI; // 200 degrees
-                min = 0.0555*Math.PI; //  10 degrees
-            }
-            angle_y = angle_y / (2 * Math.PI);
-            angle_z = (angle_z - min) / (max - min);
+            //////auf den Raum [-PI;PI] zu normalisieren
+            ////angle_y = angle_y - Math.PI;
+            ////angle_z = angle_z - Math.PI;
 
-            //Um zu verhindern, dass Werte doch mal größer sind
-            if (angle_y > 1) angle_y = 1;
-            if (angle_y < 0) angle_y = 0;
-            if (angle_z > 1) angle_z = 1;
-            if (angle_z < 0) angle_z = 0;
+            ////auf den Raum [0;1] zu normalisieren
+            //angle_y = angle_y / (2 * Math.PI);
+            //angle_z = angle_z / (2 * Math.PI);
 
             return new double[2] { angle_y, angle_z}; 
         }
@@ -481,20 +454,25 @@ using System.Linq;
         {
             var highestPropability = 0;
             for (var i = 1; i< output.Length; i++)
-            {
-                highestPropability = output[i] >= output[i - 1] ? i : highestPropability;
-            }
-
+                highestPropability = output[i] > output[i - 1] ? i : highestPropability;
+         
             //MUSS mit dem Input für die Trainingsdaten übereinstimmen!!!!
             switch (highestPropability) 
-            { 
-                case 0: GestureText = Properties.Resources._None; break;
-                case 1: GestureText = Properties.Resources._NoIdea; break;
-                case 2: GestureText = Properties.Resources._Touchdown; break;
-                case 3: GestureText = Properties.Resources._Wink; break;
-                case 4: GestureText = Properties.Resources._ToLeft; break;
+            {
+                case 0: GestureText = "Unten"; break;
+                case 1: GestureText = "Vorne"; break;
+                case 2: GestureText = "Außen"; break;
+                case 3: GestureText = "Oben"; break;
             }
+
+            Array.Sort(output);
+            this.txtSuccessRate.Text = string.Format("Output Winner: {0:0.000} \nOutput Second: {1:0.000}\nOutput Third: {2:0.000}",
+                output[output.Length - 1], output[output.Length - 2], output[output.Length - 3]);
         }
+
+        [DllImport("NetWrapperLib.dll")]
+        //public unsafe static extern int position(float* input, float* output);
+        public unsafe static extern int v51(float* input, float* output);
 
         private unsafe float[] classifyGesture(double[] angles)
         {
@@ -509,7 +487,7 @@ using System.Linq;
             {
                 fixed (float* output = outputArray)
                 {
-                    res = SimpleGestures(input, output);
+                    res = v51(input, output);
                 }
             }
 

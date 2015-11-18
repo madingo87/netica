@@ -124,33 +124,18 @@
     <value>No Senosor available</value>
   </data>
   <data name="OutputSize" xml:space="preserve">
-    <value>5</value>
+    <value>4</value>
   </data>
   <data name="Result" xml:space="preserve">
-    <value>0 0 0 0 1  </value>
+    <value>0 0 0 1</value>
   </data>
   <data name="MaxTestData" xml:space="preserve">
-    <value>200</value>
+    <value>50</value>
   </data>
   <data name="MaxTrainData" xml:space="preserve">
-    <value>600</value>
+    <value>500</value>
   </data>
   <data name="Precarriage" xml:space="preserve">
     <value>-100</value>
-  </data>
-  <data name="_NoIdea" xml:space="preserve">
-    <value>Keine Ahnung</value>
-  </data>
-  <data name="_None" xml:space="preserve">
-    <value>Nichts</value>
-  </data>
-  <data name="_ToLeft" xml:space="preserve">
-    <value>Nach Links</value>
-  </data>
-  <data name="_Touchdown" xml:space="preserve">
-    <value>Touchdown</value>
-  </data>
-  <data name="_Wink" xml:space="preserve">
-    <value>Winken</value>
   </data>
 </root>

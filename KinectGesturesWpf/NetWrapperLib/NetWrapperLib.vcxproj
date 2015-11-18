@@ -139,17 +139,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AA2.c" />
-    <ClCompile Include="AngleAdvanced.c" />
-    <ClCompile Include="HandPosition3D.c" />
+    <ClCompile Include="..\..\..\..\..\..\..\..\JavaNNS-Win\Nets\v51\v51.c" />
     <ClCompile Include="MyWrapper.cpp" />
-    <ClCompile Include="SimpleGestures.c" />
+    <ClCompile Include="position.c" />
+    <ClCompile Include="v35.c" />
+    <ClCompile Include="v41.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AA2.h" />
-    <ClInclude Include="AngleAdvanced.h" />
-    <ClInclude Include="HandPosition3D.h" />
-    <ClInclude Include="SimpleGestures.h" />
+    <ClInclude Include="position.h" />
+    <ClInclude Include="v35.h" />
+    <ClInclude Include="v41.h" />
+    <ClInclude Include="v51.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

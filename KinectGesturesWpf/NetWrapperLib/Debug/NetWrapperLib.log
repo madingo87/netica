@@ -1,25 +1,43 @@
-﻿Der Buildvorgang wurde am 13.10.2015 11:34:55 gestartet.
-     1>Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\NetWrapperLib\NetWrapperLib.vcxproj" auf Knoten "2", Build Ziel(e).
+﻿Der Buildvorgang wurde am 18.11.2015 17:28:06 gestartet.
+     1>Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\NetWrapperLib\NetWrapperLib.vcxproj" auf Knoten "2", Rebuild Ziel(e).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D NETWRAPPERLIB_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TC /analyze- /errorReport:prompt SimpleGestures.c
-         SimpleGestures.c
-     1>c:\users\martin\documents\visual studio 2013\projects\netica\kinectgestureswpf\netwrapperlib\simplegestures.c(100): warning C4305: 'Initialisierung': Verkürzung von 'double' in 'float'
-     1>c:\users\martin\documents\visual studio 2013\projects\netica\kinectgestureswpf\netwrapperlib\simplegestures.c(272): warning C4305: 'Initialisierung': Verkürzung von 'double' in 'float'
-     1>c:\users\martin\documents\visual studio 2013\projects\netica\kinectgestureswpf\netwrapperlib\simplegestures.c(307): warning C4244: '=': Konvertierung von 'double' in 'float', möglicher Datenverlust
-     1>c:\users\martin\documents\visual studio 2013\projects\netica\kinectgestureswpf\netwrapperlib\simplegestures.c(317): warning C4244: '=': Konvertierung von 'double' in 'float', möglicher Datenverlust
-     1>c:\users\martin\documents\visual studio 2013\projects\netica\kinectgestureswpf\netwrapperlib\simplegestures.c(327): warning C4244: '=': Konvertierung von 'double' in 'float', möglicher Datenverlust
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D NETWRAPPERLIB_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TC /analyze- /errorReport:prompt "..\..\..\..\..\..\..\..\JavaNNS-Win\Nets\v51\v51.c" position.c v35.c v41.c
+         v41.c
+     1>c:\users\martin\documents\visual studio 2013\projects\netica\kinectgestureswpf\netwrapperlib\v41.c(110): warning C4305: 'Initialisierung': Verkürzung von 'double' in 'float'
+     1>c:\users\martin\documents\visual studio 2013\projects\netica\kinectgestureswpf\netwrapperlib\v41.c(277): warning C4305: 'Initialisierung': Verkürzung von 'double' in 'float'
+     1>c:\users\martin\documents\visual studio 2013\projects\netica\kinectgestureswpf\netwrapperlib\v41.c(312): warning C4244: '=': Konvertierung von 'double' in 'float', möglicher Datenverlust
+     1>c:\users\martin\documents\visual studio 2013\projects\netica\kinectgestureswpf\netwrapperlib\v41.c(322): warning C4244: '=': Konvertierung von 'double' in 'float', möglicher Datenverlust
+     1>c:\users\martin\documents\visual studio 2013\projects\netica\kinectgestureswpf\netwrapperlib\v41.c(332): warning C4244: '=': Konvertierung von 'double' in 'float', möglicher Datenverlust
+         v35.c
+     1>c:\users\martin\documents\visual studio 2013\projects\netica\kinectgestureswpf\netwrapperlib\v35.c(174): warning C4305: 'Initialisierung': Verkürzung von 'double' in 'float'
+     1>c:\users\martin\documents\visual studio 2013\projects\netica\kinectgestureswpf\netwrapperlib\v35.c(411): warning C4305: 'Initialisierung': Verkürzung von 'double' in 'float'
+     1>c:\users\martin\documents\visual studio 2013\projects\netica\kinectgestureswpf\netwrapperlib\v35.c(446): warning C4244: '=': Konvertierung von 'double' in 'float', möglicher Datenverlust
+     1>c:\users\martin\documents\visual studio 2013\projects\netica\kinectgestureswpf\netwrapperlib\v35.c(456): warning C4244: '=': Konvertierung von 'double' in 'float', möglicher Datenverlust
+     1>c:\users\martin\documents\visual studio 2013\projects\netica\kinectgestureswpf\netwrapperlib\v35.c(466): warning C4244: '=': Konvertierung von 'double' in 'float', möglicher Datenverlust
+         position.c
+     1>c:\users\martin\documents\visual studio 2013\projects\netica\kinectgestureswpf\netwrapperlib\position.c(66): warning C4305: 'Initialisierung': Verkürzung von 'double' in 'float'
+     1>c:\users\martin\documents\visual studio 2013\projects\netica\kinectgestureswpf\netwrapperlib\position.c(168): warning C4305: 'Initialisierung': Verkürzung von 'double' in 'float'
+     1>c:\users\martin\documents\visual studio 2013\projects\netica\kinectgestureswpf\netwrapperlib\position.c(203): warning C4244: '=': Konvertierung von 'double' in 'float', möglicher Datenverlust
+     1>c:\users\martin\documents\visual studio 2013\projects\netica\kinectgestureswpf\netwrapperlib\position.c(213): warning C4244: '=': Konvertierung von 'double' in 'float', möglicher Datenverlust
+     1>c:\users\martin\documents\visual studio 2013\projects\netica\kinectgestureswpf\netwrapperlib\position.c(223): warning C4244: '=': Konvertierung von 'double' in 'float', möglicher Datenverlust
+         v51.c
+     1>c:\javanns-win\nets\v51\v51.c(66): warning C4305: 'Initialisierung': Verkürzung von 'double' in 'float'
+     1>c:\javanns-win\nets\v51\v51.c(193): warning C4305: 'Initialisierung': Verkürzung von 'double' in 'float'
+     1>c:\javanns-win\nets\v51\v51.c(238): warning C4244: '=': Konvertierung von 'double' in 'float', möglicher Datenverlust
+     1>c:\javanns-win\nets\v51\v51.c(248): warning C4244: '=': Konvertierung von 'double' in 'float', möglicher Datenverlust
+         Code wird generiert...
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D NETWRAPPERLIB_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt MyWrapper.cpp
          MyWrapper.cpp
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\Debug\NetWrapperLib.dll" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\Debug\NetWrapperLib.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\Debug\NetWrapperLib.lib" /MACHINE:X86 /DLL Debug\AA2.obj
-         Debug\AngleAdvanced.obj
-         Debug\HandPosition3D.obj
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\Debug\NetWrapperLib.dll" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\Debug\NetWrapperLib.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\Debug\NetWrapperLib.lib" /MACHINE:X86 /DLL Debug\v51.obj
          Debug\MyWrapper.obj
-         Debug\SimpleGestures.obj
+         Debug\position.obj
+         Debug\v35.obj
+         Debug\v41.obj
             Bibliothek "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\Debug\NetWrapperLib.lib" und Objekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\Debug\NetWrapperLib.exp" werden erstellt.
          NetWrapperLib.vcxproj -> C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\Debug\NetWrapperLib.dll
-     1>Die Erstellung des Projekts "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\NetWrapperLib\NetWrapperLib.vcxproj" ist abgeschlossen, Build Ziel(e).
+     1>Die Erstellung des Projekts "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\NetWrapperLib\NetWrapperLib.vcxproj" ist abgeschlossen, Rebuild Ziel(e).
 
 Build erfolgreich.
 
-Verstrichene Zeit 00:00:01.79
+Verstrichene Zeit 00:00:00.85
