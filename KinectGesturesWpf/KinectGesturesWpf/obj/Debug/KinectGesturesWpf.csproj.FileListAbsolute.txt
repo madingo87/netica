@@ -27,4 +27,3 @@ C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\K
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\KinectGesturesWpf\obj\Debug\KinectGesturesWpf.g.resources
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\KinectGesturesWpf\obj\Debug\KinectGesturesWpf.Properties.Resources.resources
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\KinectGesturesWpf\obj\Debug\KinectGesturesWpf.csproj.GenerateResource.Cache
-C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\KinectGesturesWpf\obj\Debug\KinectGesturesWpf.csprojResolveAssemblyReference.cache

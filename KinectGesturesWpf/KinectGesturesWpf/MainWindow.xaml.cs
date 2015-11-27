@@ -56,23 +56,18 @@ using System.Linq;
         int maxTestData;
         int maxTrainData;
 
-        //int[] allJointKeys = new[] { 4, 5, 6, 8, 9, 10, 20 };
-        //List<int> jointKeysWithoutAngles = new List<int> { 6, 10, 20 }; //alle die nicht in jointNeighbours enthalten sind
-        int[] allJointKeys = new[] { 5, 6, 9, 10 };
-        List<int> jointKeysWithoutAngles = new List<int> { 6, 10 }; //alle die nicht in jointNeighbours enthalten sind
-        List<KeyValuePair<int, int[]>> jointNeighbours = new List<KeyValuePair<int, int[]>> {  
-            //new KeyValuePair<int, int[]>(4, new int[] { 20, 5 }),
-            //new KeyValuePair<int, int[]>(5, new int[] { 4, 6 }),
-            //new KeyValuePair<int, int[]>(8, new int[] { 20, 9 }),
-            //new KeyValuePair<int, int[]>(9, new int[] { 8, 10 })
-            new KeyValuePair<int, int[]>(5, new int[] { 6 }),
-            new KeyValuePair<int, int[]>(9, new int[] { 10 })
+        int[] jointsToDraw = new[] { 4, 5, 6, 8, 9, 10 };
+        int[] allJointKeys = new[] { 4, 5, 8, 9 };
+        List<int[]> jointNeighbours = new List<int[]>{
+            new int[]{4,5},
+            new int[]{5,6},
+            new int[]{8,9},
+            new int[]{9,10}
         };
-        int numberOfJoints = 2; // => jointNeighbours.Count;
-        
+        int inputDataPerJoint = 2;
+
         int dataInputSize;
-        int dataOutputSize;
-    
+        int dataOutputSize;    
 
         public MainWindow()
         {
@@ -109,11 +104,10 @@ using System.Linq;
 
             dataOutputSize = Int32.Parse(Properties.Resources.OutputSize);
             descriptionNumber = Convert.ToInt32(Properties.Resources.Precarriage); //Vorlauf Frames
-            dataInputSize = numberOfJoints * 2;
+            dataInputSize = jointNeighbours.Count * inputDataPerJoint;
             swData = new StreamWriter(@"c:/temp/trainData.pat", true);
             maxTrainData = Convert.ToInt32(Properties.Resources.MaxTrainData);
             maxTestData = Convert.ToInt32(Properties.Resources.MaxTestData); 
-            //############################################
 
             this.InitializeComponent();
         }
@@ -271,14 +265,9 @@ using System.Linq;
             }
         }
 
-        //bool takeFrame = true;
         private const float InferredZPositionClamp = 0.1f;
         private void bodyFrameReader_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
         {
-            //take only every second picture
-            //takeFrame = !takeFrame;
-            //if (!takeFrame) return; 
-
             bool dataReceived = false;
 
             using (BodyFrame bodyFrame = e.FrameReference.AcquireFrame())
@@ -346,9 +335,7 @@ using System.Linq;
                             }      
 
                             IReadOnlyDictionary<JointType, Joint> joints = body.Joints;
-                            //Dictionary<JointType, Point3D> jointPoints = new Dictionary<JointType, Point3D>();
-
-                            double[] allAngles = new double[numberOfJoints * 2];
+                            double[] allAngles = new double[dataInputSize];
                             int index = 0;
 
                             foreach (JointType jointType in allJointKeys)
@@ -358,26 +345,20 @@ using System.Linq;
                                 CameraSpacePoint position = joints[jointType].Position;
                                 if (position.Z < 0) position.Z = InferredZPositionClamp;
 
-                                double[] angles = new double[2];
+                                //Wähle Nachbar des derzeitigen Joints 
                                 int thisJoint = (int)jointType;
+                                var neighbour = jointNeighbours.Single(i => i[0] == thisJoint)[1];
 
-                                //Wenn der Joint nicht am Rand liegt, also der Winkel berechnet werden muss
-                                if (!jointKeysWithoutAngles.Contains(thisJoint))
+                                var angles = calculateAngles(thisJoint, neighbour, joints);
+                                allAngles[index++] = angles[0];
+                                allAngles[index++] = angles[1];
+
+                                //Collect Angles
+                                if (collectData && descriptionNumber > 1)
                                 {
-                                    //Wähle Nachbar des derzeitigen Joints 
-                                    var neighbours = jointNeighbours.Single(i => i.Key == thisJoint).Value;
-
-                                    angles = calculateAngles(thisJoint, neighbours, joints);
-                                    allAngles[index++] = angles[0];
-                                    allAngles[index++] = angles[1];
-
-                                    //Collect Angles
-                                    if (collectData && descriptionNumber > 1)
-                                    {
-                                        swData.WriteLine(string.Format("{0} {1}", angles[0], angles[1]));
-                                        swData.Flush();                                                                          
-                                    }
-                                }                                                                                   
+                                    swData.WriteLine(string.Format("{0} {1}", angles[0].ToString().Replace(',', '.'), angles[1].ToString().Replace(',', '.')));
+                                    swData.Flush();                                                                          
+                                }                                                                                                                   
                             }
 
                             if (collectData && descriptionNumber > 1)
@@ -392,13 +373,26 @@ using System.Linq;
                             int angleCounter = 0;
                             string text = "";
                             for (int i = 0; i < jointNeighbours.Count; i++)
-                                text += String.Format("{0:00}\t Y: {1:0.00}\t Z: {2:0.00}\n", jointNeighbours.ElementAt(i).Key, allAngles[angleCounter++], allAngles[angleCounter++]);
-                            this.txtAngles.Text = text;
+                            {
+                                string obj="";
+                                switch (jointNeighbours[i][0])
+                                {
+                                    case 4: obj = "Oberarm Links"; break;
+                                    case 5: obj = "Unterarm Links"; break;
+                                    case 8: obj = "Oberarm Rechts"; break;
+                                    case 9: obj = "Unterarm Links"; break;
 
-                                   
+                                }
+                                text += String.Format("{0}\tY: {1:0.00}\tZ: {2:0.00}\n",
+                                    obj,
+                                    allAngles[angleCounter++],
+                                    allAngles[angleCounter++]);
+                            }
+                            this.txtAngles.Text = text;
+                                  
                             //DRAW
                             dc.DrawImage(colorBitmap, new Rect(0.0, 0.0, this.colorFrameDescription.Width, this.colorFrameDescription.Height));
-                            this.DrawJoints(joints, dc, new Pen(Brushes.Red, 4));
+                            this.DrawJoints(joints, dc, new Pen(Brushes.Red, 20));
                             //this.DrawHand(body.HandLeftState, joints, JointType.HandLeft, dc);
                             //this.DrawHand(body.HandRightState, joints,JointType.HandRight, dc);
 
@@ -419,10 +413,10 @@ using System.Linq;
 
         #region Helper
 
-        private double[] calculateAngles(int jointType, int[] neighbours, IReadOnlyDictionary<JointType, Joint> joints)
+        private double[] calculateAngles(int jointType, int neighbour, IReadOnlyDictionary<JointType, Joint> joints)
         {
             //Collect Coordinates for joint and its neighbours and convert to ColorSpace
-            var coords = new CameraSpacePoint[2] { joints[(JointType)jointType].Position, joints[(JointType)neighbours[0]].Position };
+            var coords = new CameraSpacePoint[2] { joints[(JointType)jointType].Position, joints[(JointType)neighbour].Position };
 
             //calculate Angle(Radian)
             var ax = coords[1].X - coords[0].X;
@@ -431,23 +425,14 @@ using System.Linq;
             var angle_y = Math.Acos(ax / length_ay);
             var angle_z = Math.Acos(ax / length_az);
 
+            //rechten arm: winkel umdrehen
+            //if (jointType == 9) angle_y = -(angle_y - Math.PI);
+
             //Wenn überstumpfer Winkel 
-            var yOver180degrees = coords[1].Y < coords[0].Y;
-            var zOver180degrees = coords[1].Z > coords[0].Z;
+            //var yOver180degrees = coords[1].Y < coords[0].Y ? -1 : 1;
+            //var zOver180degrees = coords[1].Z > coords[0].Z ? -1 : 1;
 
-            //Wenn überstumpfer winkel dann PI + (PI - WinkelRadian)
-            angle_y = yOver180degrees ? Math.PI + (Math.PI - angle_y) : angle_y;
-            angle_z = zOver180degrees ? Math.PI + (Math.PI - angle_z) : angle_z;
-
-            //////auf den Raum [-PI;PI] zu normalisieren
-            ////angle_y = angle_y - Math.PI;
-            ////angle_z = angle_z - Math.PI;
-
-            ////auf den Raum [0;1] zu normalisieren
-            //angle_y = angle_y / (2 * Math.PI);
-            //angle_z = angle_z / (2 * Math.PI);
-
-            return new double[2] { angle_y, angle_z}; 
+            return new double[2] { angle_y, angle_z }; 
         }
 
         private void updateStatusText(float[] output)
@@ -459,20 +444,22 @@ using System.Linq;
             //MUSS mit dem Input für die Trainingsdaten übereinstimmen!!!!
             switch (highestPropability) 
             {
-                case 0: GestureText = "Unten"; break;
-                case 1: GestureText = "Vorne"; break;
-                case 2: GestureText = "Außen"; break;
-                case 3: GestureText = "Oben"; break;
+                case 0: GestureText = "Ich"; break;
+                case 1: GestureText = "Du"; break;
+                case 2: GestureText = "Er"; break;
+                case 3: GestureText = "Was"; break;
+                case 4: GestureText = "Müsli"; break;
+                case 5: GestureText = "Party"; break;
             }
 
             Array.Sort(output);
             this.txtSuccessRate.Text = string.Format("Output Winner: {0:0.000} \nOutput Second: {1:0.000}\nOutput Third: {2:0.000}",
-                output[output.Length - 1], output[output.Length - 2], output[output.Length - 3]);
+                                                       output[output.Length - 1], output[output.Length - 2], output[output.Length - 3]);
         }
 
         [DllImport("NetWrapperLib.dll")]
         //public unsafe static extern int position(float* input, float* output);
-        public unsafe static extern int v51(float* input, float* output);
+        public unsafe static extern int classify(float* input, float* output);
 
         private unsafe float[] classifyGesture(double[] angles)
         {
@@ -487,7 +474,7 @@ using System.Linq;
             {
                 fixed (float* output = outputArray)
                 {
-                    res = v51(input, output);
+                    res = classify(input, output);
                 }
             }
 
@@ -496,60 +483,63 @@ using System.Linq;
 
         private Brush trackedJointBrush = new SolidColorBrush(Color.FromArgb(255, 192, 64, 64));
         private Brush inferredJointBrush = new SolidColorBrush(Color.FromArgb(255, 64, 64, 192));
-        private readonly double circleSize = 30;
-
+        private readonly double circleSize = 20;
         private void DrawJoints(IReadOnlyDictionary<JointType, Joint> joints, DrawingContext drawingContext, Pen drawingPen)
         {
             // Draw the joints
-            foreach (JointType jointType in allJointKeys)
+            foreach (JointType jointType in jointsToDraw)
             {
                 CameraSpacePoint position = joints[jointType].Position;
                 ColorSpacePoint colorSpacePoint = this.coordinateMapper.MapCameraPointToColorSpace(position);
-
                 Point jointPoint = new Point(colorSpacePoint.X, colorSpacePoint.Y);
-
                 Brush drawBrush = null;
 
                 TrackingState trackingState = joints[jointType].TrackingState;
 
-                if (trackingState == TrackingState.Tracked)
-                {
-                    drawBrush = this.trackedJointBrush;
-                }
+                if (trackingState == TrackingState.Tracked) 
+                    drawBrush = this.trackedJointBrush;                
                 else // trackingState == TrackingState.Inferred)
-                {
-                    drawBrush = this.inferredJointBrush;
-                }
+                    drawBrush = this.inferredJointBrush;               
 
                 if (drawBrush != null)
                 {
                     //Z in meter | Opacity 0-1 --> bereich 0.7m - 1.7m interessant
-                    drawBrush.Opacity = 0.5f;
-                    drawingContext.DrawEllipse(drawBrush, null, jointPoint, circleSize, circleSize);
+                    drawBrush.Opacity = 0f;
+                    drawingContext.DrawEllipse(drawBrush, null, jointPoint, circleSize, circleSize);                    
                 }
             }
-        }
 
-        private const double HandSize = 50;
-        private readonly Brush handClosedBrush = new SolidColorBrush(Color.FromArgb(128, 255, 0, 0));
-        private readonly Brush handOpenBrush = new SolidColorBrush(Color.FromArgb(128, 0, 255, 0));
-
-        private void DrawHand(HandState handState, IReadOnlyDictionary<JointType, Joint> joints, JointType jointType, DrawingContext drawingContext)
-        {
-            CameraSpacePoint position = joints[jointType].Position;
-            ColorSpacePoint depthSpacePoint = this.coordinateMapper.MapCameraPointToColorSpace(position);
-
-            switch (handState)
+            foreach (int thisJoint in allJointKeys)
             {
-                case HandState.Closed:
-                    drawingContext.DrawEllipse(this.handClosedBrush, null, new Point(depthSpacePoint.X, depthSpacePoint.Y), HandSize, HandSize);
-                    break;
+                var neighbour = jointNeighbours.Single(i => i[0] == thisJoint)[1];
 
-                case HandState.Open:
-                    drawingContext.DrawEllipse(this.handOpenBrush, null, new Point(depthSpacePoint.X, depthSpacePoint.Y), HandSize, HandSize);
-                    break;
+                ColorSpacePoint cSPoint0 = this.coordinateMapper.MapCameraPointToColorSpace(joints[(JointType)thisJoint].Position);
+                ColorSpacePoint cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(joints[(JointType)neighbour].Position);
+                Point jointPoint0 = new Point(cSPoint0.X, cSPoint0.Y);
+                Point jointPoint1 = new Point(cSPoint1.X, cSPoint1.Y);
+                drawingContext.DrawLine(drawingPen, jointPoint0, jointPoint1);
             }
         }
+
+        //private const double HandSize = 50;
+        //private readonly Brush handClosedBrush = new SolidColorBrush(Color.FromArgb(128, 255, 0, 0));
+        //private readonly Brush handOpenBrush = new SolidColorBrush(Color.FromArgb(128, 0, 255, 0));
+        //private void DrawHand(HandState handState, IReadOnlyDictionary<JointType, Joint> joints, JointType jointType, DrawingContext drawingContext)
+        //{
+        //    CameraSpacePoint position = joints[jointType].Position;
+        //    ColorSpacePoint depthSpacePoint = this.coordinateMapper.MapCameraPointToColorSpace(position);
+
+        //    switch (handState)
+        //    {
+        //        case HandState.Closed:
+        //            drawingContext.DrawEllipse(this.handClosedBrush, null, new Point(depthSpacePoint.X, depthSpacePoint.Y), HandSize, HandSize);
+        //            break;
+
+        //        case HandState.Open:
+        //            drawingContext.DrawEllipse(this.handOpenBrush, null, new Point(depthSpacePoint.X, depthSpacePoint.Y), HandSize, HandSize);
+        //            break;
+        //    }
+        //}
 
         private double RadianToDegree(double angle)
         {

@@ -21,13 +21,19 @@
     <ClCompile Include="position.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="v35.c">
+    <ClCompile Include="v71.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="v41.c">
+    <ClCompile Include="v72.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\..\..\JavaNNS-Win\Nets\v51\v51.c">
+    <ClCompile Include="v73.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="v74.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="v75.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
@@ -35,13 +41,19 @@
     <ClInclude Include="position.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="v35.h">
+    <ClInclude Include="v71.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="v41.h">
+    <ClInclude Include="v72.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="v51.h">
+    <ClInclude Include="v73.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="v74.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="v75.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
