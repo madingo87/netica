@@ -141,19 +141,13 @@
   <ItemGroup>
     <ClCompile Include="MyWrapper.cpp" />
     <ClCompile Include="position.c" />
-    <ClCompile Include="v71.c" />
-    <ClCompile Include="v72.c" />
-    <ClCompile Include="v73.c" />
-    <ClCompile Include="v74.c" />
-    <ClCompile Include="v75.c" />
+    <ClCompile Include="v1.c" />
+    <ClCompile Include="v2.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="position.h" />
-    <ClInclude Include="v71.h" />
-    <ClInclude Include="v72.h" />
-    <ClInclude Include="v73.h" />
-    <ClInclude Include="v74.h" />
-    <ClInclude Include="v75.h" />
+    <ClInclude Include="v1.h" />
+    <ClInclude Include="v2.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

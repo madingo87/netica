@@ -130,10 +130,10 @@
     <value>0 0 0 0 0 1</value>
   </data>
   <data name="MaxTestData" xml:space="preserve">
-    <value>100</value>
+    <value>50</value>
   </data>
   <data name="MaxTrainData" xml:space="preserve">
-    <value>700</value>
+    <value>200</value>
   </data>
   <data name="Precarriage" xml:space="preserve">
     <value>-100</value>

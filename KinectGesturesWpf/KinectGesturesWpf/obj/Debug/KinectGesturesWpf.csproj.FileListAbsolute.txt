@@ -14,8 +14,6 @@ C:\Users\Martin\documents\visual studio 2013\Projects\KinectGesturesWpf\KinectGe
 C:\Users\Martin\documents\visual studio 2013\Projects\KinectGesturesWpf\KinectGesturesWpf\obj\Debug\KinectGesturesWpf.pdb
 C:\Users\Martin\documents\visual studio 2013\Projects\KinectGesturesWpf\KinectGesturesWpf\obj\Debug\KinectGesturesWpf.csprojResolveAssemblyReference.cache
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\KinectGesturesWpf\bin\Debug\KinectGesturesWpf.exe.config
-C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\KinectGesturesWpf\obj\Debug\KinectGesturesWpf.exe
-C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\KinectGesturesWpf\obj\Debug\KinectGesturesWpf.pdb
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\KinectGesturesWpf\bin\Debug\KinectGesturesWpf.exe
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\KinectGesturesWpf\bin\Debug\KinectGesturesWpf.pdb
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\KinectGesturesWpf\bin\Debug\Microsoft.Kinect.dll
@@ -27,3 +25,6 @@ C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\K
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\KinectGesturesWpf\obj\Debug\KinectGesturesWpf.g.resources
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\KinectGesturesWpf\obj\Debug\KinectGesturesWpf.Properties.Resources.resources
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\KinectGesturesWpf\obj\Debug\KinectGesturesWpf.csproj.GenerateResource.Cache
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\KinectGesturesWpf\obj\Debug\KinectGesturesWpf.exe
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\KinectGesturesWpf\obj\Debug\KinectGesturesWpf.pdb
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\KinectGesturesWpf\obj\Debug\KinectGesturesWpf.csprojResolveAssemblyReference.cache

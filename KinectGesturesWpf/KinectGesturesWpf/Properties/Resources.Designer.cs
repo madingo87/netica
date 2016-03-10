@@ -70,7 +70,7 @@ namespace KinectGesturesWpf.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die 100 ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die 50 ähnelt.
         /// </summary>
         internal static string MaxTestData {
             get {
@@ -79,7 +79,7 @@ namespace KinectGesturesWpf.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die 700 ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die 200 ähnelt.
         /// </summary>
         internal static string MaxTrainData {
             get {

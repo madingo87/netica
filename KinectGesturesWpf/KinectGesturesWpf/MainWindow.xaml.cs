@@ -12,7 +12,7 @@
     using Microsoft.Kinect;
     using System.Collections.Generic;
     using System.Windows.Media.Media3D;
-using System.Linq;
+    using System.Linq;
 
     /// <summary>
     /// Interaction logic for the MainWindow
@@ -47,7 +47,7 @@ using System.Linq;
         StreamWriter swData;
         int descriptionNumber;
 
-        //sets the falg for recording new JointPosition Data
+        //sets the flag for recording new JointPosition Data
         bool recordMode = false;
         bool classifyEnabled = false;
         private string gestureText;        
@@ -58,14 +58,7 @@ using System.Linq;
 
         int[] jointsToDraw = new[] { 4, 5, 6, 8, 9, 10 };
         int[] allJointKeys = new[] { 4, 5, 8, 9 };
-        List<int[]> jointNeighbours = new List<int[]>{
-            new int[]{4,5},
-            new int[]{5,6},
-            new int[]{8,9},
-            new int[]{9,10}
-        };
-        int inputDataPerJoint = 2;
-
+    
         int dataInputSize;
         int dataOutputSize;    
 
@@ -104,7 +97,7 @@ using System.Linq;
 
             dataOutputSize = Int32.Parse(Properties.Resources.OutputSize);
             descriptionNumber = Convert.ToInt32(Properties.Resources.Precarriage); //Vorlauf Frames
-            dataInputSize = jointNeighbours.Count * inputDataPerJoint;
+            //dataInputSize = jointNeighbours.Count * inputDataPerJoint; 
             swData = new StreamWriter(@"c:/temp/trainData.pat", true);
             maxTrainData = Convert.ToInt32(Properties.Resources.MaxTrainData);
             maxTestData = Convert.ToInt32(Properties.Resources.MaxTestData); 
@@ -300,107 +293,26 @@ using System.Linq;
                     {
                         if (body.IsTracked)
                         {
+                            //Calculate All Data (angles and distances)
+                            var allData = calculateData(body.Joints, body.JointOrientations);
+
                             var collectData = descriptionNumber <= (maxTrainData+maxTestData) && recordMode;
                             if (collectData)
-                            {
-                                if (descriptionNumber < 1)
-                                {
-                                    StatusText = "Starting to Collect!";
-                                    descriptionNumber++;
-                                }
-                                else
-                                {
-                                    if (descriptionNumber == 1)
-                                    {
-                                        StatusText = "Collecting Traindata...";
-                                        swData.WriteLine("#========================================================================");
-                                        swData.WriteLine("#########################################################################");
-                                        swData.WriteLine("#=============================== NEXT ===================================");
-                                    }
-                                    if (descriptionNumber == (maxTrainData + 1))
-                                    {
-                                        swData.Flush();
-                                        swData.Close();
-                                        swData = new StreamWriter(@"c:/temp/testData.pat", true);
-                                        StatusText = "Collecting Testdata...";
-                                        swData.WriteLine("#========================================================================");
-                                        swData.WriteLine("#########################################################################");
-                                        swData.WriteLine("#=============================== NEXT ===================================");
-                                    }
-                                    if (descriptionNumber == (maxTrainData + maxTestData)) StatusText = "Collecting Done";
-
-                                    swData.WriteLine("#image description number " + descriptionNumber++);
-                                    swData.Flush();
-                                }
-                            }      
-
-                            IReadOnlyDictionary<JointType, Joint> joints = body.Joints;
-                            double[] allAngles = new double[dataInputSize];
-                            int index = 0;
-
-                            foreach (JointType jointType in allJointKeys)
-                            {
-
-                                // sometimes depth(Z) of an inferred joint may show as negative -> clamp down to 0.1f to prevent coordinatemapper from returning (-Infinity, -Infinity)
-                                CameraSpacePoint position = joints[jointType].Position;
-                                if (position.Z < 0) position.Z = InferredZPositionClamp;
-
-                                //Wähle Nachbar des derzeitigen Joints 
-                                int thisJoint = (int)jointType;
-                                var neighbour = jointNeighbours.Single(i => i[0] == thisJoint)[1];
-
-                                var angles = calculateAngles(thisJoint, neighbour, joints);
-                                allAngles[index++] = angles[0];
-                                allAngles[index++] = angles[1];
-
-                                //Collect Angles
-                                if (collectData && descriptionNumber > 1)
-                                {
-                                    swData.WriteLine(string.Format("{0} {1}", angles[0].ToString().Replace(',', '.'), angles[1].ToString().Replace(',', '.')));
-                                    swData.Flush();                                                                          
-                                }                                                                                                                   
-                            }
-
-                            if (collectData && descriptionNumber > 1)
-                            {
-                                swData.WriteLine("#result ");
-                                swData.WriteLine(Properties.Resources.Result);
-                                swData.WriteLine();
-                                swData.Flush();
-                            }
-
-                            //WRITE STATUS
-                            int angleCounter = 0;
-                            string text = "";
-                            for (int i = 0; i < jointNeighbours.Count; i++)
-                            {
-                                string obj="";
-                                switch (jointNeighbours[i][0])
-                                {
-                                    case 4: obj = "Oberarm Links"; break;
-                                    case 5: obj = "Unterarm Links"; break;
-                                    case 8: obj = "Oberarm Rechts"; break;
-                                    case 9: obj = "Unterarm Links"; break;
-
-                                }
-                                text += String.Format("{0}\tY: {1:0.00}\tZ: {2:0.00}\n",
-                                    obj,
-                                    allAngles[angleCounter++],
-                                    allAngles[angleCounter++]);
-                            }
-                            this.txtAngles.Text = text;
+                                writeTrainingData(allData);
+                            
+                            writeData2Gui(allData);
                                   
                             //DRAW
                             dc.DrawImage(colorBitmap, new Rect(0.0, 0.0, this.colorFrameDescription.Width, this.colorFrameDescription.Height));
-                            this.DrawJoints(joints, dc, new Pen(Brushes.Red, 20));
+                            drawJoints(body.Joints, dc);
                             //this.DrawHand(body.HandLeftState, joints, JointType.HandLeft, dc);
                             //this.DrawHand(body.HandRightState, joints,JointType.HandRight, dc);
 
                             //CLASSIFY
                             if (classifyEnabled)
                             {
-                                var output = classifyGesture(allAngles);
-                                updateStatusText(output);                       
+                                var output = classifyGesture(allData);
+                                updateGestureText(output);                       
                             }
                         }
                     }
@@ -412,44 +324,77 @@ using System.Linq;
         #endregion
 
         #region Helper
-
-        private double[] calculateAngles(int jointType, int neighbour, IReadOnlyDictionary<JointType, Joint> joints)
+        private double[] calculateData(IReadOnlyDictionary<JointType, Joint> joints, IReadOnlyDictionary<JointType, JointOrientation> orientations)
         {
-            //Collect Coordinates for joint and its neighbours and convert to ColorSpace
-            var coords = new CameraSpacePoint[2] { joints[(JointType)jointType].Position, joints[(JointType)neighbour].Position };
+            List<double> allData = new List<double>();
+            //int index = 0;
 
-            //calculate Angle(Radian)
-            var ax = coords[1].X - coords[0].X;
-            var length_ay = Math.Abs(Math.Sqrt(Math.Pow(coords[1].X - coords[0].X, 2) + Math.Pow(coords[1].Y - coords[0].Y, 2)));
-            var length_az = Math.Abs(Math.Sqrt(Math.Pow(coords[1].X - coords[0].X, 2) + Math.Pow(coords[1].Z - coords[0].Z, 2)));
-            var angle_y = Math.Acos(ax / length_ay);
-            var angle_z = Math.Acos(ax / length_az);
+            foreach (JointType jointType in allJointKeys)        
+            {
+                // sometimes depth(Z) of an inferred joint may show as negative -> clamp down to 0.1f to prevent coordinatemapper from returning (-Infinity, -Infinity)
+                CameraSpacePoint position = joints[jointType].Position;
+                if (position.Z < 0) position.Z = InferredZPositionClamp;
 
-            //rechten arm: winkel umdrehen
-            //if (jointType == 9) angle_y = -(angle_y - Math.PI);
 
-            //Wenn überstumpfer Winkel 
-            //var yOver180degrees = coords[1].Y < coords[0].Y ? -1 : 1;
-            //var zOver180degrees = coords[1].Z > coords[0].Z ? -1 : 1;
+                //http://www.iti.fh-flensburg.de/lang/algorithmen/grundlagen/quat.htm
+                allData.Add(orientations[jointType].Orientation.X);
+                allData.Add(orientations[jointType].Orientation.Y);
+                allData.Add(orientations[jointType].Orientation.Z);           
+            }
 
-            return new double[2] { angle_y, angle_z }; 
+            allData.Add(calculateDistances(joints, (int)JointType.Head, (int)JointType.HandLeft));
+            allData.Add(calculateDistances(joints, (int)JointType.Head, (int)JointType.HandRight));
+            allData.Add(calculateDistances(joints, (int)JointType.HandRight, (int)JointType.HandLeft));
+
+            dataInputSize = allData.Count;
+         
+            return allData.ToArray<double>();
         }
 
-        private void updateStatusText(float[] output)
+        private double calculateDistances(IReadOnlyDictionary<JointType, Joint> joints, int joint1, int joint2) 
+        {
+            var coords = new CameraSpacePoint[2] { joints[(JointType)joint1].Position, joints[(JointType)joint2].Position };
+            double vec = Math.Sqrt(Math.Pow(coords[0].X - coords[1].X, 2) + Math.Pow(coords[0].Y - coords[1].Y,2) + Math.Pow(coords[0].Z - coords[1].Z,2));
+            return Math.Abs(vec);
+        }
+
+        private void writeData2Gui(double[] allData) 
+        {
+            int counter = 0;
+            string text = "\nOrientierung";
+            for (int i = 0; i < allJointKeys.Length; i++)
+            {
+                string obj = "";
+                switch (allJointKeys[i])
+                {
+                    case 4: obj = "Oberarm Links"; break;
+                    case 5: obj = "Unteram Links"; break;
+                    case 8: obj = "Oberarm Rechts"; break;
+                    case 9: obj = "Unteram Rechts"; break;
+                }
+
+                text += String.Format("\n\t{0} XY: {1:0.00} YZ: {2:0.00} XZ: {3:0.00}",
+                    obj, allData[counter++], allData[counter++], allData[counter++]);
+
+            }
+            text += String.Format("\n\nAbstände\n\tHand Links: {0:0.00} \n\tHand Rechts: {1:0.00} \n\tBeide Hände {2:0.00}", allData[counter++], allData[counter++], allData[counter++]);
+            this.txtAngles.Text = text;
+        }
+
+        private void updateGestureText(float[] output)
         {
             var highestPropability = 0;
             for (var i = 1; i< output.Length; i++)
                 highestPropability = output[i] > output[i - 1] ? i : highestPropability;
          
-            //MUSS mit dem Input für die Trainingsdaten übereinstimmen!!!!
             switch (highestPropability) 
             {
                 case 0: GestureText = "Ich"; break;
                 case 1: GestureText = "Du"; break;
                 case 2: GestureText = "Er"; break;
                 case 3: GestureText = "Was"; break;
-                case 4: GestureText = "Müsli"; break;
-                case 5: GestureText = "Party"; break;
+                case 4: GestureText = "Party"; break;
+                case 5: GestureText = "Müsli"; break;
             }
 
             Array.Sort(output);
@@ -460,7 +405,6 @@ using System.Linq;
         [DllImport("NetWrapperLib.dll")]
         //public unsafe static extern int position(float* input, float* output);
         public unsafe static extern int classify(float* input, float* output);
-
         private unsafe float[] classifyGesture(double[] angles)
         {
             float[] inputArray = new float[dataInputSize];
@@ -481,10 +425,58 @@ using System.Linq;
             return outputArray;
         }
 
+        private void writeTrainingData(double[] allData)
+        {
+            if (descriptionNumber < 1)
+            {
+                StatusText = "Starting to Collect!";
+                descriptionNumber++;
+            }
+            else
+            {
+                if (descriptionNumber == 1)
+                {
+                    StatusText = "Collecting Traindata...";
+                    swData.WriteLine("#========================================================================");
+                    swData.WriteLine("#########################################################################");
+                    swData.WriteLine("#=============================== NEXT ===================================");
+                }
+                if (descriptionNumber == (maxTrainData + 1))
+                {
+                    swData.Flush();
+                    swData.Close();
+                    swData = new StreamWriter(@"c:/temp/testData.pat", true);
+                    StatusText = "Collecting Testdata...";
+                    swData.WriteLine("#========================================================================");
+                    swData.WriteLine("#########################################################################");
+                    swData.WriteLine("#=============================== NEXT ===================================");
+                }
+                if (descriptionNumber == (maxTrainData + maxTestData)) StatusText = "Collecting Done";
+
+                swData.WriteLine("#image description number " + descriptionNumber++);
+                swData.Flush();
+            }
+
+            if (descriptionNumber > 1)
+            {
+                var entry = "";
+                for (int i = 0; i < allData.Length; )
+                    entry += String.Format("{0:0.000} {1:0.000} {2:0.000}\n", allData[i++], allData[i++], allData[i++]);
+
+                swData.Write(entry.Replace(',', '.'));
+                swData.WriteLine("#result ");
+                swData.WriteLine(Properties.Resources.Result);
+                swData.WriteLine();
+                swData.Flush();
+            }
+        }
+
         private Brush trackedJointBrush = new SolidColorBrush(Color.FromArgb(255, 192, 64, 64));
         private Brush inferredJointBrush = new SolidColorBrush(Color.FromArgb(255, 64, 64, 192));
         private readonly double circleSize = 20;
-        private void DrawJoints(IReadOnlyDictionary<JointType, Joint> joints, DrawingContext drawingContext, Pen drawingPen)
+        private Pen orientationPen = new Pen(Brushes.Red, 15);
+        private Pen distancePen = new Pen(Brushes.Yellow, 5);
+        private void drawJoints(IReadOnlyDictionary<JointType, Joint> joints, DrawingContext drawingContext)
         {
             // Draw the joints
             foreach (JointType jointType in jointsToDraw)
@@ -509,37 +501,37 @@ using System.Linq;
                 }
             }
 
+            ColorSpacePoint cSPoint0, cSPoint1, cSPoint2;
+            Point jointPoint0, jointPoint1, jointPoint2;
+            // Draw Orientation
             foreach (int thisJoint in allJointKeys)
             {
-                var neighbour = jointNeighbours.Single(i => i[0] == thisJoint)[1];
+                int neighbour = 0;
+                switch (thisJoint)
+                {
+                    case 4: neighbour = 5; break;
+                    case 5: neighbour = 6; break;
+                    case 8: neighbour = 9; break;
+                    case 9: neighbour = 10; break;
+                }
 
-                ColorSpacePoint cSPoint0 = this.coordinateMapper.MapCameraPointToColorSpace(joints[(JointType)thisJoint].Position);
-                ColorSpacePoint cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(joints[(JointType)neighbour].Position);
-                Point jointPoint0 = new Point(cSPoint0.X, cSPoint0.Y);
-                Point jointPoint1 = new Point(cSPoint1.X, cSPoint1.Y);
-                drawingContext.DrawLine(drawingPen, jointPoint0, jointPoint1);
+                cSPoint0 = this.coordinateMapper.MapCameraPointToColorSpace(joints[(JointType)thisJoint].Position);
+                cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(joints[(JointType)neighbour].Position);
+                jointPoint0 = new Point(cSPoint0.X, cSPoint0.Y);
+                jointPoint1 = new Point(cSPoint1.X, cSPoint1.Y);
+                drawingContext.DrawLine(orientationPen, jointPoint0, jointPoint1);
             }
+
+            cSPoint0 = this.coordinateMapper.MapCameraPointToColorSpace(joints[JointType.HandLeft].Position);
+            cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(joints[JointType.HandRight].Position);
+            cSPoint2 = this.coordinateMapper.MapCameraPointToColorSpace(joints[JointType.Head].Position);
+            jointPoint0 = new Point(cSPoint0.X, cSPoint0.Y);
+            jointPoint1 = new Point(cSPoint1.X, cSPoint1.Y);
+            jointPoint2 = new Point(cSPoint2.X, cSPoint2.Y);
+            drawingContext.DrawLine(distancePen, jointPoint0, jointPoint1);
+            drawingContext.DrawLine(distancePen, jointPoint1, jointPoint2);
+            drawingContext.DrawLine(distancePen, jointPoint0, jointPoint2);
         }
-
-        //private const double HandSize = 50;
-        //private readonly Brush handClosedBrush = new SolidColorBrush(Color.FromArgb(128, 255, 0, 0));
-        //private readonly Brush handOpenBrush = new SolidColorBrush(Color.FromArgb(128, 0, 255, 0));
-        //private void DrawHand(HandState handState, IReadOnlyDictionary<JointType, Joint> joints, JointType jointType, DrawingContext drawingContext)
-        //{
-        //    CameraSpacePoint position = joints[jointType].Position;
-        //    ColorSpacePoint depthSpacePoint = this.coordinateMapper.MapCameraPointToColorSpace(position);
-
-        //    switch (handState)
-        //    {
-        //        case HandState.Closed:
-        //            drawingContext.DrawEllipse(this.handClosedBrush, null, new Point(depthSpacePoint.X, depthSpacePoint.Y), HandSize, HandSize);
-        //            break;
-
-        //        case HandState.Open:
-        //            drawingContext.DrawEllipse(this.handOpenBrush, null, new Point(depthSpacePoint.X, depthSpacePoint.Y), HandSize, HandSize);
-        //            break;
-        //    }
-        //}
 
         private double RadianToDegree(double angle)
         {
@@ -548,3 +540,5 @@ using System.Linq;
         #endregion
     }
 }
+
+
