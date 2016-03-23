@@ -2,7 +2,7 @@
 
 extern "C" 
 { 
-#include "v2.h"
+#include "v5.h"
 #include "position.h"
 }
 
@@ -16,6 +16,6 @@ __declspec(dllexport) int __stdcall position(float* input, float* output)
 extern "C" __declspec(dllexport) int __stdcall classify(float* input, float* output);
 __declspec(dllexport) int __stdcall classify(float* input, float* output)
 {
-	int res = classify2(input, output, 0);
+	int res = classify5(input, output, 0);
 	return res;
 }

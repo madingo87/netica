@@ -56,8 +56,8 @@
         int maxTestData;
         int maxTrainData;
 
-        int[] jointsToDraw = new[] { 4, 5, 6, 8, 9, 10 };
         int[] allJointKeys = new[] { 4, 5, 8, 9 };
+        CameraSpacePoint nx, ny, nz;
     
         int dataInputSize;
         int dataOutputSize;    
@@ -258,7 +258,6 @@
             }
         }
 
-        private const float InferredZPositionClamp = 0.1f;
         private void bodyFrameReader_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
         {
             bool dataReceived = false;
@@ -294,7 +293,7 @@
                         if (body.IsTracked)
                         {
                             //Calculate All Data (angles and distances)
-                            var allData = calculateData(body.Joints, body.JointOrientations);
+                            var allData = calculateData(body.Joints);
 
                             var collectData = descriptionNumber <= (maxTrainData+maxTestData) && recordMode;
                             if (collectData)
@@ -302,13 +301,9 @@
                             
                             writeData2Gui(allData);
                                   
-                            //DRAW
                             dc.DrawImage(colorBitmap, new Rect(0.0, 0.0, this.colorFrameDescription.Width, this.colorFrameDescription.Height));
                             drawJoints(body.Joints, dc);
-                            //this.DrawHand(body.HandLeftState, joints, JointType.HandLeft, dc);
-                            //this.DrawHand(body.HandRightState, joints,JointType.HandRight, dc);
 
-                            //CLASSIFY
                             if (classifyEnabled)
                             {
                                 var output = classifyGesture(allData);
@@ -323,28 +318,68 @@
         //********************
         #endregion
 
-        #region Helper
-        private double[] calculateData(IReadOnlyDictionary<JointType, Joint> joints, IReadOnlyDictionary<JointType, JointOrientation> orientations)
+        private double[] calculateData(IReadOnlyDictionary<JointType, Joint> joints)
         {
             List<double> allData = new List<double>();
-            //int index = 0;
+            CameraSpacePoint vec = new CameraSpacePoint();
+            CameraSpacePoint newSpineShoulder = new CameraSpacePoint();
 
-            foreach (JointType jointType in allJointKeys)        
-            {
-                // sometimes depth(Z) of an inferred joint may show as negative -> clamp down to 0.1f to prevent coordinatemapper from returning (-Infinity, -Infinity)
-                CameraSpacePoint position = joints[jointType].Position;
-                if (position.Z < 0) position.Z = InferredZPositionClamp;
+            nz = Helper.getNormalVector(joints[JointType.ShoulderLeft].Position, joints[JointType.ShoulderRight].Position, joints[JointType.SpineMid].Position);
+            newSpineShoulder.X = joints[JointType.SpineShoulder].Position.X - nz.X;
+            newSpineShoulder.Y = joints[JointType.SpineShoulder].Position.Y - nz.Y;
+            newSpineShoulder.Z = joints[JointType.SpineShoulder].Position.Z - nz.Z;            
+            ny = Helper.getNormalVector(joints[JointType.ShoulderLeft].Position, joints[JointType.ShoulderRight].Position, newSpineShoulder );
+            nx = Helper.getNormalVector(joints[JointType.SpineShoulder].Position, joints[JointType.SpineMid].Position, newSpineShoulder);
+
+            //LEFT
+            //Shoulder->Elbow
+            vec.X = joints[JointType.ElbowLeft].Position.X - joints[JointType.ShoulderLeft].Position.X;
+            vec.Y = joints[JointType.ElbowLeft].Position.Y - joints[JointType.ShoulderLeft].Position.Y;
+            vec.Z = joints[JointType.ElbowLeft].Position.Z - joints[JointType.ShoulderLeft].Position.Z;
+            allData.Add(Helper.getAngle(vec,nz));
+            allData.Add(Helper.getAngle(vec,ny));
+            allData.Add(Helper.getAngle(vec,nx));
+
+            //Elbow->Hand
+            vec.X = joints[JointType.WristLeft].Position.X - joints[JointType.ElbowLeft].Position.X;
+            vec.Y = joints[JointType.WristLeft].Position.Y - joints[JointType.ElbowLeft].Position.Y;
+            vec.Z = joints[JointType.WristLeft].Position.Z - joints[JointType.ElbowLeft].Position.Z;
+            allData.Add(Helper.getAngle(vec, nz));
+            allData.Add(Helper.getAngle(vec, ny));
+            allData.Add(Helper.getAngle(vec, nx));
+
+            //RIGHT
+            //Shoulder->Elbow
+            vec.X = joints[JointType.ElbowRight].Position.X - joints[JointType.ShoulderRight].Position.X;
+            vec.Y = joints[JointType.ElbowRight].Position.Y - joints[JointType.ShoulderRight].Position.Y;
+            vec.Z = joints[JointType.ElbowRight].Position.Z - joints[JointType.ShoulderRight].Position.Z;
+            allData.Add(Helper.getAngle(vec, nz));
+            allData.Add(Helper.getAngle(vec, ny));
+            allData.Add(Helper.getAngle(vec, nx));
+
+            //Elbow->Hand
+            vec.X = joints[JointType.WristRight].Position.X - joints[JointType.ElbowRight].Position.X;
+            vec.Y = joints[JointType.WristRight].Position.Y - joints[JointType.ElbowRight].Position.Y;
+            vec.Z = joints[JointType.WristRight].Position.Z - joints[JointType.ElbowRight].Position.Z;
+            allData.Add(Helper.getAngle(vec, nz));
+            allData.Add(Helper.getAngle(vec, ny));
+            allData.Add(Helper.getAngle(vec, nx));
 
 
-                //http://www.iti.fh-flensburg.de/lang/algorithmen/grundlagen/quat.htm
-                allData.Add(orientations[jointType].Orientation.X);
-                allData.Add(orientations[jointType].Orientation.Y);
-                allData.Add(orientations[jointType].Orientation.Z);           
-            }
+            // distances
+            //allData.Add(calculateDistances(joints, (int)JointType.Head, (int)JointType.ElbowLeft));
+            //allData.Add(calculateDistances(joints, (int)JointType.Head, (int)JointType.ElbowRight));
+            //allData.Add(calculateDistances(joints, (int)JointType.ElbowLeft, (int)JointType.ElbowRight));
 
-            allData.Add(calculateDistances(joints, (int)JointType.Head, (int)JointType.HandLeft));
-            allData.Add(calculateDistances(joints, (int)JointType.Head, (int)JointType.HandRight));
-            allData.Add(calculateDistances(joints, (int)JointType.HandRight, (int)JointType.HandLeft));
+            //allData.Add(calculateDistances(joints, (int)JointType.ElbowRight, (int)JointType.HandLeft));
+            //allData.Add(calculateDistances(joints, (int)JointType.ElbowLeft, (int)JointType.HandRight));
+
+            //allData.Add(calculateDistances(joints, (int)JointType.Head, (int)JointType.HandLeft));
+            //allData.Add(calculateDistances(joints, (int)JointType.Head, (int)JointType.HandRight));
+            //allData.Add(calculateDistances(joints, (int)JointType.HandRight, (int)JointType.HandLeft));
+
+            //allData.Add(calculateDistances(joints, (int)JointType.HandLeft, (int)JointType.ShoulderLeft));
+            //allData.Add(calculateDistances(joints, (int)JointType.HandRight, (int)JointType.ShoulderRight));
 
             dataInputSize = allData.Count;
          
@@ -354,10 +389,14 @@
         private double calculateDistances(IReadOnlyDictionary<JointType, Joint> joints, int joint1, int joint2) 
         {
             var coords = new CameraSpacePoint[2] { joints[(JointType)joint1].Position, joints[(JointType)joint2].Position };
+            if (coords[0].Z < 0) coords[0].Z = InferredZPositionClamp;
+            if (coords[1].Z < 0) coords[1].Z = InferredZPositionClamp;
+
             double vec = Math.Sqrt(Math.Pow(coords[0].X - coords[1].X, 2) + Math.Pow(coords[0].Y - coords[1].Y,2) + Math.Pow(coords[0].Z - coords[1].Z,2));
             return Math.Abs(vec);
         }
 
+        #region Helper
         private void writeData2Gui(double[] allData) 
         {
             int counter = 0;
@@ -373,33 +412,44 @@
                     case 9: obj = "Unteram Rechts"; break;
                 }
 
-                text += String.Format("\n\t{0} XY: {1:0.00} YZ: {2:0.00} XZ: {3:0.00}",
+                text += String.Format("\n\t{0} Z: {1:0.00} Y: {2:0.00} X: {3:0.00}",
                     obj, allData[counter++], allData[counter++], allData[counter++]);
 
             }
-            text += String.Format("\n\nAbstände\n\tHand Links: {0:0.00} \n\tHand Rechts: {1:0.00} \n\tBeide Hände {2:0.00}", allData[counter++], allData[counter++], allData[counter++]);
+            //text += String.Format("\n\nAbstände\n\tEllb L: {0:0.00} \n\tEllb R: {1:0.00} \n\tBeide Ellb {2:0.00}\n\tEllbLinks->HandRechts {3:0.00}\n\tEllbRechts->HandLinks{4:0.00}" +
+            //                        "\n\tHand Links: {5:0.00} \n\tHand Rechts: {6:0.00} \n\tBeide Hände {7:0.00}\n\tHand->Schulter Links: {8:0.00} \n\tHand->Schulter Rechts {9:0.00}",
+            //    allData[counter++], allData[counter++], allData[counter++], allData[counter++], allData[counter++],
+            //    allData[counter++], allData[counter++], allData[counter++], allData[counter++], allData[counter++]);
             this.txtAngles.Text = text;
         }
 
         private void updateGestureText(float[] output)
         {
-            var highestPropability = 0;
-            for (var i = 1; i< output.Length; i++)
-                highestPropability = output[i] > output[i - 1] ? i : highestPropability;
-         
-            switch (highestPropability) 
-            {
-                case 0: GestureText = "Ich"; break;
-                case 1: GestureText = "Du"; break;
-                case 2: GestureText = "Er"; break;
-                case 3: GestureText = "Was"; break;
-                case 4: GestureText = "Party"; break;
-                case 5: GestureText = "Müsli"; break;
-            }
+            Dictionary<string, float> dict = new Dictionary<string, float>();
+            var words = new string[]{"Y", "M", "C", "A", "I"};
 
-            Array.Sort(output);
-            this.txtSuccessRate.Text = string.Format("Output Winner: {0:0.000} \nOutput Second: {1:0.000}\nOutput Third: {2:0.000}",
-                                                       output[output.Length - 1], output[output.Length - 2], output[output.Length - 3]);
+            for (var i = 0; i < output.Length; i++)
+                dict.Add(words[i], output[i]);
+
+            try
+            {
+                var first = dict.Single(e => e.Value == dict.Values.Max());
+                dict.Remove(first.Key);
+                var sec = dict.Single(e => e.Value == dict.Values.Max());
+                dict.Remove(sec.Key);
+                var third = dict.Single(e => e.Value == dict.Values.Max());
+
+                GestureText = first.Key;
+
+                Array.Sort(output);
+                this.txtSuccessRate.Text = string.Format("Output\n\tWin:\t {0:0.00} {1} \n\tSec:\t {2:0.00} {3}\n\tThrd:\t {4:0.00} {5}",
+                                                           first.Value, first.Key, sec.Value, sec.Key, third.Value, third.Key);
+            }
+            catch (Exception e)
+            {
+                this.txtSuccessRate.Text = "N/A";
+                GestureText = "";
+            }
         }
 
         [DllImport("NetWrapperLib.dll")]
@@ -461,49 +511,40 @@
             {
                 var entry = "";
                 for (int i = 0; i < allData.Length; )
-                    entry += String.Format("{0:0.000} {1:0.000} {2:0.000}\n", allData[i++], allData[i++], allData[i++]);
+                    entry += String.Format("{0:0.000} ", allData[i++]);
 
                 swData.Write(entry.Replace(',', '.'));
-                swData.WriteLine("#result ");
+                swData.WriteLine("\n#result ");
                 swData.WriteLine(Properties.Resources.Result);
                 swData.WriteLine();
                 swData.Flush();
             }
         }
 
-        private Brush trackedJointBrush = new SolidColorBrush(Color.FromArgb(255, 192, 64, 64));
-        private Brush inferredJointBrush = new SolidColorBrush(Color.FromArgb(255, 64, 64, 192));
-        private readonly double circleSize = 20;
-        private Pen orientationPen = new Pen(Brushes.Red, 15);
-        private Pen distancePen = new Pen(Brushes.Yellow, 5);
+        int resizer = 10;
+        List<JointType> jointTypes = new List<JointType>() { JointType.SpineMid, JointType.ShoulderLeft, JointType.ElbowLeft, JointType.WristLeft, JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight };
+        private const float InferredZPositionClamp = 0.1f;
+        private Pen orientationPen = new Pen(Brushes.OrangeRed, 10);
+        private Pen zPen = new Pen(Brushes.Yellow, 3);
+        private Pen yPen = new Pen(Brushes.Magenta, 3);
+        private Pen xPen = new Pen(Brushes.Cyan, 3);
         private void drawJoints(IReadOnlyDictionary<JointType, Joint> joints, DrawingContext drawingContext)
         {
-            // Draw the joints
-            foreach (JointType jointType in jointsToDraw)
+            Dictionary<JointType, CameraSpacePoint> jointPoints = new Dictionary<JointType, CameraSpacePoint>();
+
+            // sometimes depth(Z) of an inferred joint may show as negative -> clamp down to 0.1f to prevent coordinatemapper from returning (-Infinity, -Infinity)
+            foreach (var type in jointTypes)
             {
-                CameraSpacePoint position = joints[jointType].Position;
-                ColorSpacePoint colorSpacePoint = this.coordinateMapper.MapCameraPointToColorSpace(position);
-                Point jointPoint = new Point(colorSpacePoint.X, colorSpacePoint.Y);
-                Brush drawBrush = null;
-
-                TrackingState trackingState = joints[jointType].TrackingState;
-
-                if (trackingState == TrackingState.Tracked) 
-                    drawBrush = this.trackedJointBrush;                
-                else // trackingState == TrackingState.Inferred)
-                    drawBrush = this.inferredJointBrush;               
-
-                if (drawBrush != null)
-                {
-                    //Z in meter | Opacity 0-1 --> bereich 0.7m - 1.7m interessant
-                    drawBrush.Opacity = 0f;
-                    drawingContext.DrawEllipse(drawBrush, null, jointPoint, circleSize, circleSize);                    
-                }
+                var jointPosition = joints[type].Position;
+                if (jointPosition.Z < 0) jointPosition.Z = InferredZPositionClamp;
+                jointPoints.Add(type, jointPosition);
             }
 
-            ColorSpacePoint cSPoint0, cSPoint1, cSPoint2;
-            Point jointPoint0, jointPoint1, jointPoint2;
-            // Draw Orientation
+            ColorSpacePoint cSPoint0, cSPoint1;
+            Point p0, p1;
+            CameraSpacePoint p = new CameraSpacePoint();
+
+            // ====== Draw Orientation
             foreach (int thisJoint in allJointKeys)
             {
                 int neighbour = 0;
@@ -515,27 +556,37 @@
                     case 9: neighbour = 10; break;
                 }
 
-                cSPoint0 = this.coordinateMapper.MapCameraPointToColorSpace(joints[(JointType)thisJoint].Position);
-                cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(joints[(JointType)neighbour].Position);
-                jointPoint0 = new Point(cSPoint0.X, cSPoint0.Y);
-                jointPoint1 = new Point(cSPoint1.X, cSPoint1.Y);
-                drawingContext.DrawLine(orientationPen, jointPoint0, jointPoint1);
+                cSPoint0 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[(JointType)thisJoint]);
+                cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[(JointType)neighbour]);
+                p0 = new Point(cSPoint0.X, cSPoint0.Y);
+                p1 = new Point(cSPoint1.X, cSPoint1.Y);
+                drawingContext.DrawLine(orientationPen, p0, p1);
             }
 
-            cSPoint0 = this.coordinateMapper.MapCameraPointToColorSpace(joints[JointType.HandLeft].Position);
-            cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(joints[JointType.HandRight].Position);
-            cSPoint2 = this.coordinateMapper.MapCameraPointToColorSpace(joints[JointType.Head].Position);
-            jointPoint0 = new Point(cSPoint0.X, cSPoint0.Y);
-            jointPoint1 = new Point(cSPoint1.X, cSPoint1.Y);
-            jointPoint2 = new Point(cSPoint2.X, cSPoint2.Y);
-            drawingContext.DrawLine(distancePen, jointPoint0, jointPoint1);
-            drawingContext.DrawLine(distancePen, jointPoint1, jointPoint2);
-            drawingContext.DrawLine(distancePen, jointPoint0, jointPoint2);
-        }
+            // ====== Draw Normals
+            cSPoint0 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[JointType.SpineMid]);
+            p0 = new Point(cSPoint0.X, cSPoint0.Y);
 
-        private double RadianToDegree(double angle)
-        {
-            return angle * (180.0 / Math.PI);
+            p.X = jointPoints[JointType.SpineMid].X - nx.X * resizer;
+            p.Y = jointPoints[JointType.SpineMid].Y + nx.Y * resizer;
+            p.Z = jointPoints[JointType.SpineMid].Z - nx.Z * resizer;
+            cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(p);
+            p1 = new Point(cSPoint1.X, cSPoint1.Y);
+            drawingContext.DrawLine(xPen, p0, p1);
+
+            p.X = jointPoints[JointType.SpineMid].X - ny.X * resizer;
+            p.Y = jointPoints[JointType.SpineMid].Y + ny.Y * resizer;
+            p.Z = jointPoints[JointType.SpineMid].Z + ny.Z * resizer;
+            cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(p);
+            p1 = new Point(cSPoint1.X, cSPoint1.Y);
+            drawingContext.DrawLine(yPen, p0, p1);
+
+            p.X = jointPoints[JointType.SpineMid].X + nz.X * resizer;
+            p.Y = jointPoints[JointType.SpineMid].Y - nz.Y * resizer;
+            p.Z = jointPoints[JointType.SpineMid].Z - nz.Z * resizer;
+            cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(p);
+            p1 = new Point(cSPoint1.X, cSPoint1.Y);
+            drawingContext.DrawLine(zPen, p0, p1);    
         }
         #endregion
     }

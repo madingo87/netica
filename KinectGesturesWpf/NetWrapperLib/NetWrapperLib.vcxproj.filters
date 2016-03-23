@@ -21,10 +21,7 @@
     <ClCompile Include="position.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="v1.c">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="v2.c">
+    <ClCompile Include="v5.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
@@ -32,10 +29,7 @@
     <ClInclude Include="position.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="v1.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="v2.h">
+    <ClInclude Include="v5.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
