@@ -127,13 +127,13 @@
     <value>5</value>
   </data>
   <data name="Result" xml:space="preserve">
-    <value>-1 -1 -1 -1 1</value>
+    <value>1 0 0 0 0</value>
   </data>
   <data name="MaxTestData" xml:space="preserve">
-    <value>100</value>
+    <value>0</value>
   </data>
   <data name="MaxTrainData" xml:space="preserve">
-    <value>700</value>
+    <value>200</value>
   </data>
   <data name="Precarriage" xml:space="preserve">
     <value>-100</value>

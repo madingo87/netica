@@ -45,7 +45,10 @@
         private Body[] bodies = null;
 
         StreamWriter swData;
-        int descriptionNumber;
+        StreamWriter csvData;
+        StreamWriter csvResult;
+        int descriptionNumber, gestureNumber;
+        string[] gesture = new string[] { "Y", "M", "C", "A", "I" };
 
         //sets the flag for recording new JointPosition Data
         bool recordMode = false;
@@ -98,9 +101,15 @@
             dataOutputSize = Int32.Parse(Properties.Resources.OutputSize);
             descriptionNumber = Convert.ToInt32(Properties.Resources.Precarriage); //Vorlauf Frames
             //dataInputSize = jointNeighbours.Count * inputDataPerJoint; 
-            swData = new StreamWriter(@"c:/temp/trainData.pat", true);
+
             maxTrainData = Convert.ToInt32(Properties.Resources.MaxTrainData);
-            maxTestData = Convert.ToInt32(Properties.Resources.MaxTestData); 
+            maxTestData = Convert.ToInt32(Properties.Resources.MaxTestData);
+
+            csvData = new StreamWriter(@"c:/temp/trainData.csv", false);
+            csvResult = new StreamWriter(@"c:/temp/result.csv", false);
+            csvData.WriteLine(String.Format("Daten vom {0:dd.MM.yyyy HH:mm:ss}", DateTime.Now));
+            csvResult.WriteLine(String.Format("Daten vom {0:dd.MM.yyyy HH:mm:ss}", DateTime.Now));
+            csvData.Flush();
 
             this.InitializeComponent();
         }
@@ -167,6 +176,7 @@
 
         private void chk_Record_Checked(object sender, RoutedEventArgs e)
         {
+            gestureNumber = 0;
             this.recordMode = true;
         }
         private void chk_Record_Unchecked(object sender, RoutedEventArgs e)
@@ -177,6 +187,9 @@
         }
         private void chk_Classify_Checked(object sender, RoutedEventArgs e)
         {
+            if (csvData != null) csvData.Close();
+            csvData = new StreamWriter(@"c:\temp\classify.csv");
+
             this.classifyEnabled = true;
             this.recordMode = false;
             StatusText = "Classifying...";
@@ -200,7 +213,17 @@
                 swData.Flush();
                 swData.Close();
             }
-
+            if (csvData != null)
+            {
+                csvData.Flush();
+                csvData.Close();
+            }
+            if (csvResult != null)
+            {
+                csvResult.Flush();
+                csvResult.Close();
+            }
+            
             if (this.colorFrameReader != null)
             {
                 this.colorFrameReader.FrameArrived -= this.colorFrameReader_FrameArrived;
@@ -216,7 +239,6 @@
                 this.bodyFrameReader.Dispose();
                 this.bodyFrameReader = null;
             }
-
 
             if (this.kinectSensor != null)
             {
@@ -297,7 +319,28 @@
 
                             var collectData = descriptionNumber <= (maxTrainData+maxTestData) && recordMode;
                             if (collectData)
-                                writeTrainingData(allData);
+                            {
+                                if (descriptionNumber > 0)
+                                {
+                                    //writeJavaTrainingData(allData);
+                                    writeCsvTrainingData(allData);
+                                }
+                                else
+                                    StatusText = "Starting to Collect for Gesture === " + gesture[gestureNumber] + "===";                               
+    
+                                descriptionNumber++;
+
+                                if (descriptionNumber == (maxTrainData + maxTestData))
+                                {
+                                    if (gestureNumber + 1 < gesture.Length)
+                                    {
+                                        descriptionNumber = Convert.ToInt32(Properties.Resources.Precarriage);
+                                        gestureNumber++;
+                                    }
+                                    else
+                                        StatusText = "Collecting done!";
+                                }
+                            }
                             
                             writeData2Gui(allData);
                                   
@@ -475,40 +518,27 @@
             return outputArray;
         }
 
-        private void writeTrainingData(double[] allData)
+        private void writeJavaTrainingData(double[] allData)
         {
-            if (descriptionNumber < 1)
+            if (descriptionNumber == 1)
             {
-                StatusText = "Starting to Collect!";
-                descriptionNumber++;
+                swData = new StreamWriter(@"c:/temp/trainData.pat", true);
+                swData.WriteLine("#=============================== NEXT ===================================");
             }
-            else
-            {
-                if (descriptionNumber == 1)
-                {
-                    StatusText = "Collecting Traindata...";
-                    swData.WriteLine("#========================================================================");
-                    swData.WriteLine("#########################################################################");
-                    swData.WriteLine("#=============================== NEXT ===================================");
-                }
-                if (descriptionNumber == (maxTrainData + 1))
-                {
-                    swData.Flush();
-                    swData.Close();
-                    swData = new StreamWriter(@"c:/temp/testData.pat", true);
-                    StatusText = "Collecting Testdata...";
-                    swData.WriteLine("#========================================================================");
-                    swData.WriteLine("#########################################################################");
-                    swData.WriteLine("#=============================== NEXT ===================================");
-                }
-                if (descriptionNumber == (maxTrainData + maxTestData)) StatusText = "Collecting Done";
 
-                swData.WriteLine("#image description number " + descriptionNumber++);
+            if (descriptionNumber == (maxTrainData + 1))
+            {
                 swData.Flush();
+                swData.Close();
+                swData = new StreamWriter(@"c:/temp/testData.pat", true);
+                StatusText = "Collecting Testdata...";
+                swData.WriteLine("#=============================== NEXT ===================================");
             }
-
+            
             if (descriptionNumber > 1)
             {
+                swData.WriteLine("#description number " + descriptionNumber + 1);
+
                 var entry = "";
                 for (int i = 0; i < allData.Length; )
                     entry += String.Format("{0:0.000} ", allData[i++]);
@@ -518,7 +548,24 @@
                 swData.WriteLine(Properties.Resources.Result);
                 swData.WriteLine();
                 swData.Flush();
-            }
+            }      
+        }
+
+        private void writeCsvTrainingData(double[] allData) 
+        {
+            if (descriptionNumber == 1)           
+                StatusText = "Collecting Traindata for  === " + gesture[gestureNumber] + "===";
+            
+            var entry = "";
+            for (int i = 0; i < allData.Length; )
+                entry += String.Format("{0:0.000};", allData[i++]);
+
+            entry = entry.Replace(',', '.');
+            entry = entry.Replace(';', ',');
+            csvData.WriteLine(entry.TrimEnd(','));
+            csvData.Flush();
+
+            csvResult.WriteLine(gesture[gestureNumber]);
         }
 
         int resizer = 10;
