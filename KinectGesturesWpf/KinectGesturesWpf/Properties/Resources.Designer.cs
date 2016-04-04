@@ -70,7 +70,7 @@ namespace KinectGesturesWpf.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die 0 ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die 20 ähnelt.
         /// </summary>
         internal static string MaxTestData {
             get {
@@ -79,7 +79,7 @@ namespace KinectGesturesWpf.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die 200 ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die 100 ähnelt.
         /// </summary>
         internal static string MaxTrainData {
             get {
@@ -97,29 +97,11 @@ namespace KinectGesturesWpf.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die 5 ähnelt.
-        /// </summary>
-        internal static string OutputSize {
-            get {
-                return ResourceManager.GetString("OutputSize", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die -100 ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die -50 ähnelt.
         /// </summary>
         internal static string Precarriage {
             get {
                 return ResourceManager.GetString("Precarriage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die 1 0 0 0 0 ähnelt.
-        /// </summary>
-        internal static string Result {
-            get {
-                return ResourceManager.GetString("Result", resourceCulture);
             }
         }
     }

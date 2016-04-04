@@ -123,19 +123,13 @@
   <data name="NoSensor" xml:space="preserve">
     <value>No Senosor available</value>
   </data>
-  <data name="OutputSize" xml:space="preserve">
-    <value>5</value>
-  </data>
-  <data name="Result" xml:space="preserve">
-    <value>1 0 0 0 0</value>
-  </data>
   <data name="MaxTestData" xml:space="preserve">
-    <value>0</value>
+    <value>20</value>
   </data>
   <data name="MaxTrainData" xml:space="preserve">
-    <value>200</value>
+    <value>100</value>
   </data>
   <data name="Precarriage" xml:space="preserve">
-    <value>-100</value>
+    <value>-50</value>
   </data>
 </root>

@@ -13,10 +13,8 @@
     using System.Collections.Generic;
     using System.Windows.Media.Media3D;
     using System.Linq;
+    using System.Windows.Data;
 
-    /// <summary>
-    /// Interaction logic for the MainWindow
-    /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
         /// <summary>
@@ -41,29 +39,30 @@
         private DrawingGroup bodyDrawingGroup;
         private DrawingImage imageSource;
 
+        private int[] allJointsForUI = new[] { 4, 5, 8, 9 };
+        private CameraSpacePoint nx, ny, nz;
         private CoordinateMapper coordinateMapper = null;
         private Body[] bodies = null;
 
-        StreamWriter swData;
-        StreamWriter csvData;
-        StreamWriter csvResult;
-        int descriptionNumber, gestureNumber;
-        string[] gesture = new string[] { "Y", "M", "C", "A", "I" };
+        private StreamWriter javaData, csvData, csvResult, csvClass;
+        private int descriptionNumber, gestureNumber;
+        private int dataInputSize;
+
+        private int dataOutputSize = 5;
+        private string[] gesture = new string[] { "Y", "M", "C", "A", "I" };
+        private string[] gestureNNCode = new string[] { "1 -1 -1 -1 -1", "-1 1 -1 -1 -1", "-1 -1 1 -1 -1", "-1 -1 -1 1 -1", "-1 -1 -1 -1 1" };
 
         //sets the flag for recording new JointPosition Data
-        bool recordMode = false;
-        bool classifyEnabled = false;
-        private string gestureText;        
+        private bool recordMode = false;
+        private bool classifyEnabled = false;
+
+        private string gestureText = null;        
         private string statusText = null;
+        private ClassificationTypes _type;
 
-        int maxTestData;
-        int maxTrainData;
+        private int maxTestData;
+        private int maxTrainData;
 
-        int[] allJointKeys = new[] { 4, 5, 8, 9 };
-        CameraSpacePoint nx, ny, nz;
-    
-        int dataInputSize;
-        int dataOutputSize;    
 
         public MainWindow()
         {
@@ -98,18 +97,10 @@
 
             this.DataContext = this;
 
-            dataOutputSize = Int32.Parse(Properties.Resources.OutputSize);
             descriptionNumber = Convert.ToInt32(Properties.Resources.Precarriage); //Vorlauf Frames
-            //dataInputSize = jointNeighbours.Count * inputDataPerJoint; 
 
             maxTrainData = Convert.ToInt32(Properties.Resources.MaxTrainData);
             maxTestData = Convert.ToInt32(Properties.Resources.MaxTestData);
-
-            csvData = new StreamWriter(@"c:/temp/trainData.csv", false);
-            csvResult = new StreamWriter(@"c:/temp/result.csv", false);
-            csvData.WriteLine(String.Format("Daten vom {0:dd.MM.yyyy HH:mm:ss}", DateTime.Now));
-            csvResult.WriteLine(String.Format("Daten vom {0:dd.MM.yyyy HH:mm:ss}", DateTime.Now));
-            csvData.Flush();
 
             this.InitializeComponent();
         }
@@ -121,18 +112,12 @@
 
         public ImageSource ImageSource
         {
-            get
-            {
-                return this.imageSource;
-            }
+            get { return this.imageSource; }
         }
         
         public string GestureText
         {
-            get
-            {
-                return this.gestureText;
-            }
+            get { return this.gestureText; }
             set
             {
                 if (this.gestureText != value)
@@ -150,11 +135,7 @@
 
         public string StatusText
         {
-            get
-            {
-                return this.statusText;
-            }
-
+            get { return this.statusText; }
             set
             {
                 if (this.statusText != value)
@@ -168,6 +149,15 @@
                     }
                 }
             }
+        }
+
+        public ClassificationTypes Type 
+        { 
+            get { return _type; } 
+            set { 
+                _type = value; 
+                if (PropertyChanged != null) 
+                    PropertyChanged(this, new PropertyChangedEventArgs("Type")); } 
         }
 
         #endregion
@@ -187,17 +177,16 @@
         }
         private void chk_Classify_Checked(object sender, RoutedEventArgs e)
         {
-            if (csvData != null) csvData.Close();
-            csvData = new StreamWriter(@"c:\temp\classify.csv");
-
             this.classifyEnabled = true;
             this.recordMode = false;
-            StatusText = "Classifying...";
+            
+            if (_type != ClassificationTypes.OrientationBayes) StatusText = "Classifying...";
         }
         private void chk_Classify_Unchecked(object sender, RoutedEventArgs e)
         {
             this.classifyEnabled = false;
             StatusText = "Idle";
+            descriptionNumber = -50;
         }
 
         private void Sensor_IsAvailableChanged(object sender, IsAvailableChangedEventArgs e)
@@ -208,22 +197,8 @@
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (swData != null)
-            {
-                swData.Flush();
-                swData.Close();
-            }
-            if (csvData != null)
-            {
-                csvData.Flush();
-                csvData.Close();
-            }
-            if (csvResult != null)
-            {
-                csvResult.Flush();
-                csvResult.Close();
-            }
-            
+            closeStreams();
+
             if (this.colorFrameReader != null)
             {
                 this.colorFrameReader.FrameArrived -= this.colorFrameReader_FrameArrived;
@@ -246,8 +221,39 @@
                 this.kinectSensor = null;
             }
         }
+        private void closeStreams()
+        {
+            try
+            {
+                if (javaData != null)
+                {
+                    javaData.Flush();
+                    javaData.Close();
+                }
+                if (csvData != null)
+                {
+                    csvData.Flush();
+                    csvData.Close();
+                }
+                if (csvResult != null)
+                {
+                    csvResult.Flush();
+                    csvResult.Close();
+                }
+                if (csvClass != null)
+                {
+                    csvClass.Flush();
+                    csvClass.Close();
+                }
+            }
+            catch (IOException ex)
+            {
+                MessageBox.Show("Fehler\n" + ex.Message);
+            }
+        }
+        
+        #endregion
 
-      
         //** FRAME READER ***
         private void colorFrameReader_FrameArrived(object sender, ColorFrameArrivedEventArgs e)
         {
@@ -314,20 +320,28 @@
                     {
                         if (body.IsTracked)
                         {
-                            //Calculate All Data (angles and distances)
+                            // 1) Calculate All Data (angles or distances)
                             var allData = calculateData(body.Joints);
 
+                            // 2) Write and draw to UI
+                            writeData2Gui(allData);
+                            dc.DrawImage(colorBitmap, new Rect(0.0, 0.0, this.colorFrameDescription.Width, this.colorFrameDescription.Height));
+                            drawJoints(body.Joints, dc);
+
+                            // 3) Export Data if activated
                             var collectData = descriptionNumber <= (maxTrainData+maxTestData) && recordMode;
                             if (collectData)
                             {
-                                if (descriptionNumber > 0)
+                                if (descriptionNumber >= 0)
                                 {
-                                    //writeJavaTrainingData(allData);
-                                    writeCsvTrainingData(allData);
+                                    if (_type != ClassificationTypes.OrientationBayes)
+                                        writeJavaTrainingData(allData);
+                                    else
+                                        writeCsvTrainingData(allData);
                                 }
                                 else
-                                    StatusText = "Starting to Collect for Gesture === " + gesture[gestureNumber] + "===";                               
-    
+                                    StatusText = "Starting to Collect for Gesture === " + gesture[gestureNumber] + "===";
+
                                 descriptionNumber++;
 
                                 if (descriptionNumber == (maxTrainData + maxTestData))
@@ -336,93 +350,102 @@
                                     {
                                         descriptionNumber = Convert.ToInt32(Properties.Resources.Precarriage);
                                         gestureNumber++;
+                                        closeStreams();
                                     }
                                     else
                                         StatusText = "Collecting done!";
-                                }
+                                }                          
                             }
                             
-                            writeData2Gui(allData);
-                                  
-                            dc.DrawImage(colorBitmap, new Rect(0.0, 0.0, this.colorFrameDescription.Width, this.colorFrameDescription.Height));
-                            drawJoints(body.Joints, dc);
-
+                           // 4) Classify if activated
                             if (classifyEnabled)
                             {
-                                var output = classifyGesture(allData);
-                                updateGestureText(output);                       
+                                if (_type != ClassificationTypes.OrientationBayes)
+                                {
+                                    var output = classifyGesture(allData);
+                                    updateGestureText(output);
+                                }
+                                else
+                                {
+                                    descriptionNumber++;
+                                    collectBayesClassData(allData);
+                                }
                             }
                         }
                     }
                 }
             }
         }
-
-        //********************
-        #endregion
+        //*******************
 
         private double[] calculateData(IReadOnlyDictionary<JointType, Joint> joints)
         {
             List<double> allData = new List<double>();
-            CameraSpacePoint vec = new CameraSpacePoint();
-            CameraSpacePoint newSpineShoulder = new CameraSpacePoint();
 
-            nz = Helper.getNormalVector(joints[JointType.ShoulderLeft].Position, joints[JointType.ShoulderRight].Position, joints[JointType.SpineMid].Position);
-            newSpineShoulder.X = joints[JointType.SpineShoulder].Position.X - nz.X;
-            newSpineShoulder.Y = joints[JointType.SpineShoulder].Position.Y - nz.Y;
-            newSpineShoulder.Z = joints[JointType.SpineShoulder].Position.Z - nz.Z;            
-            ny = Helper.getNormalVector(joints[JointType.ShoulderLeft].Position, joints[JointType.ShoulderRight].Position, newSpineShoulder );
-            nx = Helper.getNormalVector(joints[JointType.SpineShoulder].Position, joints[JointType.SpineMid].Position, newSpineShoulder);
+            if (_type != ClassificationTypes.DistanceNN)
+            {
+                CameraSpacePoint vec = new CameraSpacePoint();
+                CameraSpacePoint newSpineShoulder = new CameraSpacePoint();
 
-            //LEFT
-            //Shoulder->Elbow
-            vec.X = joints[JointType.ElbowLeft].Position.X - joints[JointType.ShoulderLeft].Position.X;
-            vec.Y = joints[JointType.ElbowLeft].Position.Y - joints[JointType.ShoulderLeft].Position.Y;
-            vec.Z = joints[JointType.ElbowLeft].Position.Z - joints[JointType.ShoulderLeft].Position.Z;
-            allData.Add(Helper.getAngle(vec,nz));
-            allData.Add(Helper.getAngle(vec,ny));
-            allData.Add(Helper.getAngle(vec,nx));
+                nz = Helper.getNormalVector(joints[JointType.ShoulderLeft].Position, joints[JointType.ShoulderRight].Position, joints[JointType.SpineMid].Position);
+                newSpineShoulder.X = joints[JointType.SpineShoulder].Position.X - nz.X;
+                newSpineShoulder.Y = joints[JointType.SpineShoulder].Position.Y - nz.Y;
+                newSpineShoulder.Z = joints[JointType.SpineShoulder].Position.Z - nz.Z;
+                ny = Helper.getNormalVector(joints[JointType.ShoulderLeft].Position, joints[JointType.ShoulderRight].Position, newSpineShoulder);
+                nx = Helper.getNormalVector(joints[JointType.SpineShoulder].Position, joints[JointType.SpineMid].Position, newSpineShoulder);
 
-            //Elbow->Hand
-            vec.X = joints[JointType.WristLeft].Position.X - joints[JointType.ElbowLeft].Position.X;
-            vec.Y = joints[JointType.WristLeft].Position.Y - joints[JointType.ElbowLeft].Position.Y;
-            vec.Z = joints[JointType.WristLeft].Position.Z - joints[JointType.ElbowLeft].Position.Z;
-            allData.Add(Helper.getAngle(vec, nz));
-            allData.Add(Helper.getAngle(vec, ny));
-            allData.Add(Helper.getAngle(vec, nx));
+                //LEFT
+                //Shoulder->Elbow
+                vec.X = joints[JointType.ElbowLeft].Position.X - joints[JointType.ShoulderLeft].Position.X;
+                vec.Y = joints[JointType.ElbowLeft].Position.Y - joints[JointType.ShoulderLeft].Position.Y;
+                vec.Z = joints[JointType.ElbowLeft].Position.Z - joints[JointType.ShoulderLeft].Position.Z;
+                allData.Add(Helper.getAngle(vec, nz));
+                allData.Add(Helper.getAngle(vec, ny));
+                allData.Add(Helper.getAngle(vec, nx));
 
-            //RIGHT
-            //Shoulder->Elbow
-            vec.X = joints[JointType.ElbowRight].Position.X - joints[JointType.ShoulderRight].Position.X;
-            vec.Y = joints[JointType.ElbowRight].Position.Y - joints[JointType.ShoulderRight].Position.Y;
-            vec.Z = joints[JointType.ElbowRight].Position.Z - joints[JointType.ShoulderRight].Position.Z;
-            allData.Add(Helper.getAngle(vec, nz));
-            allData.Add(Helper.getAngle(vec, ny));
-            allData.Add(Helper.getAngle(vec, nx));
+                //Elbow->Hand
+                vec.X = joints[JointType.WristLeft].Position.X - joints[JointType.ElbowLeft].Position.X;
+                vec.Y = joints[JointType.WristLeft].Position.Y - joints[JointType.ElbowLeft].Position.Y;
+                vec.Z = joints[JointType.WristLeft].Position.Z - joints[JointType.ElbowLeft].Position.Z;
+                allData.Add(Helper.getAngle(vec, nz));
+                allData.Add(Helper.getAngle(vec, ny));
+                allData.Add(Helper.getAngle(vec, nx));
 
-            //Elbow->Hand
-            vec.X = joints[JointType.WristRight].Position.X - joints[JointType.ElbowRight].Position.X;
-            vec.Y = joints[JointType.WristRight].Position.Y - joints[JointType.ElbowRight].Position.Y;
-            vec.Z = joints[JointType.WristRight].Position.Z - joints[JointType.ElbowRight].Position.Z;
-            allData.Add(Helper.getAngle(vec, nz));
-            allData.Add(Helper.getAngle(vec, ny));
-            allData.Add(Helper.getAngle(vec, nx));
+                //RIGHT
+                //Shoulder->Elbow
+                vec.X = joints[JointType.ElbowRight].Position.X - joints[JointType.ShoulderRight].Position.X;
+                vec.Y = joints[JointType.ElbowRight].Position.Y - joints[JointType.ShoulderRight].Position.Y;
+                vec.Z = joints[JointType.ElbowRight].Position.Z - joints[JointType.ShoulderRight].Position.Z;
+                allData.Add(Helper.getAngle(vec, nz));
+                allData.Add(Helper.getAngle(vec, ny));
+                allData.Add(Helper.getAngle(vec, nx));
 
+                //Elbow->Hand
+                vec.X = joints[JointType.WristRight].Position.X - joints[JointType.ElbowRight].Position.X;
+                vec.Y = joints[JointType.WristRight].Position.Y - joints[JointType.ElbowRight].Position.Y;
+                vec.Z = joints[JointType.WristRight].Position.Z - joints[JointType.ElbowRight].Position.Z;
+                allData.Add(Helper.getAngle(vec, nz));
+                allData.Add(Helper.getAngle(vec, ny));
+                allData.Add(Helper.getAngle(vec, nx));
 
-            // distances
-            //allData.Add(calculateDistances(joints, (int)JointType.Head, (int)JointType.ElbowLeft));
-            //allData.Add(calculateDistances(joints, (int)JointType.Head, (int)JointType.ElbowRight));
-            //allData.Add(calculateDistances(joints, (int)JointType.ElbowLeft, (int)JointType.ElbowRight));
+            }
+            else
+            {
+                // distances
+                allData.Add(calculateDistances(joints, (int)JointType.Head, (int)JointType.ElbowLeft));
+                allData.Add(calculateDistances(joints, (int)JointType.Head, (int)JointType.ElbowRight));
+                allData.Add(calculateDistances(joints, (int)JointType.ElbowLeft, (int)JointType.ElbowRight));
 
-            //allData.Add(calculateDistances(joints, (int)JointType.ElbowRight, (int)JointType.HandLeft));
-            //allData.Add(calculateDistances(joints, (int)JointType.ElbowLeft, (int)JointType.HandRight));
+                allData.Add(calculateDistances(joints, (int)JointType.ElbowRight, (int)JointType.HandLeft));
+                allData.Add(calculateDistances(joints, (int)JointType.ElbowLeft, (int)JointType.HandRight));
 
-            //allData.Add(calculateDistances(joints, (int)JointType.Head, (int)JointType.HandLeft));
-            //allData.Add(calculateDistances(joints, (int)JointType.Head, (int)JointType.HandRight));
-            //allData.Add(calculateDistances(joints, (int)JointType.HandRight, (int)JointType.HandLeft));
+                allData.Add(calculateDistances(joints, (int)JointType.Head, (int)JointType.HandLeft));
+                allData.Add(calculateDistances(joints, (int)JointType.Head, (int)JointType.HandRight));
+                allData.Add(calculateDistances(joints, (int)JointType.HandRight, (int)JointType.HandLeft));
 
-            //allData.Add(calculateDistances(joints, (int)JointType.HandLeft, (int)JointType.ShoulderLeft));
-            //allData.Add(calculateDistances(joints, (int)JointType.HandRight, (int)JointType.ShoulderRight));
+                //allData.Add(calculateDistances(joints, (int)JointType.HandLeft, (int)JointType.ShoulderLeft));
+                //allData.Add(calculateDistances(joints, (int)JointType.HandRight, (int)JointType.ShoulderRight));
+            }
 
             dataInputSize = allData.Count;
          
@@ -439,30 +462,36 @@
             return Math.Abs(vec);
         }
 
-        #region Helper
         private void writeData2Gui(double[] allData) 
         {
             int counter = 0;
-            string text = "\nOrientierung";
-            for (int i = 0; i < allJointKeys.Length; i++)
+            string text = "";
+                            
+            if (_type != ClassificationTypes.DistanceNN)                
             {
-                string obj = "";
-                switch (allJointKeys[i])
-                {
-                    case 4: obj = "Oberarm Links"; break;
-                    case 5: obj = "Unteram Links"; break;
-                    case 8: obj = "Oberarm Rechts"; break;
-                    case 9: obj = "Unteram Rechts"; break;
+                text += "\nOrientierung";
+                for (int i = 0; i < allJointsForUI.Length; i++)
+                {               
+                    string obj = "";
+                    switch (allJointsForUI[i])
+                    {
+                        case 4: obj = "Oberarm Links"; break;
+                        case 5: obj = "Unteram Links"; break;
+                        case 8: obj = "Oberarm Rechts"; break;
+                        case 9: obj = "Unteram Rechts"; break;
+                    }
+                    text += String.Format("\n\t{0} Z: {1:0.00} Y: {2:0.00} X: {3:0.00}",
+                        obj, allData[counter++], allData[counter++], allData[counter++]);                
                 }
-
-                text += String.Format("\n\t{0} Z: {1:0.00} Y: {2:0.00} X: {3:0.00}",
-                    obj, allData[counter++], allData[counter++], allData[counter++]);
-
             }
-            //text += String.Format("\n\nAbstände\n\tEllb L: {0:0.00} \n\tEllb R: {1:0.00} \n\tBeide Ellb {2:0.00}\n\tEllbLinks->HandRechts {3:0.00}\n\tEllbRechts->HandLinks{4:0.00}" +
-            //                        "\n\tHand Links: {5:0.00} \n\tHand Rechts: {6:0.00} \n\tBeide Hände {7:0.00}\n\tHand->Schulter Links: {8:0.00} \n\tHand->Schulter Rechts {9:0.00}",
-            //    allData[counter++], allData[counter++], allData[counter++], allData[counter++], allData[counter++],
-            //    allData[counter++], allData[counter++], allData[counter++], allData[counter++], allData[counter++]);
+            else
+            {
+                text += String.Format("Abstände\n\tEllb L: {0:0.00} \n\tEllb R: {1:0.00} \n\tBeide Ellb {2:0.00}\n\tEllbLinks->HandRechts {3:0.00}\n\tEllbRechts->HandLinks{4:0.00}" +
+                                        "\n\tHand Links: {5:0.00} \n\tHand Rechts: {6:0.00} \n\tBeide Hände {7:0.00}",
+                    allData[counter++], allData[counter++], allData[counter++], allData[counter++], allData[counter++], allData[counter++], allData[counter++], allData[counter++]);
+                //\n\tHand->Schulter Links: {8:0.00} \n\tHand->Schulter Rechts {9:0.00}",
+            }
+
             this.txtAngles.Text = text;
         }
 
@@ -517,59 +546,94 @@
 
             return outputArray;
         }
+        private void collectBayesClassData(double[] data) 
+        {
+            if (descriptionNumber == 0)
+            {
+                csvClass = new StreamWriter(@"c:/temp/cData.csv", true);
+                //csvClass.WriteLine(String.Format("Daten vom {0:dd.MM.yyyy HH:mm:ss}", DateTime.Now));
+
+                StatusText = "Collecting Bayes classification data...;
+            }
+
+            if (descriptionNumber > 0)
+            {
+                var entry = "";
+                for (int i = 0; i < data.Length; )
+                    entry += String.Format("{0:0.000};", data[i++]);
+
+                entry = entry.Replace(',', '.');
+                entry = entry.Replace(';', ',');
+                csvClass.WriteLine(entry.TrimEnd(','));
+                csvClass.Flush();
+            }
+        }
 
         private void writeJavaTrainingData(double[] allData)
         {
-            if (descriptionNumber == 1)
+            if (descriptionNumber == 0)
             {
-                swData = new StreamWriter(@"c:/temp/trainData.pat", true);
-                swData.WriteLine("#=============================== NEXT ===================================");
+                javaData = new StreamWriter(@"c:/temp/trainData.pat", true);
+                javaData.WriteLine("#=============================== NEXT ===================================");
+                StatusText = "Collecting Traindata...";
             }
 
             if (descriptionNumber == (maxTrainData + 1))
             {
-                swData.Flush();
-                swData.Close();
-                swData = new StreamWriter(@"c:/temp/testData.pat", true);
+                javaData.Flush();
+                javaData.Close();
+                javaData = new StreamWriter(@"c:/temp/testData.pat", true);
+                javaData.WriteLine("#=============================== NEXT ===================================");
                 StatusText = "Collecting Testdata...";
-                swData.WriteLine("#=============================== NEXT ===================================");
             }
             
-            if (descriptionNumber > 1)
+            if (descriptionNumber > 0)
             {
-                swData.WriteLine("#description number " + descriptionNumber + 1);
+                javaData.WriteLine("#description number " + descriptionNumber);
 
                 var entry = "";
                 for (int i = 0; i < allData.Length; )
                     entry += String.Format("{0:0.000} ", allData[i++]);
 
-                swData.Write(entry.Replace(',', '.'));
-                swData.WriteLine("\n#result ");
-                swData.WriteLine(Properties.Resources.Result);
-                swData.WriteLine();
-                swData.Flush();
+                javaData.Write(entry.Replace(',', '.'));
+                javaData.WriteLine("\n#result ");
+                javaData.WriteLine(gestureNNCode[gestureNumber]);
+                javaData.WriteLine();
+                javaData.Flush();
             }      
         }
 
         private void writeCsvTrainingData(double[] allData) 
         {
-            if (descriptionNumber == 1)           
-                StatusText = "Collecting Traindata for  === " + gesture[gestureNumber] + "===";
-            
-            var entry = "";
-            for (int i = 0; i < allData.Length; )
-                entry += String.Format("{0:0.000};", allData[i++]);
+            if (descriptionNumber == 0)
+            {
+                csvData = new StreamWriter(@"c:/temp/trainData.csv", true);
+                csvResult = new StreamWriter(@"c:/temp/result.csv", true);
+                //csvData.WriteLine(String.Format("Daten vom {0:dd.MM.yyyy HH:mm:ss}", DateTime.Now));
+                //csvResult.WriteLine(String.Format("Daten vom {0:dd.MM.yyyy HH:mm:ss}", DateTime.Now));
+                //csvData.Flush();
+                //csvResult.Flush();
+                StatusText = "Collecting Traindata...";
+            }
 
-            entry = entry.Replace(',', '.');
-            entry = entry.Replace(';', ',');
-            csvData.WriteLine(entry.TrimEnd(','));
-            csvData.Flush();
+            if (descriptionNumber > 0)
+            {           
+                var entry = "";
+                for (int i = 0; i < allData.Length; )
+                    entry += String.Format("{0:0.000};", allData[i++]);
 
-            csvResult.WriteLine(gesture[gestureNumber]);
+                entry = entry.Replace(',', '.');
+                entry = entry.Replace(';', ',');
+                csvData.WriteLine(entry.TrimEnd(','));
+                csvData.Flush();
+
+                csvResult.WriteLine(gesture[gestureNumber]);
+                csvResult.Flush();
+            }
         }
 
         int resizer = 10;
-        List<JointType> jointTypes = new List<JointType>() { JointType.SpineMid, JointType.ShoulderLeft, JointType.ElbowLeft, JointType.WristLeft, JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight };
+        List<JointType> jointTypes = new List<JointType>() { JointType.Head, JointType.SpineMid, JointType.ShoulderLeft, JointType.ElbowLeft, JointType.WristLeft, JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight };
         private const float InferredZPositionClamp = 0.1f;
         private Pen orientationPen = new Pen(Brushes.OrangeRed, 10);
         private Pen zPen = new Pen(Brushes.Yellow, 3);
@@ -587,55 +651,110 @@
                 jointPoints.Add(type, jointPosition);
             }
 
-            ColorSpacePoint cSPoint0, cSPoint1;
-            Point p0, p1;
-            CameraSpacePoint p = new CameraSpacePoint();
-
-            // ====== Draw Orientation
-            foreach (int thisJoint in allJointKeys)
+            if (_type != ClassificationTypes.DistanceNN)
             {
-                int neighbour = 0;
-                switch (thisJoint)
+                // ====== Draw Orientation
+
+                ColorSpacePoint cSPoint0, cSPoint1;
+                Point p0, p1;
+                CameraSpacePoint p = new CameraSpacePoint();
+
+               
+                foreach (int thisJoint in allJointsForUI)
                 {
-                    case 4: neighbour = 5; break;
-                    case 5: neighbour = 6; break;
-                    case 8: neighbour = 9; break;
-                    case 9: neighbour = 10; break;
+                    int neighbour = 0;
+                    switch (thisJoint)
+                    {
+                        case 4: neighbour = 5; break;
+                        case 5: neighbour = 6; break;
+                        case 8: neighbour = 9; break;
+                        case 9: neighbour = 10; break;
+                    }
+
+                    cSPoint0 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[(JointType)thisJoint]);
+                    cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[(JointType)neighbour]);
+                    p0 = new Point(cSPoint0.X, cSPoint0.Y);
+                    p1 = new Point(cSPoint1.X, cSPoint1.Y);
+                    drawingContext.DrawLine(orientationPen, p0, p1);
                 }
 
-                cSPoint0 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[(JointType)thisJoint]);
-                cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[(JointType)neighbour]);
+                // ====== Draw Normals
+                cSPoint0 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[JointType.SpineMid]);
+                p0 = new Point(cSPoint0.X, cSPoint0.Y);
+
+                p.X = jointPoints[JointType.SpineMid].X - nx.X * resizer;
+                p.Y = jointPoints[JointType.SpineMid].Y + nx.Y * resizer;
+                p.Z = jointPoints[JointType.SpineMid].Z - nx.Z * resizer;
+                cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(p);
+                p1 = new Point(cSPoint1.X, cSPoint1.Y);
+                drawingContext.DrawLine(xPen, p0, p1);
+
+                p.X = jointPoints[JointType.SpineMid].X - ny.X * resizer;
+                p.Y = jointPoints[JointType.SpineMid].Y + ny.Y * resizer;
+                p.Z = jointPoints[JointType.SpineMid].Z + ny.Z * resizer;
+                cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(p);
+                p1 = new Point(cSPoint1.X, cSPoint1.Y);
+                drawingContext.DrawLine(yPen, p0, p1);
+
+                p.X = jointPoints[JointType.SpineMid].X + nz.X * resizer;
+                p.Y = jointPoints[JointType.SpineMid].Y - nz.Y * resizer;
+                p.Z = jointPoints[JointType.SpineMid].Z - nz.Z * resizer;
+                cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(p);
+                p1 = new Point(cSPoint1.X, cSPoint1.Y);
+                drawingContext.DrawLine(zPen, p0, p1);
+            }
+            else
+            {
+                ColorSpacePoint cSPoint0, cSPoint1, cSPoint2, cSPoint3, cSPoint4;
+                Point p0, p1, p2, p3, p4;
+
+                cSPoint0 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[JointType.WristLeft]);
+                cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[JointType.ElbowLeft]);
+                cSPoint2 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[JointType.Head]);
+                cSPoint3 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[JointType.WristRight]);
+                cSPoint4 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[JointType.ElbowRight]);
                 p0 = new Point(cSPoint0.X, cSPoint0.Y);
                 p1 = new Point(cSPoint1.X, cSPoint1.Y);
-                drawingContext.DrawLine(orientationPen, p0, p1);
+                p2 = new Point(cSPoint2.X, cSPoint2.Y);
+                p3 = new Point(cSPoint3.X, cSPoint3.Y);
+                p4 = new Point(cSPoint4.X, cSPoint4.Y);
+
+                drawingContext.DrawLine(orientationPen, p0, p2);
+                drawingContext.DrawLine(orientationPen, p1, p2);
+                drawingContext.DrawLine(orientationPen, p3, p2);
+                drawingContext.DrawLine(orientationPen, p4, p2);
+                drawingContext.DrawLine(orientationPen, p0, p3);
+                drawingContext.DrawLine(orientationPen, p0, p4);
+                drawingContext.DrawLine(orientationPen, p1, p3);
+                drawingContext.DrawLine(orientationPen, p1, p4);
             }
-
-            // ====== Draw Normals
-            cSPoint0 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[JointType.SpineMid]);
-            p0 = new Point(cSPoint0.X, cSPoint0.Y);
-
-            p.X = jointPoints[JointType.SpineMid].X - nx.X * resizer;
-            p.Y = jointPoints[JointType.SpineMid].Y + nx.Y * resizer;
-            p.Z = jointPoints[JointType.SpineMid].Z - nx.Z * resizer;
-            cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(p);
-            p1 = new Point(cSPoint1.X, cSPoint1.Y);
-            drawingContext.DrawLine(xPen, p0, p1);
-
-            p.X = jointPoints[JointType.SpineMid].X - ny.X * resizer;
-            p.Y = jointPoints[JointType.SpineMid].Y + ny.Y * resizer;
-            p.Z = jointPoints[JointType.SpineMid].Z + ny.Z * resizer;
-            cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(p);
-            p1 = new Point(cSPoint1.X, cSPoint1.Y);
-            drawingContext.DrawLine(yPen, p0, p1);
-
-            p.X = jointPoints[JointType.SpineMid].X + nz.X * resizer;
-            p.Y = jointPoints[JointType.SpineMid].Y - nz.Y * resizer;
-            p.Z = jointPoints[JointType.SpineMid].Z - nz.Z * resizer;
-            cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(p);
-            p1 = new Point(cSPoint1.X, cSPoint1.Y);
-            drawingContext.DrawLine(zPen, p0, p1);    
         }
-        #endregion
+    }
+
+    public enum ClassificationTypes
+    {
+        DistanceNN,
+        OrientationNN,
+        OrientationBayes
+    }
+
+    public class EnumBooleanConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) 
+        { 
+            if (parameter.Equals(value)) 
+                return true; 
+            else 
+                return false; 
+        } 
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) 
+        {
+            if (((bool)value) == true)
+                return parameter;            
+            else
+                return DependencyProperty.UnsetValue;
+        }
     }
 }
 
