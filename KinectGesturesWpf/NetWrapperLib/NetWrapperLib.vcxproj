@@ -139,13 +139,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="distance1.c" />
     <ClCompile Include="MyWrapper.cpp" />
-    <ClCompile Include="position.c" />
-    <ClCompile Include="v5.c" />
+    <ClCompile Include="orient1.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="position.h" />
-    <ClInclude Include="v5.h" />
+    <ClInclude Include="distance1.h" />
+    <ClInclude Include="orient1.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

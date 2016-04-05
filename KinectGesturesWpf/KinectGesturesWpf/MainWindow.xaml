@@ -26,12 +26,12 @@
             <Image Source="{Binding ImageSource}" Stretch="UniformToFill" />
         </Viewbox>
         <GroupBox Header="Data" Margin="10,10,40,419" Grid.Column="1" />
-        <TextBlock Grid.Row="0" Grid.Column="1" x:Name="txtAngles" FontSize="14" Padding="10" Margin="20,20,45,0">
+        <TextBlock Grid.Row="0" Grid.Column="1" x:Name="txtAngles" FontSize="14" Padding="10" Margin="20,20,45,419">
             <Run Text="..."/>
         </TextBlock>
 
         <GroupBox Header="Success Rate" Margin="10,252,40,267" Grid.Column="1" />
-        <TextBlock Name="txtSuccessRate" Text="" FontWeight="Bold" Width="300" Grid.Column="1" Margin="32,264,68,280"/>
+        <TextBlock Name="txtSuccessRate" Text="-" FontWeight="Bold" Width="300" Grid.Column="1" Margin="20,273,80,271"/>
 
         <Label Content="{Binding StatusText}" FontWeight="Bold" Width="300" Height="25" Grid.Column="1" Margin="10,578,90,46"/>
         <Label Content="{Binding GestureText}" FontWeight="Bold" Width="300" Height="25" Grid.Column="1" Margin="32,387,68,237"/>

@@ -46,11 +46,21 @@
 
         private StreamWriter javaData, csvData, csvResult, csvClass;
         private int descriptionNumber, gestureNumber;
-        private int dataInputSize;
-
-        private int dataOutputSize = 5;
-        private string[] gesture = new string[] { "Y", "M", "C", "A", "I" };
-        private string[] gestureNNCode = new string[] { "1 -1 -1 -1 -1", "-1 1 -1 -1 -1", "-1 -1 1 -1 -1", "-1 -1 -1 1 -1", "-1 -1 -1 -1 1" };
+        //private int dataInputSize;
+        //private int dataOutputSize = 11;
+        private string[] gestureWord = new string[] { "A", "C", "H", "I", "K", "L", "M", "O", "T", "V", "X" };
+        private string[] gestureNNCode = new string[] { 
+            "1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1", 
+            "-1 1 -1 -1 -1 -1 -1 -1 -1 -1 -1", 
+            "-1 -1 1 -1 -1 -1 -1 -1 -1 -1 -1", 
+            "-1 -1 -1 1 -1 -1 -1 -1 -1 -1 -1", 
+            "-1 -1 -1 -1 1 -1 -1 -1 -1 -1 -1",
+            "-1 -1 -1 -1 -1 1 -1 -1 -1 -1 -1",
+            "-1 -1 -1 -1 -1 -1 1 -1 -1 -1 -1",
+            "-1 -1 -1 -1 -1 -1 -1 1 -1 -1 -1",
+            "-1 -1 -1 -1 -1 -1 -1 -1 1 -1 -1",
+            "-1 -1 -1 -1 -1 -1 -1 -1 -1 1 -1",
+            "-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1"};
 
         //sets the flag for recording new JointPosition Data
         private bool recordMode = false;
@@ -172,7 +182,7 @@
         private void chk_Record_Unchecked(object sender, RoutedEventArgs e)
         {
             this.recordMode = false;
-            StatusText = "Idle";
+            StatusText = Properties.Resources.KinectReady;
             descriptionNumber = -50;
         }
         private void chk_Classify_Checked(object sender, RoutedEventArgs e)
@@ -185,7 +195,9 @@
         private void chk_Classify_Unchecked(object sender, RoutedEventArgs e)
         {
             this.classifyEnabled = false;
-            StatusText = "Idle";
+            StatusText = Properties.Resources.KinectReady;
+            GestureText = "";
+            txtSuccessRate.Text = "-";
             descriptionNumber = -50;
         }
 
@@ -331,7 +343,7 @@
                             // 3) Export Data if activated
                             var collectData = descriptionNumber <= (maxTrainData+maxTestData) && recordMode;
                             if (collectData)
-                            {
+                            {                               
                                 if (descriptionNumber >= 0)
                                 {
                                     if (_type != ClassificationTypes.OrientationBayes)
@@ -340,13 +352,11 @@
                                         writeCsvTrainingData(allData);
                                 }
                                 else
-                                    StatusText = "Starting to Collect for Gesture === " + gesture[gestureNumber] + "===";
-
-                                descriptionNumber++;
+                                    StatusText = "Starting to Collect for Gesture === " + gestureWord[gestureNumber] + " ===";                               
 
                                 if (descriptionNumber == (maxTrainData + maxTestData))
                                 {
-                                    if (gestureNumber + 1 < gesture.Length)
+                                    if (gestureNumber + 1 < gestureWord.Length)
                                     {
                                         descriptionNumber = Convert.ToInt32(Properties.Resources.Precarriage);
                                         gestureNumber++;
@@ -354,7 +364,9 @@
                                     }
                                     else
                                         StatusText = "Collecting done!";
-                                }                          
+                                }
+
+                                descriptionNumber++;
                             }
                             
                            // 4) Classify if activated
@@ -447,7 +459,7 @@
                 //allData.Add(calculateDistances(joints, (int)JointType.HandRight, (int)JointType.ShoulderRight));
             }
 
-            dataInputSize = allData.Count;
+            //dataInputSize = allData.Count;
          
             return allData.ToArray<double>();
         }
@@ -469,25 +481,25 @@
                             
             if (_type != ClassificationTypes.DistanceNN)                
             {
-                text += "\nOrientierung";
+                text += "\nOrientierung\n";
                 for (int i = 0; i < allJointsForUI.Length; i++)
                 {               
                     string obj = "";
                     switch (allJointsForUI[i])
                     {
                         case 4: obj = "Oberarm Links"; break;
-                        case 5: obj = "Unteram Links"; break;
+                        case 5: obj = "Unterarm Links"; break;
                         case 8: obj = "Oberarm Rechts"; break;
-                        case 9: obj = "Unteram Rechts"; break;
+                        case 9: obj = "Unterarm Rechts"; break;
                     }
-                    text += String.Format("\n\t{0} Z: {1:0.00} Y: {2:0.00} X: {3:0.00}",
+                    text += String.Format("\n{0}\tZ: {1:0.00} \tY: {2:0.00} \tX: {3:0.00}",
                         obj, allData[counter++], allData[counter++], allData[counter++]);                
                 }
             }
             else
             {
-                text += String.Format("Abstände\n\tEllb L: {0:0.00} \n\tEllb R: {1:0.00} \n\tBeide Ellb {2:0.00}\n\tEllbLinks->HandRechts {3:0.00}\n\tEllbRechts->HandLinks{4:0.00}" +
-                                        "\n\tHand Links: {5:0.00} \n\tHand Rechts: {6:0.00} \n\tBeide Hände {7:0.00}",
+                text += String.Format("Abstände\n\tEllbogen Links \t\t{0:0.00} \n\tEllbogen Rechts \t\t{1:0.00} \n\tBeide Ellbogen \t\t{2:0.00}\n\tEllb.Links HandRechts \t{3:0.00}\n\tEllb.Rechts HandLinks \t{4:0.00}" +
+                                        "\n\tHand Links \t\t{5:0.00} \n\tHand Rechts \t\t{6:0.00} \n\tBeide Hände \t\t{7:0.00}",
                     allData[counter++], allData[counter++], allData[counter++], allData[counter++], allData[counter++], allData[counter++], allData[counter++], allData[counter++]);
                 //\n\tHand->Schulter Links: {8:0.00} \n\tHand->Schulter Rechts {9:0.00}",
             }
@@ -498,10 +510,9 @@
         private void updateGestureText(float[] output)
         {
             Dictionary<string, float> dict = new Dictionary<string, float>();
-            var words = new string[]{"Y", "M", "C", "A", "I"};
 
             for (var i = 0; i < output.Length; i++)
-                dict.Add(words[i], output[i]);
+                dict.Add(gestureWord[i], output[i]);
 
             try
             {
@@ -514,10 +525,10 @@
                 GestureText = first.Key;
 
                 Array.Sort(output);
-                this.txtSuccessRate.Text = string.Format("Output\n\tWin:\t {0:0.00} {1} \n\tSec:\t {2:0.00} {3}\n\tThrd:\t {4:0.00} {5}",
-                                                           first.Value, first.Key, sec.Value, sec.Key, third.Value, third.Key);
+                this.txtSuccessRate.Text = string.Format("(1)\t{0}\t--\t{1:0.00}\n(2)\t{2}\t--\t{3:0.00}\n(3)\t{4}\t--\t{5:0.00}",
+                                                           first.Key, first.Value, sec.Key, sec.Value, third.Key, third.Value);
             }
-            catch (Exception e)
+            catch
             {
                 this.txtSuccessRate.Text = "N/A";
                 GestureText = "";
@@ -525,12 +536,13 @@
         }
 
         [DllImport("NetWrapperLib.dll")]
-        //public unsafe static extern int position(float* input, float* output);
-        public unsafe static extern int classify(float* input, float* output);
+        public unsafe static extern int classifyDist(float* input, float* output);
+        [DllImport("NetWrapperLib.dll")]
+        public unsafe static extern int classifyOrien(float* input, float* output);
         private unsafe float[] classifyGesture(double[] angles)
         {
-            float[] inputArray = new float[dataInputSize];
-            float[] outputArray = new float[dataOutputSize];
+            float[] inputArray = new float[angles.Length];
+            float[] outputArray = new float[gestureNNCode.Length];
             int res;
 
             for (int i = 0; i < angles.Length; i++)
@@ -540,7 +552,10 @@
             {
                 fixed (float* output = outputArray)
                 {
-                    res = classify(input, output);
+                    if (_type == ClassificationTypes.DistanceNN)
+                        res = classifyDist(input, output);
+                    if (_type == ClassificationTypes.OrientationNN)
+                        res = classifyOrien(input, output);
                 }
             }
 
@@ -553,7 +568,7 @@
                 csvClass = new StreamWriter(@"c:/temp/cData.csv", true);
                 //csvClass.WriteLine(String.Format("Daten vom {0:dd.MM.yyyy HH:mm:ss}", DateTime.Now));
 
-                StatusText = "Collecting Bayes classification data...;
+                StatusText = "Collecting Bayes classification data...";
             }
 
             if (descriptionNumber > 0)
@@ -627,7 +642,7 @@
                 csvData.WriteLine(entry.TrimEnd(','));
                 csvData.Flush();
 
-                csvResult.WriteLine(gesture[gestureNumber]);
+                csvResult.WriteLine(gestureWord[gestureNumber]);
                 csvResult.Flush();
             }
         }
