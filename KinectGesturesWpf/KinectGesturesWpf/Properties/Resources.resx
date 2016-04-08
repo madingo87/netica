@@ -124,12 +124,12 @@
     <value>No Senosor available</value>
   </data>
   <data name="MaxTestData" xml:space="preserve">
-    <value>10</value>
+    <value>0</value>
   </data>
   <data name="MaxTrainData" xml:space="preserve">
-    <value>20</value>
+    <value>50</value>
   </data>
   <data name="Precarriage" xml:space="preserve">
-    <value>-10</value>
+    <value>-30</value>
   </data>
 </root>

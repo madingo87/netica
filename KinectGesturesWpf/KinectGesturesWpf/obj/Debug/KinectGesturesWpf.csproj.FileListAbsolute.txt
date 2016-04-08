@@ -29,3 +29,6 @@ C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\K
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\KinectGesturesWpf\obj\Debug\KinectGesturesWpf.pdb
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\KinectGesturesWpf\obj\Debug\GeneratedInternalTypeHelper.g.cs
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\KinectGesturesWpf\obj\Debug\KinectGesturesWpf_MarkupCompile.lref
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\KinectGesturesWpf\obj\Debug\KinectGesturesWpf.csprojResolveAssemblyReference.cache
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\KinectGesturesWpf\obj\Debug\Interop.MLApp.dll
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\KinectGesturesWpf\obj\Debug\KinectGesturesWpf.csproj.ResolveComReference.cache

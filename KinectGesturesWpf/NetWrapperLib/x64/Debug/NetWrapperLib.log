@@ -1,0 +1,30 @@
+﻿Der Buildvorgang wurde am 06.04.2016 18:04:56 gestartet.
+     1>Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\NetWrapperLib\NetWrapperLib.vcxproj" auf Knoten "2", Build Ziel(e).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /Od /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D NETWRAPPERLIB_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /Gd /TC /errorReport:prompt distance1.c orient1.c
+         orient1.c
+     1>orient1.c(206): warning C4305: 'Initialisierung': Verkürzung von 'double' in 'float'
+     1>orient1.c(488): warning C4305: 'Initialisierung': Verkürzung von 'double' in 'float'
+     1>orient1.c(523): warning C4244: '=': Konvertierung von 'double' in 'float', möglicher Datenverlust
+     1>orient1.c(533): warning C4244: '=': Konvertierung von 'double' in 'float', möglicher Datenverlust
+     1>orient1.c(543): warning C4244: '=': Konvertierung von 'double' in 'float', möglicher Datenverlust
+         distance1.c
+     1>distance1.c(174): warning C4305: 'Initialisierung': Verkürzung von 'double' in 'float'
+     1>distance1.c(436): warning C4305: 'Initialisierung': Verkürzung von 'double' in 'float'
+     1>distance1.c(471): warning C4244: '=': Konvertierung von 'double' in 'float', möglicher Datenverlust
+     1>distance1.c(481): warning C4244: '=': Konvertierung von 'double' in 'float', möglicher Datenverlust
+     1>distance1.c(491): warning C4244: '=': Konvertierung von 'double' in 'float', möglicher Datenverlust
+         Code wird generiert...
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /Od /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D NETWRAPPERLIB_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /Gd /TP /errorReport:prompt MyWrapper.cpp
+         MyWrapper.cpp
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\x64\Debug\NetWrapperLib.dll" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\x64\Debug\NetWrapperLib.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\x64\Debug\NetWrapperLib.lib" /MACHINE:X64 /DLL x64\Debug\distance1.obj
+         x64\Debug\MyWrapper.obj
+         x64\Debug\orient1.obj
+            Bibliothek "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\x64\Debug\NetWrapperLib.lib" und Objekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\x64\Debug\NetWrapperLib.exp" werden erstellt.
+         NetWrapperLib.vcxproj -> C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\x64\Debug\NetWrapperLib.dll
+     1>Die Erstellung des Projekts "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\KinectGesturesWpf\NetWrapperLib\NetWrapperLib.vcxproj" ist abgeschlossen, Build Ziel(e).
+
+Build erfolgreich.
+
+Verstrichene Zeit 00:00:06.35

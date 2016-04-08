@@ -15,6 +15,8 @@
     using System.Linq;
     using System.Windows.Data;
 
+    using MLApp;
+
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
         /// <summary>
@@ -44,7 +46,7 @@
         private CoordinateMapper coordinateMapper = null;
         private Body[] bodies = null;
 
-        private StreamWriter javaData, csvData, csvResult, csvClass;
+        private StreamWriter javaData, javaResult, csvData, csvResult, csvClass;
         private int descriptionNumber, gestureNumber;
         //private int dataInputSize;
         //private int dataOutputSize = 11;
@@ -68,11 +70,10 @@
 
         private string gestureText = null;        
         private string statusText = null;
-        private ClassificationTypes _type;
+        private ClassificationTypes _classificationType;
 
         private int maxTestData;
         private int maxTrainData;
-
 
         public MainWindow()
         {
@@ -163,9 +164,9 @@
 
         public ClassificationTypes Type 
         { 
-            get { return _type; } 
+            get { return _classificationType; } 
             set { 
-                _type = value; 
+                _classificationType = value; 
                 if (PropertyChanged != null) 
                     PropertyChanged(this, new PropertyChangedEventArgs("Type")); } 
         }
@@ -190,7 +191,7 @@
             this.classifyEnabled = true;
             this.recordMode = false;
             
-            if (_type != ClassificationTypes.OrientationBayes) StatusText = "Classifying...";
+            if (_classificationType != ClassificationTypes.OrientationBayes) StatusText = "Classifying...";
         }
         private void chk_Classify_Unchecked(object sender, RoutedEventArgs e)
         {
@@ -241,21 +242,31 @@
                 {
                     javaData.Flush();
                     javaData.Close();
+                    javaData = null;
+                }
+                if (javaResult != null)
+                {
+                    javaResult.Flush();
+                    javaResult.Close();
+                    javaResult = null;
                 }
                 if (csvData != null)
                 {
                     csvData.Flush();
                     csvData.Close();
+                    csvData = null;
                 }
                 if (csvResult != null)
                 {
                     csvResult.Flush();
                     csvResult.Close();
+                    csvResult = null;
                 }
                 if (csvClass != null)
                 {
                     csvClass.Flush();
                     csvClass.Close();
+                    csvClass = null;
                 }
             }
             catch (IOException ex)
@@ -346,12 +357,13 @@
                             {                               
                                 if (descriptionNumber >= 0)
                                 {
-                                    if (_type != ClassificationTypes.OrientationBayes)
+                                    if (_classificationType != ClassificationTypes.OrientationBayes)
                                         writeJavaTrainingData(allData);
                                     else
                                         writeCsvTrainingData(allData);
                                 }
-                                else
+
+                                if (descriptionNumber == Convert.ToInt32(Properties.Resources.Precarriage) + 1)
                                     StatusText = "Starting to Collect for Gesture === " + gestureWord[gestureNumber] + " ===";                               
 
                                 if (descriptionNumber == (maxTrainData + maxTestData))
@@ -372,16 +384,40 @@
                            // 4) Classify if activated
                             if (classifyEnabled)
                             {
-                                if (_type != ClassificationTypes.OrientationBayes)
+                                var output = classifyGesture(allData);
+                                var predicted = updateGestureText(output);
+
+                                if (descriptionNumber >= 0)
                                 {
-                                    var output = classifyGesture(allData);
-                                    updateGestureText(output);
+                                    if (_classificationType != ClassificationTypes.OrientationBayes)
+                                        writeJavaResult(predicted);
+                                    else
+                                        writeBayesResult(allData, gestureWord[gestureNumber]);
                                 }
-                                else
+
+                                if (descriptionNumber == Convert.ToInt32(Properties.Resources.Precarriage)+1)
+                                    StatusText = "Test Collection (Gesture === " + gestureWord[gestureNumber] + " ===)";
+
+                                if (descriptionNumber == (maxTrainData + maxTestData))
                                 {
-                                    descriptionNumber++;
-                                    collectBayesClassData(allData);
+                                    if (gestureNumber + 1 < gestureWord.Length)
+                                    {
+                                        descriptionNumber = Convert.ToInt32(Properties.Resources.Precarriage);
+                                        gestureNumber++;
+
+                                        if (_classificationType != ClassificationTypes.OrientationBayes)
+                                        {
+                                            float r = (float)_count / (float)_i;
+                                            javaResult.WriteLine("### Percentage: " + r);
+                                        }
+
+                                        closeStreams();
+                                    }
+                                    else
+                                        StatusText = "Collecting done!";
                                 }
+
+                                descriptionNumber++;
                             }
                         }
                     }
@@ -394,7 +430,7 @@
         {
             List<double> allData = new List<double>();
 
-            if (_type != ClassificationTypes.DistanceNN)
+            if (_classificationType != ClassificationTypes.DistanceNN)
             {
                 CameraSpacePoint vec = new CameraSpacePoint();
                 CameraSpacePoint newSpineShoulder = new CameraSpacePoint();
@@ -479,7 +515,7 @@
             int counter = 0;
             string text = "";
                             
-            if (_type != ClassificationTypes.DistanceNN)                
+            if (_classificationType != ClassificationTypes.DistanceNN)                
             {
                 text += "\nOrientierung\n";
                 for (int i = 0; i < allJointsForUI.Length; i++)
@@ -507,7 +543,7 @@
             this.txtAngles.Text = text;
         }
 
-        private void updateGestureText(float[] output)
+        private string updateGestureText(float[] output)
         {
             Dictionary<string, float> dict = new Dictionary<string, float>();
 
@@ -533,7 +569,46 @@
                 this.txtSuccessRate.Text = "N/A";
                 GestureText = "";
             }
+
+            return GestureText;
         }
+
+        int _count, _i;
+        private void writeJavaResult(string prediction)
+        {
+            if (javaResult == null)
+            {
+                _count = 0;
+                _i = maxTrainData + maxTestData - 1;
+                javaResult = new StreamWriter(@"c:\temp\java\results\javaResult.txt", true);
+                javaResult.WriteLine("Label\t-\tPredicted");
+            }
+
+            javaResult.WriteLine("{0}\t\t-\t{1}", gestureWord[gestureNumber], prediction);
+            if (gestureWord[gestureNumber] == prediction) _count++;
+        }
+
+        private void writeBayesResult(double[] data, string label)
+        {
+            if (descriptionNumber == 0)
+            {
+                csvClass = new StreamWriter(@"c:\temp\matlab\results\" + label + ".csv", true);
+                StatusText = "Collecting...";
+            }
+
+            if (descriptionNumber > 0)
+            {
+                var entry = "";
+                for (int i = 0; i < data.Length; )
+                    entry += String.Format("{0:0.000};", data[i++]);
+
+                entry = entry.Replace(',', '.');
+                entry = entry.Replace(';', ',');
+                csvClass.WriteLine(entry.TrimEnd(','));
+                csvClass.Flush();
+            }
+        }
+
 
         [DllImport("NetWrapperLib.dll")]
         public unsafe static extern int classifyDist(float* input, float* output);
@@ -552,36 +627,14 @@
             {
                 fixed (float* output = outputArray)
                 {
-                    if (_type == ClassificationTypes.DistanceNN)
+                    if (_classificationType == ClassificationTypes.DistanceNN)
                         res = classifyDist(input, output);
-                    if (_type == ClassificationTypes.OrientationNN)
+                    if (_classificationType == ClassificationTypes.OrientationNN)
                         res = classifyOrien(input, output);
                 }
             }
 
             return outputArray;
-        }
-        private void collectBayesClassData(double[] data) 
-        {
-            if (descriptionNumber == 0)
-            {
-                csvClass = new StreamWriter(@"c:/temp/cData.csv", true);
-                //csvClass.WriteLine(String.Format("Daten vom {0:dd.MM.yyyy HH:mm:ss}", DateTime.Now));
-
-                StatusText = "Collecting Bayes classification data...";
-            }
-
-            if (descriptionNumber > 0)
-            {
-                var entry = "";
-                for (int i = 0; i < data.Length; )
-                    entry += String.Format("{0:0.000};", data[i++]);
-
-                entry = entry.Replace(',', '.');
-                entry = entry.Replace(';', ',');
-                csvClass.WriteLine(entry.TrimEnd(','));
-                csvClass.Flush();
-            }
         }
 
         private void writeJavaTrainingData(double[] allData)
@@ -622,12 +675,8 @@
         {
             if (descriptionNumber == 0)
             {
-                csvData = new StreamWriter(@"c:/temp/trainData.csv", true);
-                csvResult = new StreamWriter(@"c:/temp/result.csv", true);
-                //csvData.WriteLine(String.Format("Daten vom {0:dd.MM.yyyy HH:mm:ss}", DateTime.Now));
-                //csvResult.WriteLine(String.Format("Daten vom {0:dd.MM.yyyy HH:mm:ss}", DateTime.Now));
-                //csvData.Flush();
-                //csvResult.Flush();
+                csvData = new StreamWriter(@"c:/temp/matlab/data.csv", true);
+                csvResult = new StreamWriter(@"c:/temp/matlab/labels.csv", true);
                 StatusText = "Collecting Traindata...";
             }
 
@@ -666,7 +715,7 @@
                 jointPoints.Add(type, jointPosition);
             }
 
-            if (_type != ClassificationTypes.DistanceNN)
+            if (_classificationType != ClassificationTypes.DistanceNN)
             {
                 // ====== Draw Orientation
 
@@ -752,7 +801,6 @@
         OrientationNN,
         OrientationBayes
     }
-
     public class EnumBooleanConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) 
