@@ -46,25 +46,26 @@
         private CoordinateMapper coordinateMapper = null;
         private Body[] bodies = null;
 
-        private StreamWriter javaData, javaResult, csvData, csvResult, csvClass;
+        private StreamWriter javaData, javaResult, javaPerc, csvData, csvResult, csvClass;
         private int descriptionNumber, gestureNumber;
-        //private int dataInputSize;
-        //private int dataOutputSize = 11;
-        private string[] gestureWord = new string[] { "A", "C", "H", "I", "K", "L", "M", "O", "T", "V", "X" };
+        private string[] gestureWord = new string[] { "A", "C", "D", "F", "H", "I", "K", "L", "M", "O", "T", "V", "W", "X", "Z" };
         private string[] gestureNNCode = new string[] { 
-            "1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1", 
-            "-1 1 -1 -1 -1 -1 -1 -1 -1 -1 -1", 
-            "-1 -1 1 -1 -1 -1 -1 -1 -1 -1 -1", 
-            "-1 -1 -1 1 -1 -1 -1 -1 -1 -1 -1", 
-            "-1 -1 -1 -1 1 -1 -1 -1 -1 -1 -1",
-            "-1 -1 -1 -1 -1 1 -1 -1 -1 -1 -1",
-            "-1 -1 -1 -1 -1 -1 1 -1 -1 -1 -1",
-            "-1 -1 -1 -1 -1 -1 -1 1 -1 -1 -1",
-            "-1 -1 -1 -1 -1 -1 -1 -1 1 -1 -1",
-            "-1 -1 -1 -1 -1 -1 -1 -1 -1 1 -1",
-            "-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1"};
+            "1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1", 
+            "-1 1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1", 
+            "-1 -1 1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1", 
+            "-1 -1 -1 1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1", 
+            "-1 -1 -1 -1 1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1",
+            "-1 -1 -1 -1 -1 1 -1 -1 -1 -1 -1 -1 -1 -1 -1",
+            "-1 -1 -1 -1 -1 -1 1 -1 -1 -1 -1 -1 -1 -1 -1",
+            "-1 -1 -1 -1 -1 -1 -1 1 -1 -1 -1 -1 -1 -1 -1",
+            "-1 -1 -1 -1 -1 -1 -1 -1 1 -1 -1 -1 -1 -1 -1",
+            "-1 -1 -1 -1 -1 -1 -1 -1 -1 1 -1 -1 -1 -1 -1",
+            "-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1 -1 -1 -1 -1",
+            "-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1 -1 -1 -1",
+            "-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1 -1 -1",
+            "-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1 -1",
+            "-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1"};
 
-        //sets the flag for recording new JointPosition Data
         private bool recordMode = false;
         private bool classifyEnabled = false;
 
@@ -244,6 +245,12 @@
                     javaData.Close();
                     javaData = null;
                 }
+                if (javaPerc != null)
+                {
+                    javaPerc.Flush();
+                    javaPerc.Close();
+                    javaPerc = null;
+                }
                 if (javaResult != null)
                 {
                     javaResult.Flush();
@@ -364,7 +371,7 @@
                                 }
 
                                 if (descriptionNumber == Convert.ToInt32(Properties.Resources.Precarriage) + 1)
-                                    StatusText = "Starting to Collect for Gesture === " + gestureWord[gestureNumber] + " ===";                               
+                                    StatusText = "Next = " + gestureWord[gestureNumber] + " =";                               
 
                                 if (descriptionNumber == (maxTrainData + maxTestData))
                                 {
@@ -375,7 +382,7 @@
                                         closeStreams();
                                     }
                                     else
-                                        StatusText = "Collecting done!";
+                                        StatusText = "Done!";
                                 }
 
                                 descriptionNumber++;
@@ -396,25 +403,25 @@
                                 }
 
                                 if (descriptionNumber == Convert.ToInt32(Properties.Resources.Precarriage)+1)
-                                    StatusText = "Test Collection (Gesture === " + gestureWord[gestureNumber] + " ===)";
+                                    StatusText = "Next = " + gestureWord[gestureNumber] + " =";
 
                                 if (descriptionNumber == (maxTrainData + maxTestData))
                                 {
+                                    if (_classificationType != ClassificationTypes.OrientationBayes)
+                                    {
+                                        float r = (float)_count / (float)_i;
+                                        javaPerc.WriteLine("Gesture: " + gestureWord[gestureNumber] + " \tPercentage: " + r);
+                                        javaPerc.Flush();
+                                    }
+
                                     if (gestureNumber + 1 < gestureWord.Length)
                                     {
                                         descriptionNumber = Convert.ToInt32(Properties.Resources.Precarriage);
                                         gestureNumber++;
-
-                                        if (_classificationType != ClassificationTypes.OrientationBayes)
-                                        {
-                                            float r = (float)_count / (float)_i;
-                                            javaResult.WriteLine("### Percentage: " + r);
-                                        }
-
                                         closeStreams();
                                     }
                                     else
-                                        StatusText = "Collecting done!";
+                                        StatusText = "Done!";
                                 }
 
                                 descriptionNumber++;
@@ -579,13 +586,18 @@
             if (javaResult == null)
             {
                 _count = 0;
-                _i = maxTrainData + maxTestData - 1;
+                _i = maxTrainData + maxTestData;
+                javaPerc = new StreamWriter(@"c:\temp\java\results\javaPercentage.txt", true);
                 javaResult = new StreamWriter(@"c:\temp\java\results\javaResult.txt", true);
                 javaResult.WriteLine("Label\t-\tPredicted");
+                StatusText = "Collecting (Gesture " + gestureWord[gestureNumber] + " )";
             }
 
-            javaResult.WriteLine("{0}\t\t-\t{1}", gestureWord[gestureNumber], prediction);
-            if (gestureWord[gestureNumber] == prediction) _count++;
+            if (descriptionNumber > 0)
+            {
+                javaResult.WriteLine("{0}\t\t-\t{1}", gestureWord[gestureNumber], prediction);
+                if (gestureWord[gestureNumber] == prediction) _count++;
+            }
         }
 
         private void writeBayesResult(double[] data, string label)
@@ -641,7 +653,7 @@
         {
             if (descriptionNumber == 0)
             {
-                javaData = new StreamWriter(@"c:/temp/trainData.pat", true);
+                javaData = new StreamWriter(@"c:/temp/java/trainData.pat", true);
                 javaData.WriteLine("#=============================== NEXT ===================================");
                 StatusText = "Collecting Traindata...";
             }
@@ -650,7 +662,7 @@
             {
                 javaData.Flush();
                 javaData.Close();
-                javaData = new StreamWriter(@"c:/temp/testData.pat", true);
+                javaData = new StreamWriter(@"c:/temp/java/testData.pat", true);
                 javaData.WriteLine("#=============================== NEXT ===================================");
                 StatusText = "Collecting Testdata...";
             }

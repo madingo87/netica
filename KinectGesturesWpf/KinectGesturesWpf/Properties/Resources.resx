@@ -127,9 +127,9 @@
     <value>0</value>
   </data>
   <data name="MaxTrainData" xml:space="preserve">
-    <value>50</value>
+    <value>200</value>
   </data>
   <data name="Precarriage" xml:space="preserve">
-    <value>-30</value>
+    <value>-100</value>
   </data>
 </root>

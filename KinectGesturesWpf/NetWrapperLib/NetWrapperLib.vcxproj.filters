@@ -18,18 +18,18 @@
     <ClCompile Include="MyWrapper.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="distance1.c">
+    <ClCompile Include="dist.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="orient1.c">
+    <ClCompile Include="orient.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="distance1.h">
+    <ClInclude Include="dist.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="orient1.h">
+    <ClInclude Include="orient.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

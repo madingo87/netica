@@ -4,7 +4,7 @@
         xmlns:local="clr-namespace:KinectGesturesWpf"
         Title="KinectGesturesWpf" 
         Closing="MainWindow_Closing" Width="1562" Height="700">
-    <Window.Resources>        
+    <Window.Resources>
         <SolidColorBrush x:Key="MediumGreyBrush" Color="#ff6e6e6e" />
         <SolidColorBrush x:Key="KinectPurpleBrush" Color="#ff52318f" />
         <SolidColorBrush x:Key="KinectBlueBrush" Color="#ff00BCF2" />
@@ -33,13 +33,13 @@
         <GroupBox Header="Success Rate" Margin="10,252,40,267" Grid.Column="1" />
         <TextBlock Name="txtSuccessRate" Text="-" FontWeight="Bold" Width="300" Grid.Column="1" Margin="20,273,80,271"/>
 
-        <Label Content="{Binding StatusText}" FontWeight="Bold" Width="300" Height="25" Grid.Column="1" Margin="10,578,90,46"/>
+        <Label Content="{Binding StatusText}" FontSize="25px" FontWeight="Bold" Grid.Column="1" Margin="10,559,28,10"/>
         <Label Content="{Binding GestureText}" FontWeight="Bold" Width="300" Height="25" Grid.Column="1" Margin="32,387,68,237"/>
 
         <GroupBox Header="Mode" Margin="10,450,220,111" Grid.Column="1" />
         <CheckBox Name="chk_Record" Margin="32,474,239,145" Content="Record Mode" Checked="chk_Record_Checked" Unchecked="chk_Record_Unchecked" Height="30" Grid.Column="1"/>
         <CheckBox Name="chk_Classify" Margin="32,508,239,111" Content="Classification Mode" Checked="chk_Classify_Checked" Unchecked="chk_Classify_Unchecked" Height="30" Grid.Column="1"/>
-        
+
         <GroupBox Header="Classification Type" Margin="202,450,28,111" Grid.Column="1" />
         <RadioButton Content="Distance NN" IsChecked="{Binding Path=Type, Converter={StaticResource enumConverter}, ConverterParameter={x:Static local:ClassificationTypes.DistanceNN}}"  HorizontalAlignment="Left" Margin="219,472,0,147" Grid.Column="1"/>
         <RadioButton Content="Orientation NN" IsChecked="{Binding Path=Type, Converter={StaticResource enumConverter}, ConverterParameter={x:Static local:ClassificationTypes.OrientationNN}}" HorizontalAlignment="Left" Margin="219,493,0,140" Grid.Column="1"/>

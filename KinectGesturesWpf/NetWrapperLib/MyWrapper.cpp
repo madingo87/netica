@@ -2,8 +2,8 @@
 
 extern "C" 
 { 
-#include "distance1.h"
-#include "orient1.h"
+#include "dist.h"
+#include "orient.h"
 }
 
 extern "C" __declspec(dllexport) int __stdcall classifyDist(float* input, float* output);
