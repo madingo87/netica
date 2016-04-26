@@ -359,8 +359,7 @@
                             drawJoints(body.Joints, dc);
 
                             // 3) Export Data if activated
-                            var collectData = descriptionNumber <= (maxTrainData+maxTestData) && recordMode;
-                            if (collectData)
+                            if (recordMode && descriptionNumber <= maxTrainData + maxTestData)
                             {                               
                                 if (descriptionNumber >= 0)
                                 {
@@ -389,7 +388,7 @@
                             }
                             
                            // 4) Classify if activated
-                            if (classifyEnabled)
+                            if (classifyEnabled && descriptionNumber <= maxTrainData + maxTestData)
                             {
                                 var output = classifyGesture(allData);
                                 var predicted = updateGestureText(output);
@@ -405,7 +404,7 @@
                                 if (descriptionNumber == Convert.ToInt32(Properties.Resources.Precarriage)+1)
                                     StatusText = "Next = " + gestureWord[gestureNumber] + " =";
 
-                                if (descriptionNumber == (maxTrainData + maxTestData))
+                                if (descriptionNumber == maxTrainData + maxTestData)
                                 {
                                     if (_classificationType != ClassificationTypes.OrientationBayes)
                                     {
@@ -421,7 +420,7 @@
                                         closeStreams();
                                     }
                                     else
-                                        StatusText = "Done!";
+                                        StatusText = "Done!";                           
                                 }
 
                                 descriptionNumber++;
