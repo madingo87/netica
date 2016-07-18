@@ -1,0 +1,14 @@
+﻿<Window x:Class="SLRS.Graph"
+        Name="window"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Graph" Height="598" Width="1040"
+        SizeChanged="Window_SizeChanged">
+    <Grid>
+        <Canvas Name="trainGraph" Background="LightGray" HorizontalAlignment="Left" Height="500" Margin="10,10,0,0" VerticalAlignment="Top" Visibility="Visible" Width="1000" />
+        <Label Content="Epochen gesamt: " HorizontalAlignment="Left" Margin="390,531,0,0" VerticalAlignment="Top" Width="100"/>
+        <Label Content="" Name="lbl_epochSum" HorizontalAlignment="Left" Margin="495,531,0,0" VerticalAlignment="Top" Width="93"/>
+        <Label Content="" Name="lbl_timeSum" HorizontalAlignment="Left" Margin="195,531,0,0" VerticalAlignment="Top" Width="77"/>
+        <Label Content="Trainingszeit gesamt: " HorizontalAlignment="Left" Margin="68,531,0,0" VerticalAlignment="Top" Width="122"/>
+    </Grid>
+</Window>

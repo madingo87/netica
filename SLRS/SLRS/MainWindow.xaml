@@ -1,0 +1,9 @@
+﻿<Window x:Class="SLRS.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Select" Height="175.584" Width="536.266">
+    <Grid>
+        <Button Name="btn_evaluate" Content="Evaluate Output File" Click="btn_eval_click" Margin="293,40,40,40"/>
+        <Button Name="btn_kinect" Content="Start Kinect" Click="btn_start_click" Margin="40,40,293,40"/>
+    </Grid>
+</Window>

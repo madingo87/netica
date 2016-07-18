@@ -1,0 +1,12 @@
+C:\Users\Martin\documents\visual studio 2013\Projects\KinectGesturesWpf\KinectGesturesWpf\bin\x86\Debug\KinectGesturesWpf.exe.config
+C:\Users\Martin\documents\visual studio 2013\Projects\KinectGesturesWpf\KinectGesturesWpf\obj\x86\Debug\MainWindow.baml
+C:\Users\Martin\documents\visual studio 2013\Projects\KinectGesturesWpf\KinectGesturesWpf\obj\x86\Debug\MainWindow.g.cs
+C:\Users\Martin\documents\visual studio 2013\Projects\KinectGesturesWpf\KinectGesturesWpf\obj\x86\Debug\App.g.cs
+C:\Users\Martin\documents\visual studio 2013\Projects\KinectGesturesWpf\KinectGesturesWpf\obj\x86\Debug\KinectGesturesWpf_MarkupCompile.cache
+C:\Users\Martin\documents\visual studio 2013\Projects\KinectGesturesWpf\KinectGesturesWpf\obj\x86\Debug\KinectGesturesWpf.g.resources
+C:\Users\Martin\documents\visual studio 2013\Projects\KinectGesturesWpf\KinectGesturesWpf\obj\x86\Debug\KinectGesturesWpf.Properties.Resources.resources
+C:\Users\Martin\documents\visual studio 2013\Projects\KinectGesturesWpf\KinectGesturesWpf\obj\x86\Debug\KinectGesturesWpf.csproj.GenerateResource.Cache
+C:\Users\Martin\documents\visual studio 2013\Projects\KinectGesturesWpf\KinectGesturesWpf\bin\x86\Debug\KinectGesturesWpf.exe
+C:\Users\Martin\documents\visual studio 2013\Projects\KinectGesturesWpf\KinectGesturesWpf\bin\x86\Debug\KinectGesturesWpf.pdb
+C:\Users\Martin\documents\visual studio 2013\Projects\KinectGesturesWpf\KinectGesturesWpf\obj\x86\Debug\KinectGesturesWpf.exe
+C:\Users\Martin\documents\visual studio 2013\Projects\KinectGesturesWpf\KinectGesturesWpf\obj\x86\Debug\KinectGesturesWpf.pdb

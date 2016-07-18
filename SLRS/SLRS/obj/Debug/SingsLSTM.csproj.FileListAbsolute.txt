@@ -1,0 +1,16 @@
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SingsLSTM\SingsLSTM\SingsLSTM\bin\Debug\SingsLSTM.exe.config
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SingsLSTM\SingsLSTM\SingsLSTM\bin\Debug\SingsLSTM.exe
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SingsLSTM\SingsLSTM\SingsLSTM\bin\Debug\SingsLSTM.pdb
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SingsLSTM\SingsLSTM\SingsLSTM\bin\Debug\Microsoft.Kinect.dll
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SingsLSTM\SingsLSTM\SingsLSTM\bin\Debug\Microsoft.Kinect.xml
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SingsLSTM\SingsLSTM\SingsLSTM\obj\Debug\SingsLSTM.csprojResolveAssemblyReference.cache
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SingsLSTM\SingsLSTM\SingsLSTM\obj\Debug\MainWindow.g.cs
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SingsLSTM\SingsLSTM\SingsLSTM\obj\Debug\App.g.cs
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SingsLSTM\SingsLSTM\SingsLSTM\obj\Debug\SingsLSTM_MarkupCompile.cache
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SingsLSTM\SingsLSTM\SingsLSTM\obj\Debug\SingsLSTM_MarkupCompile.lref
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SingsLSTM\SingsLSTM\SingsLSTM\obj\Debug\MainWindow.baml
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SingsLSTM\SingsLSTM\SingsLSTM\obj\Debug\SingsLSTM.g.resources
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SingsLSTM\SingsLSTM\SingsLSTM\obj\Debug\SingsLSTM.Properties.Resources.resources
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SingsLSTM\SingsLSTM\SingsLSTM\obj\Debug\SingsLSTM.csproj.GenerateResource.Cache
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SingsLSTM\SingsLSTM\SingsLSTM\obj\Debug\SingsLSTM.exe
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SingsLSTM\SingsLSTM\SingsLSTM\obj\Debug\SingsLSTM.pdb
