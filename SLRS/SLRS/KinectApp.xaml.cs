@@ -40,8 +40,7 @@ namespace SLRS
         private byte[] depthPixels;
         private const int MapDepthToByte = 8000 / 256;
         private WriteableBitmap depthBitmapLeft = null;
-        private WriteableBitmap depthBitmapRight = null;
-        private int windowSize = 200;
+        private WriteableBitmap depthBitmapRight = null;        
         
         private ColorFrameReader colorFrameReader = null;
         private FrameDescription colorFrameDescription = null;
@@ -380,6 +379,7 @@ namespace SLRS
 
         DepthSpacePoint pl_old;
         DepthSpacePoint pr_old;
+        private int windowSize = 100;
         private void depthFrameReader_FrameArrived(object sender, DepthFrameArrivedEventArgs e)
         {
             using (DepthFrame depthFrame = e.FrameReference.AcquireFrame())
@@ -390,16 +390,15 @@ namespace SLRS
                     {
                         if ((this.depthFrameDescription.Width * this.depthFrameDescription.Height) == (depthBuffer.Size / this.depthFrameDescription.BytesPerPixel))
                         {
+                            int frame = windowSize/2;
                             DepthSpacePoint pl = coordinateMapper.MapCameraPointToDepthSpace(leftHandPostition);
                             DepthSpacePoint pr = coordinateMapper.MapCameraPointToDepthSpace(rightHandPostition);
 
-                            int range = 100;
-
                             // === Links
-                            if (pl.X <= range || pl.X >= depthFrameDescription.Width - range || pl.Y <= range || pl.Y >= depthFrameDescription.Height - range)
+                            if (pl.X <= frame || pl.X >= depthFrameDescription.Width - frame || pl.Y <= frame || pl.Y >= depthFrameDescription.Height - frame)
                                 pl = pl_old;
 
-                            ProcessDepthFrameData(depthBuffer.UnderlyingBuffer, depthBuffer.Size, 0, ushort.MaxValue, pl);
+                            ProcessDepthFrameData(depthBuffer.UnderlyingBuffer, frame, 0, ushort.MaxValue, pl);
                             this.depthBitmapLeft.WritePixels(
                                 new Int32Rect(0, 0, this.depthBitmapLeft.PixelWidth, this.depthBitmapLeft.PixelHeight),
                                 this.depthPixels,
@@ -414,10 +413,10 @@ namespace SLRS
                             
 
                             // === Rechts
-                            if (pr.X <= range || pr.X >= depthFrameDescription.Width - range || pr.Y <= range || pr.Y >= depthFrameDescription.Height - range)
+                            if (pr.X <= frame || pr.X >= depthFrameDescription.Width - frame || pr.Y <= frame || pr.Y >= depthFrameDescription.Height - frame)
                                 pr = pr_old;
 
-                            ProcessDepthFrameData(depthBuffer.UnderlyingBuffer, depthBuffer.Size, 0, ushort.MaxValue, pr);
+                            ProcessDepthFrameData(depthBuffer.UnderlyingBuffer, frame, 0, ushort.MaxValue, pr);
                             this.depthBitmapRight.WritePixels(
                                 new Int32Rect(0, 0, this.depthBitmapRight.PixelWidth, this.depthBitmapRight.PixelHeight),
                                 this.depthPixels,
@@ -436,23 +435,27 @@ namespace SLRS
         }
         // Note: In order to see the full range of depth (including the less reliable far field depth) we are setting maxDepth (ushort.MaxValue) to the extreme potential depth threshold
         // If you wish to filter by reliable depth distance, use:  depthFrame.DepthMaxReliableDistance
-        private unsafe void ProcessDepthFrameData(IntPtr depthFrameData, uint depthFrameDataSize, ushort minDepth, ushort maxDepth, DepthSpacePoint p)
+        private unsafe void ProcessDepthFrameData(IntPtr depthFrameData, int frameSize, ushort minDepth, ushort maxDepth, DepthSpacePoint p)
         {
             ushort* frameData = (ushort*)depthFrameData; // depth frame data is a 16 bit value
-            //ushort initDepth = frameData[depthFrameDescription.Width * ((int)p.Y) + ((int)p.X)];
-            //byte initPos = (byte)(initDepth / MapDepthToByte);
+            ushort initDepth = frameData[depthFrameDescription.Width * ((int)p.Y) + ((int)p.X)];
+            byte initPos = (byte)(initDepth / MapDepthToByte);
+            int factor = 80;
 
-            int index = 0, frame = 100;
-            for (int y = -frame; y < frame; y++)
+            int index = 0;
+            for (int y = -frameSize; y < frameSize; y++)
             {
-                for (int x = -frame; x < frame; x++)
+                for (int x = -frameSize; x < frameSize; x++)
                 {                    
                     //Select index for smaller frame and get Depth value
                     int i = (depthFrameDescription.Width * ((int)p.Y + y) + ((int)p.X + x));
-                    ushort depth = frameData[i];                   
-                    byte greyValue = (byte)(depth >= minDepth && depth <= maxDepth ? (depth / MapDepthToByte) : 0);
+                    ushort depth = frameData[i];
 
-                    this.depthPixels[index++] = greyValue;
+                    if (depth > initDepth + factor || depth < initDepth - factor) depth = 0;
+                    else depth += (ushort)((depth - initDepth) * 10);                  
+
+                    byte greyValue = (byte)(depth >= minDepth && depth <= maxDepth ? (depth / MapDepthToByte) : 0);
+                    this.depthPixels[index++] = (byte)(255 - greyValue);
                 }
             }
         }
