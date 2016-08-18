@@ -29,7 +29,7 @@
         <Label Content="" Name="lbl_epochSum" HorizontalAlignment="Left" Margin="170,617,0,0" VerticalAlignment="Top" Width="93"/>
         <Label Content="" Name="lbl_timeSum" HorizontalAlignment="Left" Margin="170,586,0,0" VerticalAlignment="Top" Width="77"/>
         <Label Content="Trainingszeit gesamt: " HorizontalAlignment="Left" Margin="40,586,0,0" VerticalAlignment="Top" Width="122"/>
-        <GroupBox Header="Info" HorizontalAlignment="Right" Margin="0,565,787,0" VerticalAlignment="Top" Height="96" Width="283"/>
+        <GroupBox Header="Info" HorizontalAlignment="Left" Margin="20,565,0,0" VerticalAlignment="Top" Height="96" Width="283"/>
 
     </Grid>
 </Window>

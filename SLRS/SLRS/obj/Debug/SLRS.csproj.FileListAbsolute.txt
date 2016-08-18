@@ -22,3 +22,8 @@ C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\SLRS.Properties.Resources.resources
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\SLRS.exe
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\SLRS.pdb
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\SLRS.csprojResolveAssemblyReference.cache
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\bin\Debug\MathNet.Numerics.dll
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\bin\Debug\MathNet.Numerics.xml
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\LRA.baml
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\LRA.g.cs

@@ -24,6 +24,13 @@
             kinectApp.Show();
             this.Close();
         }
+
+        private void btn_lra(object sender, RoutedEventArgs e)
+        {
+            LRA lraWindow = new LRA();
+            lraWindow.Show();
+            this.Close();
+        }
     }
 }
 

@@ -55,19 +55,21 @@ namespace SLRS
         private CameraSpacePoint leftHandPostition;
         private CameraSpacePoint rightHandPostition;
 
-        private int[] allJointsForUI = new[] { 4, 5, 8, 9 };
+        private int[] allAngleJointsForUI = new[] { 4, 5, 8, 9 };
         private CameraSpacePoint nx, ny, nz;
         private CoordinateMapper coordinateMapper = null;
         private Body[] bodies = null;
 
         private StreamWriter swData = new StreamWriter(@"c:/temp/lstm/trainData.txt", true);
+        private StreamWriter depthDataLeft;
+        private StreamWriter depthDataRight;
         private int sequenceID = 0; 
         private int gestureNumber;
         private string[] gestureWord = new string[] { 
             "arbeiten", "alle", "begleiten", "besprechung", "bruder/schwester", 
             "helfen", "immer", "internet", "was", "schluss", 
             "schreiben", "termin", "verschieben", "warten", "besser", 
-            "danke", "idee", "sonne", "warum", "kinder" }; 
+            "danke", "idee", "sonne", "warum", "kinder" };
         private string[] gestureCode = new string[] { 
             "1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0", 
             "0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0",
@@ -90,8 +92,8 @@ namespace SLRS
             "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0",
             "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1"};  
 
-        private int maxTestData = 6;
-        private int maxTrainData = 24;
+        private int maxTestData = 10;
+        private int maxTrainData = 70;
 
         private string statusText = null;
 
@@ -186,6 +188,9 @@ namespace SLRS
                 case "Begin Record":
                     sequenceID++;           
                     btn_record.Content = "Start";
+                    depthDataLeft = new StreamWriter(String.Format("c:/temp/lstm/depthDataLeft_{0}_{1}.txt",gestureWord[gestureNumber],sequenceID+1), true);
+                    depthDataRight = new StreamWriter(String.Format("c:/temp/lstm/depthDataRight_{0}_{1}.txt", gestureWord[gestureNumber], sequenceID + 1), true);
+                    writePCDHeader(depthDataLeft,depthDataRight);
                     break;
 
                 case "Start":
@@ -195,6 +200,14 @@ namespace SLRS
                 case "Stop":
                     sequenceID++; 
                     btn_record.Content = "Start";
+
+                    depthDataLeft.Flush();
+                    depthDataLeft.Close();
+                    depthDataRight.Flush();
+                    depthDataRight.Close();
+                    depthDataLeft = new StreamWriter(String.Format("c:/temp/lstm/depthDataLeft_{0}_{1}.txt", gestureWord[gestureNumber], sequenceID + 1), true);
+                    depthDataRight = new StreamWriter(String.Format("c:/temp/lstm/depthDataRight_{0}_{1}.txt", gestureWord[gestureNumber], sequenceID + 1), true);
+                    writePCDHeader(depthDataLeft, depthDataRight);
                     break;
             }
             if (sequenceID != 0)
@@ -229,6 +242,11 @@ namespace SLRS
                     return;
                 }
             }    
+        }
+        private void writePCDHeader(StreamWriter swLeft, StreamWriter swRight) 
+        {
+            swLeft.Write("# .PCD v.7 - Point Cloud Data file format\nVERSION .7\nFIELDS x y z\nSIZE 1 1 1\nTYPE U U U\nCOUNT 1 1 1\nWIDTH 100\nHEIGHT 100\nVIEWPOINT 0 0 0 1 0 0 0\nPOINTS 10000\nDATA ascii\n");
+            swRight.Write("# .PCD v.7 - Point Cloud Data file format\nVERSION .7\nFIELDS x y z\nSIZE 1 1 1\nTYPE U U U\nCOUNT 1 1 1\nWIDTH 100\nHEIGHT 100\nVIEWPOINT 0 0 0 1 0 0 0\nPOINTS 10000\nDATA ascii\n");
         }
 
         private void Sensor_IsAvailableChanged(object sender, IsAvailableChangedEventArgs e)
@@ -285,7 +303,6 @@ namespace SLRS
         //** FRAME READER ***
         private void colorFrameReader_FrameArrived(object sender, ColorFrameArrivedEventArgs e)
         {
-
             // ColorFrame is IDisposable
             using (ColorFrame colorFrame = e.FrameReference.AcquireFrame())
             {
@@ -303,7 +320,7 @@ namespace SLRS
                             colorFrame.CopyConvertedFrameDataToIntPtr(
                                 this.colorBitmap.BackBuffer,
                                 (uint)(colorFrameDescription.Width * colorFrameDescription.Height * 4),
-                                ColorImageFormat.Bgra);
+                                ColorImageFormat.Bgra); //32Bit(4Byte)
 
                             this.colorBitmap.AddDirtyRect(new Int32Rect(0, 0, this.colorBitmap.PixelWidth, this.colorBitmap.PixelHeight));
                         }
@@ -318,7 +335,7 @@ namespace SLRS
         private void bodyFrameReader_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
         {
             bool dataReceived = false;
-
+            
             using (BodyFrame bodyFrame = e.FrameReference.AcquireFrame())
             {
                 if (bodyFrame != null)
@@ -345,6 +362,7 @@ namespace SLRS
                     bool record = btn_record.Content.Equals("Stop");
                     if (record)
                     {
+                        lbl_fpsBody.Content = Convert.ToUInt64(lbl_fpsBody.Content) + 1;
                         dc.DrawRectangle(Brushes.Firebrick, null, new Rect(new Point(80, 80), new Size(80, 80)));
                         dc.DrawText(new FormattedText("Rec",CultureInfo.CurrentUICulture,FlowDirection.LeftToRight,new Typeface("Arial"),35,Brushes.Black), new Point(90, 95));
                     }
@@ -356,15 +374,16 @@ namespace SLRS
                             leftHandPostition = body.Joints[JointType.HandLeft].Position;
                             rightHandPostition = body.Joints[JointType.HandRight].Position;
 
-                            drawUI(body.Joints, dc);
+                            bool angleMode = radio_angle.IsChecked ?? false;
+                            drawUI(body.Joints, dc, angleMode);
 
                             frameSelector++;
-                            if (frameSelector == 2)
+                            if (frameSelector == 6)
                             {
                                 // 1) Calculate All Data (angles or distances)
-                                var allData = calculateData(body.Joints);
+                                var allData = calculateData(body.Joints, angleMode);
                                 // 2) Write and draw to UI
-                                writeData2Gui(allData);
+                                writeData2Gui(allData, angleMode);
                                 // 3) Export Data if activated
                                 if (record && sequenceID <= maxTrainData + maxTestData)
                                         writeTrainingData(allData);
@@ -380,6 +399,7 @@ namespace SLRS
         DepthSpacePoint pl_old;
         DepthSpacePoint pr_old;
         private int windowSize = 100;
+        List<int> pixelIndex = new List<int>();
         private void depthFrameReader_FrameArrived(object sender, DepthFrameArrivedEventArgs e)
         {
             using (DepthFrame depthFrame = e.FrameReference.AcquireFrame())
@@ -392,13 +412,20 @@ namespace SLRS
                         {
                             int frame = windowSize/2;
                             DepthSpacePoint pl = coordinateMapper.MapCameraPointToDepthSpace(leftHandPostition);
-                            DepthSpacePoint pr = coordinateMapper.MapCameraPointToDepthSpace(rightHandPostition);
+                            DepthSpacePoint pr = coordinateMapper.MapCameraPointToDepthSpace(rightHandPostition);                           
+
+                            //Draw recordState
+                            bool record = btn_record.Content.Equals("Stop");
+                            if (record)
+                            {
+                                lbl_fpsDepth.Content = Convert.ToUInt64(lbl_fpsBody.Content) + 1;
+                            }
 
                             // === Links
                             if (pl.X <= frame || pl.X >= depthFrameDescription.Width - frame || pl.Y <= frame || pl.Y >= depthFrameDescription.Height - frame)
                                 pl = pl_old;
 
-                            ProcessDepthFrameData(depthBuffer.UnderlyingBuffer, frame, 0, ushort.MaxValue, pl);
+                            ProcessDepthFrameData(depthBuffer.UnderlyingBuffer, frame, 0, ushort.MaxValue, pl, record, true);
                             this.depthBitmapLeft.WritePixels(
                                 new Int32Rect(0, 0, this.depthBitmapLeft.PixelWidth, this.depthBitmapLeft.PixelHeight),
                                 this.depthPixels,
@@ -416,7 +443,7 @@ namespace SLRS
                             if (pr.X <= frame || pr.X >= depthFrameDescription.Width - frame || pr.Y <= frame || pr.Y >= depthFrameDescription.Height - frame)
                                 pr = pr_old;
 
-                            ProcessDepthFrameData(depthBuffer.UnderlyingBuffer, frame, 0, ushort.MaxValue, pr);
+                            ProcessDepthFrameData(depthBuffer.UnderlyingBuffer, frame, 0, ushort.MaxValue, pr, record, false);
                             this.depthBitmapRight.WritePixels(
                                 new Int32Rect(0, 0, this.depthBitmapRight.PixelWidth, this.depthBitmapRight.PixelHeight),
                                 this.depthPixels,
@@ -435,7 +462,7 @@ namespace SLRS
         }
         // Note: In order to see the full range of depth (including the less reliable far field depth) we are setting maxDepth (ushort.MaxValue) to the extreme potential depth threshold
         // If you wish to filter by reliable depth distance, use:  depthFrame.DepthMaxReliableDistance
-        private unsafe void ProcessDepthFrameData(IntPtr depthFrameData, int frameSize, ushort minDepth, ushort maxDepth, DepthSpacePoint p)
+        private unsafe void ProcessDepthFrameData(IntPtr depthFrameData, int frameSize, ushort minDepth, ushort maxDepth, DepthSpacePoint p, bool rec, bool left)
         {
             ushort* frameData = (ushort*)depthFrameData; // depth frame data is a 16 bit value
             ushort initDepth = frameData[depthFrameDescription.Width * ((int)p.Y) + ((int)p.X)];
@@ -451,6 +478,9 @@ namespace SLRS
                     int i = (depthFrameDescription.Width * ((int)p.Y + y) + ((int)p.X + x));
                     ushort depth = frameData[i];
 
+                    //if (rec && left) depthDataLeft.WriteLine(String.Format("{0} {1} {2}", x + frameSize, y + frameSize, depth));
+                    //if (rec && !left) depthDataRight.WriteLine(String.Format("{0} {1} {2}", x + frameSize, y + frameSize, depth));
+
                     if (depth > initDepth + factor || depth < initDepth - factor) depth = 0;
                     else depth += (ushort)((depth - initDepth) * 10);                  
 
@@ -461,75 +491,117 @@ namespace SLRS
         }
         //*******************
 
-        private double[] calculateData(IReadOnlyDictionary<JointType, Joint> joints)
+        private double[] calculateData(IReadOnlyDictionary<JointType, Joint> joints, bool angleMode)
         {
             List<double> allData = new List<double>();
 
-            CameraSpacePoint vec = new CameraSpacePoint();
-            CameraSpacePoint newSpineShoulder = new CameraSpacePoint();
+            if (angleMode)
+            {
+                CameraSpacePoint vec = new CameraSpacePoint();
+                CameraSpacePoint newSpineShoulder = new CameraSpacePoint();
 
-            nz = Helper.getNormalVector(joints[JointType.ShoulderLeft].Position, joints[JointType.ShoulderRight].Position, joints[JointType.SpineMid].Position);
-            newSpineShoulder.X = joints[JointType.SpineShoulder].Position.X - nz.X;
-            newSpineShoulder.Y = joints[JointType.SpineShoulder].Position.Y - nz.Y;
-            newSpineShoulder.Z = joints[JointType.SpineShoulder].Position.Z - nz.Z;
-            ny = Helper.getNormalVector(joints[JointType.ShoulderLeft].Position, joints[JointType.ShoulderRight].Position, newSpineShoulder);
-            nx = Helper.getNormalVector(joints[JointType.SpineShoulder].Position, joints[JointType.SpineMid].Position, newSpineShoulder);
+                nz = Helper.getNormalVector(joints[JointType.ShoulderLeft].Position, joints[JointType.ShoulderRight].Position, joints[JointType.SpineMid].Position);
+                newSpineShoulder.X = joints[JointType.SpineShoulder].Position.X - nz.X;
+                newSpineShoulder.Y = joints[JointType.SpineShoulder].Position.Y - nz.Y;
+                newSpineShoulder.Z = joints[JointType.SpineShoulder].Position.Z - nz.Z;
+                ny = Helper.getNormalVector(joints[JointType.ShoulderLeft].Position, joints[JointType.ShoulderRight].Position, newSpineShoulder);
+                nx = Helper.getNormalVector(joints[JointType.SpineShoulder].Position, joints[JointType.SpineMid].Position, newSpineShoulder);
 
-            //LEFT
-            //Shoulder->Elbow
-            vec.X = joints[JointType.ElbowLeft].Position.X - joints[JointType.ShoulderLeft].Position.X;
-            vec.Y = joints[JointType.ElbowLeft].Position.Y - joints[JointType.ShoulderLeft].Position.Y;
-            vec.Z = joints[JointType.ElbowLeft].Position.Z - joints[JointType.ShoulderLeft].Position.Z;
-            allData.Add(Helper.getAngle(vec, nz));
-            allData.Add(Helper.getAngle(vec, ny));
-            allData.Add(Helper.getAngle(vec, nx));
+                //LEFT
+                //Shoulder->Elbow
+                vec.X = joints[JointType.ElbowLeft].Position.X - joints[JointType.ShoulderLeft].Position.X;
+                vec.Y = joints[JointType.ElbowLeft].Position.Y - joints[JointType.ShoulderLeft].Position.Y;
+                vec.Z = joints[JointType.ElbowLeft].Position.Z - joints[JointType.ShoulderLeft].Position.Z;
+                allData.Add(Helper.getAngle(vec, nz));
+                allData.Add(Helper.getAngle(vec, ny));
+                allData.Add(Helper.getAngle(vec, nx));
 
-            //Elbow->Hand
-            vec.X = joints[JointType.WristLeft].Position.X - joints[JointType.ElbowLeft].Position.X;
-            vec.Y = joints[JointType.WristLeft].Position.Y - joints[JointType.ElbowLeft].Position.Y;
-            vec.Z = joints[JointType.WristLeft].Position.Z - joints[JointType.ElbowLeft].Position.Z;
-            allData.Add(Helper.getAngle(vec, nz));
-            allData.Add(Helper.getAngle(vec, ny));
-            allData.Add(Helper.getAngle(vec, nx));
+                //Elbow->Hand
+                vec.X = joints[JointType.WristLeft].Position.X - joints[JointType.ElbowLeft].Position.X;
+                vec.Y = joints[JointType.WristLeft].Position.Y - joints[JointType.ElbowLeft].Position.Y;
+                vec.Z = joints[JointType.WristLeft].Position.Z - joints[JointType.ElbowLeft].Position.Z;
+                allData.Add(Helper.getAngle(vec, nz));
+                allData.Add(Helper.getAngle(vec, ny));
+                allData.Add(Helper.getAngle(vec, nx));
 
-            //RIGHT
-            //Shoulder->Elbow
-            vec.X = joints[JointType.ElbowRight].Position.X - joints[JointType.ShoulderRight].Position.X;
-            vec.Y = joints[JointType.ElbowRight].Position.Y - joints[JointType.ShoulderRight].Position.Y;
-            vec.Z = joints[JointType.ElbowRight].Position.Z - joints[JointType.ShoulderRight].Position.Z;
-            allData.Add(Helper.getAngle(vec, nz));
-            allData.Add(Helper.getAngle(vec, ny));
-            allData.Add(Helper.getAngle(vec, nx));
+                //RIGHT
+                //Shoulder->Elbow
+                vec.X = joints[JointType.ElbowRight].Position.X - joints[JointType.ShoulderRight].Position.X;
+                vec.Y = joints[JointType.ElbowRight].Position.Y - joints[JointType.ShoulderRight].Position.Y;
+                vec.Z = joints[JointType.ElbowRight].Position.Z - joints[JointType.ShoulderRight].Position.Z;
+                allData.Add(Helper.getAngle(vec, nz));
+                allData.Add(Helper.getAngle(vec, ny));
+                allData.Add(Helper.getAngle(vec, nx));
 
-            //Elbow->Hand
-            vec.X = joints[JointType.WristRight].Position.X - joints[JointType.ElbowRight].Position.X;
-            vec.Y = joints[JointType.WristRight].Position.Y - joints[JointType.ElbowRight].Position.Y;
-            vec.Z = joints[JointType.WristRight].Position.Z - joints[JointType.ElbowRight].Position.Z;
-            allData.Add(Helper.getAngle(vec, nz));
-            allData.Add(Helper.getAngle(vec, ny));
-            allData.Add(Helper.getAngle(vec, nx));
+                //Elbow->Hand
+                vec.X = joints[JointType.WristRight].Position.X - joints[JointType.ElbowRight].Position.X;
+                vec.Y = joints[JointType.WristRight].Position.Y - joints[JointType.ElbowRight].Position.Y;
+                vec.Z = joints[JointType.WristRight].Position.Z - joints[JointType.ElbowRight].Position.Z;
+                allData.Add(Helper.getAngle(vec, nz));
+                allData.Add(Helper.getAngle(vec, ny));
+                allData.Add(Helper.getAngle(vec, nx));
+            }
+            else 
+            {
+                allData.Add(calculateDistances(joints, (int)JointType.Head, (int)JointType.ElbowLeft));
+                allData.Add(calculateDistances(joints, (int)JointType.Head, (int)JointType.ElbowRight));
+
+                allData.Add(calculateDistances(joints, (int)JointType.ElbowRight, (int)JointType.HandLeft));
+                allData.Add(calculateDistances(joints, (int)JointType.ElbowLeft, (int)JointType.HandRight));
+
+                allData.Add(calculateDistances(joints, (int)JointType.Head, (int)JointType.HandLeft));
+                allData.Add(calculateDistances(joints, (int)JointType.Head, (int)JointType.HandRight));
+
+                allData.Add(calculateDistances(joints, (int)JointType.ElbowLeft, (int)JointType.ElbowRight));
+                allData.Add(calculateDistances(joints, (int)JointType.HandRight, (int)JointType.HandLeft));
+
+            }
          
             return allData.ToArray<double>();
         }
+        private double calculateDistances(IReadOnlyDictionary<JointType, Joint> joints, int joint1, int joint2)
+        {
+            var coords = new CameraSpacePoint[2] { joints[(JointType)joint1].Position, joints[(JointType)joint2].Position };
+            if (coords[0].Z < 0) coords[0].Z = InferredZPositionClamp;
+            if (coords[1].Z < 0) coords[1].Z = InferredZPositionClamp;
 
-        private void writeData2Gui(double[] allData) 
+            double vec = Math.Sqrt(Math.Pow(coords[0].X - coords[1].X, 2) + Math.Pow(coords[0].Y - coords[1].Y, 2) + Math.Pow(coords[0].Z - coords[1].Z, 2));
+            return Math.Abs(vec);
+        }
+
+        private void writeData2Gui(double[] allData, bool angleMode) 
         {
             int counter = 0;
             string text = "";
-                            
-            text += "\nOrientierung\n";
-            for (int i = 0; i < allJointsForUI.Length; i++)
-            {               
-                string obj = "";
-                switch (allJointsForUI[i])
+
+            if (angleMode)
+            {
+                text += "\nOrientierung\n";
+                for (int i = 0; i < allAngleJointsForUI.Length; i++)
                 {
-                    case 4: obj = "Oberarm Links"; break;
-                    case 5: obj = "Unterarm Links"; break;
-                    case 8: obj = "Oberarm Rechts"; break;
-                    case 9: obj = "Unterarm Rechts"; break;
+                    string obj = "";
+                    switch (allAngleJointsForUI[i])
+                    {
+                        case 4: obj = "Oberarm Links"; break;
+                        case 5: obj = "Unterarm Links"; break;
+                        case 8: obj = "Oberarm Rechts"; break;
+                        case 9: obj = "Unterarm Rechts"; break;
+                    }
+                    text += String.Format("\n{0}\tZ: {1:0.00} \tY: {2:0.00} \tX: {3:0.00}",
+                        obj, allData[counter++], allData[counter++], allData[counter++]);
                 }
-                text += String.Format("\n{0}\tZ: {1:0.00} \tY: {2:0.00} \tX: {3:0.00}",
-                    obj, allData[counter++], allData[counter++], allData[counter++]);                
+            }
+            else
+            {
+                text += "\nAbstände\n";
+                text += String.Format("\nHead -> E(l)\t{0:0.00}",allData[counter++]);
+                text += String.Format("\nHead -> E(r)\t{0:0.00}",allData[counter++]);
+                text += String.Format("\nE(r) -> H(l)\t{0:0.00}",allData[counter++]);
+                text += String.Format("\nE(l) -> H(r)\t{0:0.00}",allData[counter++]);
+                text += String.Format("\nHead -> H(l)\t{0:0.00}",allData[counter++]);
+                text += String.Format("\nHead -> H(r)\t{0:0.00}",allData[counter++]);
+                text += String.Format("\nE(r) -> E(l)\t{0:0.00}",allData[counter++]);
+                text += String.Format("\nH(l) -> H(r)\t{0:0.00}",allData[counter++]);
             }
 
             this.txtAngles.Text = text;
@@ -554,13 +626,13 @@ namespace SLRS
         }
 
         int resizer = 10;
-        List<JointType> jointTypes = new List<JointType>() { JointType.Head, JointType.SpineMid, JointType.ShoulderLeft, JointType.ElbowLeft, JointType.WristLeft, JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight };
+        List<JointType> jointTypes = new List<JointType>() { JointType.Head, JointType.SpineMid, JointType.ShoulderLeft, JointType.ElbowLeft, JointType.WristLeft, JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight, JointType.HandLeft, JointType.HandRight };
         private const float InferredZPositionClamp = 0.1f;
         private Pen orientationPen = new Pen(Brushes.OrangeRed, 10);
         private Pen zPen = new Pen(Brushes.Yellow, 3);
         private Pen yPen = new Pen(Brushes.Magenta, 3);
         private Pen xPen = new Pen(Brushes.Cyan, 3);
-        private void drawUI(IReadOnlyDictionary<JointType, Joint> joints, DrawingContext drawingContext)
+        private void drawUI(IReadOnlyDictionary<JointType, Joint> joints, DrawingContext drawingContext, bool angleMode)
         {
             Dictionary<JointType, CameraSpacePoint> jointPoints = new Dictionary<JointType, CameraSpacePoint>();
 
@@ -572,56 +644,82 @@ namespace SLRS
                 jointPoints.Add(type, jointPosition);
             }
 
-            // ====== Draw Orientation
-            ColorSpacePoint cSPoint0, cSPoint1;
-            Point p0, p1;
-            CameraSpacePoint p = new CameraSpacePoint();
-
-               
-            foreach (int thisJoint in allJointsForUI)
+            if (angleMode)
             {
-                int neighbour = 0;
-                switch (thisJoint)
+                // ====== Draw Orientation
+                ColorSpacePoint cSPoint0, cSPoint1;
+                Point p0, p1;
+                CameraSpacePoint p = new CameraSpacePoint();
+
+                foreach (int thisJoint in allAngleJointsForUI)
                 {
-                    case 4: neighbour = 5; break;
-                    case 5: neighbour = 6; break;
-                    case 8: neighbour = 9; break;
-                    case 9: neighbour = 10; break;
+                    int neighbour = 0;
+                    switch (thisJoint)
+                    {
+                        case 4: neighbour = 5; break;
+                        case 5: neighbour = 6; break;
+                        case 8: neighbour = 9; break;
+                        case 9: neighbour = 10; break;
+                    }
+
+                    cSPoint0 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[(JointType)thisJoint]);
+                    cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[(JointType)neighbour]);
+                    p0 = new Point(cSPoint0.X, cSPoint0.Y);
+                    p1 = new Point(cSPoint1.X, cSPoint1.Y);
+                    drawingContext.DrawLine(orientationPen, p0, p1);
                 }
 
-                cSPoint0 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[(JointType)thisJoint]);
-                cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[(JointType)neighbour]);
+                // ====== Draw Normals
+                cSPoint0 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[JointType.SpineMid]);
+                p0 = new Point(cSPoint0.X, cSPoint0.Y);
+
+                p.X = jointPoints[JointType.SpineMid].X - nx.X * resizer;
+                p.Y = jointPoints[JointType.SpineMid].Y + nx.Y * resizer;
+                p.Z = jointPoints[JointType.SpineMid].Z - nx.Z * resizer;
+                cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(p);
+                p1 = new Point(cSPoint1.X, cSPoint1.Y);
+                drawingContext.DrawLine(xPen, p0, p1);
+
+                p.X = jointPoints[JointType.SpineMid].X - ny.X * resizer;
+                p.Y = jointPoints[JointType.SpineMid].Y + ny.Y * resizer;
+                p.Z = jointPoints[JointType.SpineMid].Z + ny.Z * resizer;
+                cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(p);
+                p1 = new Point(cSPoint1.X, cSPoint1.Y);
+                drawingContext.DrawLine(yPen, p0, p1);
+
+                p.X = jointPoints[JointType.SpineMid].X + nz.X * resizer;
+                p.Y = jointPoints[JointType.SpineMid].Y - nz.Y * resizer;
+                p.Z = jointPoints[JointType.SpineMid].Z - nz.Z * resizer;
+                cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(p);
+                p1 = new Point(cSPoint1.X, cSPoint1.Y);
+                drawingContext.DrawLine(zPen, p0, p1);
+
+            }
+            else 
+            {
+                ColorSpacePoint cSPoint0, cSPoint1, cSPoint2, cSPoint3, cSPoint4;
+                Point p0, p1, p2, p3, p4;
+
+                cSPoint0 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[JointType.HandLeft]);
+                cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[JointType.ElbowLeft]);
+                cSPoint2 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[JointType.Head]);
+                cSPoint3 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[JointType.HandRight]);
+                cSPoint4 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[JointType.ElbowRight]);
                 p0 = new Point(cSPoint0.X, cSPoint0.Y);
                 p1 = new Point(cSPoint1.X, cSPoint1.Y);
-                drawingContext.DrawLine(orientationPen, p0, p1);
+                p2 = new Point(cSPoint2.X, cSPoint2.Y);
+                p3 = new Point(cSPoint3.X, cSPoint3.Y);
+                p4 = new Point(cSPoint4.X, cSPoint4.Y);
+
+                drawingContext.DrawLine(orientationPen, p0, p2);
+                drawingContext.DrawLine(orientationPen, p1, p2);
+                drawingContext.DrawLine(orientationPen, p3, p2);
+                drawingContext.DrawLine(orientationPen, p4, p2);
+                drawingContext.DrawLine(orientationPen, p0, p3);
+                drawingContext.DrawLine(orientationPen, p0, p4);
+                drawingContext.DrawLine(orientationPen, p1, p3);
+                drawingContext.DrawLine(orientationPen, p1, p4);
             }
-
-            // ====== Draw Normals
-            cSPoint0 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[JointType.SpineMid]);
-            p0 = new Point(cSPoint0.X, cSPoint0.Y);
-
-            p.X = jointPoints[JointType.SpineMid].X - nx.X * resizer;
-            p.Y = jointPoints[JointType.SpineMid].Y + nx.Y * resizer;
-            p.Z = jointPoints[JointType.SpineMid].Z - nx.Z * resizer;
-            cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(p);
-            p1 = new Point(cSPoint1.X, cSPoint1.Y);
-            drawingContext.DrawLine(xPen, p0, p1);
-
-            p.X = jointPoints[JointType.SpineMid].X - ny.X * resizer;
-            p.Y = jointPoints[JointType.SpineMid].Y + ny.Y * resizer;
-            p.Z = jointPoints[JointType.SpineMid].Z + ny.Z * resizer;
-            cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(p);
-            p1 = new Point(cSPoint1.X, cSPoint1.Y);
-            drawingContext.DrawLine(yPen, p0, p1);
-
-            p.X = jointPoints[JointType.SpineMid].X + nz.X * resizer;
-            p.Y = jointPoints[JointType.SpineMid].Y - nz.Y * resizer;
-            p.Z = jointPoints[JointType.SpineMid].Z - nz.Z * resizer;
-            cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(p);
-            p1 = new Point(cSPoint1.X, cSPoint1.Y);
-            drawingContext.DrawLine(zPen, p0, p1);
-
-
             
         }
     }

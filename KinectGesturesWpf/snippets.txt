@@ -1,0 +1,178 @@
+        private double[] rotateEuler(double a, double b, double c)
+        {
+            //zxz - Konvention   
+
+            //zeilen 0-2, 3-5, 6-8
+            double[] matrix = new double[9];
+            matrix[0] = Math.Cos(a) * Math.Cos(c) - Math.Sin(a) * Math.Cos(b) * Math.Sin(c);
+            matrix[1] = Math.Sin(a) * Math.Cos(c) + Math.Cos(a) * Math.Cos(b) * Math.Sin(c);
+            matrix[2] = Math.Sin(b) * Math.Sin(c);
+            matrix[3] = -Math.Cos(a) * Math.Sin(c) - Math.Sin(a) * Math.Cos(b) * Math.Cos(c);
+            matrix[4] = -Math.Sin(a) * Math.Sin(c) + Math.Cos(a) * Math.Cos(b) * Math.Cos(c);
+            matrix[5] = Math.Sin(b) * Math.Cos(c);
+            matrix[6] = Math.Sin(a) * Math.Sin(b);
+            matrix[7] = -Math.Cos(a) * Math.Sin(b);
+            matrix[8] = Math.Cos(b);
+
+            return matrix;
+        }
+		
+		    //    //http://www.iti.fh-flensburg.de/lang/algorithmen/grundlagen/quat.htm
+            //    //allData.Add(orientations[jointType].Orientation.X);
+            //    //allData.Add(orientations[jointType].Orientation.Y);
+            //    //allData.Add(orientations[jointType].Orientation.Z);      
+		
+		private double[] calculateOrientations(int jointType, IReadOnlyDictionary<JointType, Joint> joints)
+        {
+		    var spineMid = joints[JointType.SpineBase].Position;
+            var spine = joints[JointType.SpineShoulder].Position;
+            var shoulderLeft = joints[JointType.ShoulderLeft].Position;
+            var ellbowLeft = joints[JointType.ElbowLeft].Position;
+            var handLeft = joints[JointType.WristLeft].Position;
+            var shoulderRight = joints[JointType.ShoulderRight].Position;
+            var ellbowRight = joints[JointType.ElbowRight].Position;
+            var handRight = joints[JointType.WristRight].Position;
+
+            double winkel_xy, winkel_yz, winkel_xz;
+
+            var l1 = new Vector3D(shoulderLeft.X - spine.X, shoulderLeft.Y - spine.Y, shoulderLeft.Z - spine.Z);
+            var l2 = new Vector3D(ellbowLeft.X - shoulderLeft.X, ellbowLeft.Y - shoulderLeft.Y, ellbowLeft.Z - shoulderLeft.Z);
+            var l3 = new Vector3D(handLeft.X - ellbowLeft.X, handLeft.Y - ellbowLeft.Y, handLeft.Z - ellbowLeft.Z);
+            var r1 = new Vector3D(shoulderRight.X - spine.X, shoulderRight.Y - spine.Y, shoulderRight.Z - spine.Z);
+            var r2 = new Vector3D(ellbowRight.X - shoulderRight.X, ellbowRight.Y - shoulderRight.Y, ellbowRight.Z - shoulderRight.Z);
+            var r3 = new Vector3D(handRight.X - ellbowRight.X, handRight.Y - ellbowRight.Y, handRight.Z - ellbowRight.Z);
+            var m = new Vector3D(spineMid.X - spine.X, spineMid.Y - spine.Y, spineMid.Z - spine.Z);
+
+            winkel_xy = Math.Acos((m.X * l1.X + m.Y * l1.Y) / (Math.Sqrt(Math.Pow(m.X, 2) + Math.Pow(m.Y, 2))) * (Math.Sqrt(Math.Pow(l1.X, 2) + Math.Pow(l1.Y, 2))));
+            winkel_yz = Math.Acos((m.Y * l1.Y + m.Z * l1.Z) / (Math.Sqrt(Math.Pow(m.Y, 2) + Math.Pow(m.Z, 2))) * (Math.Sqrt(Math.Pow(l1.Y, 2) + Math.Pow(l1.Z, 2))));
+            winkel_xz = Math.Acos((m.X * l1.X + m.Z * l1.Z) / (Math.Sqrt(Math.Pow(m.X, 2) + Math.Pow(m.Z, 2))) * (Math.Sqrt(Math.Pow(l1.X, 2) + Math.Pow(l1.Z, 2))));
+
+            winkel_xy = Math.Acos((l1.X * l2.X + l1.Y * l2.Y) / (Math.Sqrt(Math.Pow(l1.X, 2) + Math.Pow(l1.Y, 2))) * (Math.Sqrt(Math.Pow(l2.X, 2) + Math.Pow(l2.Y, 2))));
+            winkel_yz = Math.Acos((l1.Y * l2.Y + l1.Z * l2.Z) / (Math.Sqrt(Math.Pow(l1.Y, 2) + Math.Pow(l1.Z, 2))) * (Math.Sqrt(Math.Pow(l2.Y, 2) + Math.Pow(l2.Z, 2))));
+            winkel_xz = Math.Acos((l1.X * l2.X + l1.Z * l2.Z) / (Math.Sqrt(Math.Pow(l1.X, 2) + Math.Pow(l1.Z, 2))) * (Math.Sqrt(Math.Pow(l2.X, 2) + Math.Pow(l2.Z, 2))));
+
+            return new double[]{winkel_xy, winkel_xz, winkel_yz};
+		}	
+			
+			
+		private double[] calculateOrientations(int jointType, IReadOnlyDictionary<JointType, Joint> joints)
+        {
+            int[] neighbours = new int[2];
+            switch (jointType) 
+            {
+                case 4: neighbours[0] = 20; neighbours[1] = 5; break;
+                case 5: neighbours[0] = 4; neighbours[1] = 6; break;
+                case 8: neighbours[0] = 20; neighbours[1] = 9; break;
+                case 9: neighbours[0] = 8; neighbours[1] = 10; break;
+            }
+            //Collect Coordinates for joint and its neighbours and convert to ColorSpace
+            var coords = new CameraSpacePoint[3] { joints[(JointType)jointType].Position, joints[(JointType)neighbours[0]].Position, joints[(JointType)neighbours[1]].Position };
+
+            //Get SideLenghts of Triangle
+            // Sqrt((xb - xc)^2 + (yb - yc)^2)
+            // Sqrt((xb - xa)^2 + (yb - ya)^2)
+            // Sqrt((xa - xc)^2 + (ya - yc)^2)
+            var lengthA_xy = Math.Abs(Math.Sqrt(Math.Pow(coords[1].X - coords[2].X, 2) + Math.Pow(coords[1].Y - coords[2].Y, 2))); 
+            var lengthB_xy = Math.Abs(Math.Sqrt(Math.Pow(coords[1].X - coords[0].X, 2) + Math.Pow(coords[1].Y - coords[0].Y, 2)));
+            var lengthC_xy = Math.Abs(Math.Sqrt(Math.Pow(coords[0].X - coords[2].X, 2) + Math.Pow(coords[0].Y - coords[2].Y, 2))); 
+            var lengthA_yz = Math.Abs(Math.Sqrt(Math.Pow(coords[1].Y - coords[2].Y, 2) + Math.Pow(coords[1].Z - coords[2].Z, 2)));
+            var lengthB_yz = Math.Abs(Math.Sqrt(Math.Pow(coords[1].Y - coords[0].Y, 2) + Math.Pow(coords[1].Z - coords[0].Z, 2)));
+            var lengthC_yz = Math.Abs(Math.Sqrt(Math.Pow(coords[0].Y - coords[2].Y, 2) + Math.Pow(coords[0].Z - coords[2].Z, 2)));
+            var lengthA_xz = Math.Abs(Math.Sqrt(Math.Pow(coords[1].X - coords[2].X, 2) + Math.Pow(coords[1].Z - coords[2].Z, 2)));
+            var lengthB_xz = Math.Abs(Math.Sqrt(Math.Pow(coords[1].X - coords[0].X, 2) + Math.Pow(coords[1].Z - coords[0].Z, 2)));
+            var lengthC_xz = Math.Abs(Math.Sqrt(Math.Pow(coords[0].X - coords[2].X, 2) + Math.Pow(coords[0].Z - coords[2].Z, 2))); 
+
+            //calculate Angle
+            var angle_xy = Math.Acos((Math.Pow(lengthB_xy, 2) + Math.Pow(lengthC_xy, 2) - Math.Pow(lengthA_xy, 2)) / (2 * lengthB_xy * lengthC_xy));
+            var angle_yz = Math.Acos((Math.Pow(lengthB_yz, 2) + Math.Pow(lengthC_yz, 2) - Math.Pow(lengthA_yz, 2)) / (2 * lengthB_yz * lengthC_yz));
+            var angle_xz = Math.Acos((Math.Pow(lengthB_xz, 2) + Math.Pow(lengthC_xz, 2) - Math.Pow(lengthA_xz, 2)) / (2 * lengthB_xz * lengthC_xz));
+            angle_xy = RadianToDegree(angle_xy);
+            angle_yz = RadianToDegree(angle_yz);
+            angle_xz = RadianToDegree(angle_xz);
+
+            return new double[3] { angle_xy, angle_yz, angle_xz }; 
+        }
+			
+			
+			
+			
+			
+			 //calculate Angle(Radian)      
+            var ax = coords[1].X - coords[0].X;
+            var ay = coords[1].Y - coords[0].X;
+            var az = coords[1].Z - coords[0].Z;
+
+            var length_a = Math.Abs(Math.Sqrt(Math.Pow(ax, 2) + Math.Pow(ay, 2) + Math.Pow(az, 2)));
+            var angle_xy = Math.Acos(ax / length_a);
+            var angle_yz = Math.Acos(ay / length_a);
+            var angle_xz = Math.Acos(az / length_a);
+
+            //rechten arm: winkel umdrehen
+            //if (jointType == 9) angle_y = -(angle_y - Math.PI);
+            //Wenn überstumpfer Winkel 
+            //var yOver180degrees = coords[1].Y < coords[0].Y ? -1 : 1;
+            //var zOver180degrees = coords[1].Z > coords[0].Z ? -1 : 1;
+			
+			
+		//private const double HandSize = 50;
+        //private readonly Brush handClosedBrush = new SolidColorBrush(Color.FromArgb(128, 255, 0, 0));
+        //private readonly Brush handOpenBrush = new SolidColorBrush(Color.FromArgb(128, 0, 255, 0));
+        //private void DrawHand(HandState handState, IReadOnlyDictionary<JointType, Joint> joints, JointType jointType, DrawingContext drawingContext)
+        //{
+        //    CameraSpacePoint position = joints[jointType].Position;
+        //    ColorSpacePoint depthSpacePoint = this.coordinateMapper.MapCameraPointToColorSpace(position);
+
+        //    switch (handState)
+        //    {
+        //        case HandState.Closed:
+        //            drawingContext.DrawEllipse(this.handClosedBrush, null, new Point(depthSpacePoint.X, depthSpacePoint.Y), HandSize, HandSize);
+        //            break;
+
+        //        case HandState.Open:
+        //            drawingContext.DrawEllipse(this.handOpenBrush, null, new Point(depthSpacePoint.X, depthSpacePoint.Y), HandSize, HandSize);
+        //            break;
+        //    }
+        //}      
+		
+		
+		        //private double[] calculateOrientations(int jointType, IReadOnlyDictionary<JointType, Joint> joints)
+        //{
+        //    int[] neighbours = new int[2];
+        //    switch (jointType) 
+        //    {
+        //        case 4: neighbours[0] = 20; neighbours[1] = 5; break;
+        //        case 5: neighbours[0] = 4; neighbours[1] = 6; break;
+        //        case 8: neighbours[0] = 20; neighbours[1] = 9; break;
+        //        case 9: neighbours[0] = 8; neighbours[1] = 10; break;
+        //    }
+        //    //Collect Coordinates for joint and its neighbours and convert to ColorSpace
+        //    var coords = new CameraSpacePoint[3] { joints[(JointType)jointType].Position, joints[(JointType)neighbours[0]].Position, joints[(JointType)neighbours[1]].Position };
+
+        //    double angle_xy = 0;
+
+
+        //    return new double[] {angle_xy}; 
+        //}
+		
+		        private Vector rotate(Vector vector, double angle)
+        {
+            double[] matrix = new double[4];
+            matrix[0] = Math.Cos(angle);
+            matrix[1] = Math.Sin(angle);
+            matrix[2] = -Math.Sin(angle);
+            matrix[3] = Math.Cos(angle);
+
+            Vector newVector = new Vector();
+            newVector.X = matrix[0] * vector.X + matrix[1] * vector.Y;
+            newVector.Y = matrix[2] * vector.X + matrix[3] * vector.Y;
+
+            return newVector;
+        }
+		
+		
+		
+		                                //text += String.Format("\n\t{0}\n\t XY: {1:0.00}({2:0.00})({3:0.00})\n\t YZ: {4:0.00}({5:0.00})({6:0.00})\n\t XZ: {7:0.00}({8:0.00})({9:0.00})\n\t",
+                                //    obj, 
+                                //    allData[counter], maxima[counter],minima[counter++],
+                                //    allData[counter], maxima[counter], minima[counter++], 
+                                //    allData[counter], maxima[counter], minima[counter++]);

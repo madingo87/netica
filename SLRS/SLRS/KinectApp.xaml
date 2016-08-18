@@ -23,12 +23,14 @@
             <Viewbox Grid.Row="0" Grid.Column="0" Margin="25" >
                 <Image Source="{Binding ImageSource}" />
             </Viewbox>
+            <Label Name="lbl_fpsBody" Content="0" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,40,60" Background="White" Width="30"/>
             <Viewbox Grid.Row="1" Width="150" Height="150" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="100,20,0,0">
                 <Image Source="{Binding LeftHandSource}"  />
             </Viewbox>
             <Viewbox Grid.Row="1" Width="150" Height="150" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,20,100,0">
                 <Image Source="{Binding RightHandSource}"  />
             </Viewbox>
+            <Label Name="lbl_fpsDepth" Content="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="30,40,0,0" Background="White" Width="30"/>
         </Grid>
 
         <!-- Right Column -->
@@ -47,6 +49,8 @@
             <Button Grid.Row="1" Name="btn_record" Margin="30" Content="Begin Record" FontSize="25px" Click="btn_record_click" Grid.Column="1"/>
 
             <Label Grid.Row="2" Content="{Binding StatusText}" FontSize="25px" FontWeight="Bold" Grid.Column="1" Margin="20" />
+            <RadioButton Content="Angle" HorizontalAlignment="Left" Margin="91,229,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Name="radio_angle" GroupName="Mode"/>
+            <RadioButton Content="Distance" HorizontalAlignment="Left" Margin="250,229,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Name="radio_distance" GroupName="Mode" IsChecked="True"/>
         </Grid>
     </Grid>
 </Window>
