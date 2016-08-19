@@ -60,7 +60,7 @@ namespace SLRS
         private CoordinateMapper coordinateMapper = null;
         private Body[] bodies = null;
 
-        private StreamWriter swData = new StreamWriter(@"c:/temp/lstm/trainData.txt", true);
+        private StreamWriter swData = new StreamWriter(@"c:/temp/SLRS/trainData.txt", true);
         private StreamWriter depthDataLeft;
         private StreamWriter depthDataRight;
         private int sequenceID = 0; 
@@ -188,9 +188,8 @@ namespace SLRS
                 case "Begin Record":
                     sequenceID++;           
                     btn_record.Content = "Start";
-                    depthDataLeft = new StreamWriter(String.Format("c:/temp/lstm/depthDataLeft_{0}_{1}.txt",gestureWord[gestureNumber],sequenceID+1), true);
-                    depthDataRight = new StreamWriter(String.Format("c:/temp/lstm/depthDataRight_{0}_{1}.txt", gestureWord[gestureNumber], sequenceID + 1), true);
-                    writePCDHeader(depthDataLeft,depthDataRight);
+                    depthFrameIndexL = 0;
+                    depthFrameIndexR = 0;
                     break;
 
                 case "Start":
@@ -198,16 +197,10 @@ namespace SLRS
                     break;
 
                 case "Stop":
-                    sequenceID++; 
+                    sequenceID++;
+                    depthFrameIndexL = 0;
+                    depthFrameIndexR = 0;
                     btn_record.Content = "Start";
-
-                    depthDataLeft.Flush();
-                    depthDataLeft.Close();
-                    depthDataRight.Flush();
-                    depthDataRight.Close();
-                    depthDataLeft = new StreamWriter(String.Format("c:/temp/lstm/depthDataLeft_{0}_{1}.txt", gestureWord[gestureNumber], sequenceID + 1), true);
-                    depthDataRight = new StreamWriter(String.Format("c:/temp/lstm/depthDataRight_{0}_{1}.txt", gestureWord[gestureNumber], sequenceID + 1), true);
-                    writePCDHeader(depthDataLeft, depthDataRight);
                     break;
             }
             if (sequenceID != 0)
@@ -220,7 +213,7 @@ namespace SLRS
             {
                 swData.Flush();
                 swData.Close();
-                swData = new StreamWriter(@"c:/temp/lstm/testData.txt", true);
+                swData = new StreamWriter(@"c:/temp/SLRS/testData.txt", true);
             }           
 
             if (sequenceID == (maxTrainData + maxTestData))
@@ -232,7 +225,7 @@ namespace SLRS
 
                     swData.Flush();
                     swData.Close();
-                    swData = new StreamWriter(@"c:/temp/lstm/trainData.txt", true);
+                    swData = new StreamWriter(@"c:/temp/SLRS/trainData.txt", true);
                 }
                 else
                 {
@@ -243,10 +236,9 @@ namespace SLRS
                 }
             }    
         }
-        private void writePCDHeader(StreamWriter swLeft, StreamWriter swRight) 
+        private void writePCDHeader(StreamWriter sw) 
         {
-            swLeft.Write("# .PCD v.7 - Point Cloud Data file format\nVERSION .7\nFIELDS x y z\nSIZE 1 1 1\nTYPE U U U\nCOUNT 1 1 1\nWIDTH 100\nHEIGHT 100\nVIEWPOINT 0 0 0 1 0 0 0\nPOINTS 10000\nDATA ascii\n");
-            swRight.Write("# .PCD v.7 - Point Cloud Data file format\nVERSION .7\nFIELDS x y z\nSIZE 1 1 1\nTYPE U U U\nCOUNT 1 1 1\nWIDTH 100\nHEIGHT 100\nVIEWPOINT 0 0 0 1 0 0 0\nPOINTS 10000\nDATA ascii\n");
+            sw.Write("# .PCD v.7 - Point Cloud Data file format\nVERSION .7\nFIELDS x y z\nSIZE 1 1 1\nTYPE U U U\nCOUNT 1 1 1\nWIDTH 100\nHEIGHT 100\nVIEWPOINT 0 0 0 1 0 0 0\nPOINTS 10000\nDATA ascii\n");
         }
 
         private void Sensor_IsAvailableChanged(object sender, IsAvailableChangedEventArgs e)
@@ -362,7 +354,6 @@ namespace SLRS
                     bool record = btn_record.Content.Equals("Stop");
                     if (record)
                     {
-                        lbl_fpsBody.Content = Convert.ToUInt64(lbl_fpsBody.Content) + 1;
                         dc.DrawRectangle(Brushes.Firebrick, null, new Rect(new Point(80, 80), new Size(80, 80)));
                         dc.DrawText(new FormattedText("Rec",CultureInfo.CurrentUICulture,FlowDirection.LeftToRight,new Typeface("Arial"),35,Brushes.Black), new Point(90, 95));
                     }
@@ -378,15 +369,19 @@ namespace SLRS
                             drawUI(body.Joints, dc, angleMode);
 
                             frameSelector++;
-                            if (frameSelector == 6)
+                            if (frameSelector == 2)
                             {
                                 // 1) Calculate All Data (angles or distances)
-                                var allData = calculateData(body.Joints, angleMode);
+                                var allData = calculateData(body.Joints, angleMode, body.JointOrientations);
                                 // 2) Write and draw to UI
                                 writeData2Gui(allData, angleMode);
                                 // 3) Export Data if activated
                                 if (record && sequenceID <= maxTrainData + maxTestData)
-                                        writeTrainingData(allData);
+                                {
+                                    //show recorded frames
+                                    lbl_fpsBody.Content = Convert.ToUInt64(lbl_fpsBody.Content) + 1;
+                                    writeTrainingData(allData);
+                                }                                   
 
                                 frameSelector = 0;
                             }
@@ -399,7 +394,9 @@ namespace SLRS
         DepthSpacePoint pl_old;
         DepthSpacePoint pr_old;
         private int windowSize = 100;
-        List<int> pixelIndex = new List<int>();
+        private int depthFrameSelector = 0; 
+        private int depthFrameIndexL = 0;
+        private int depthFrameIndexR = 0;
         private void depthFrameReader_FrameArrived(object sender, DepthFrameArrivedEventArgs e)
         {
             using (DepthFrame depthFrame = e.FrameReference.AcquireFrame())
@@ -410,9 +407,9 @@ namespace SLRS
                     {
                         if ((this.depthFrameDescription.Width * this.depthFrameDescription.Height) == (depthBuffer.Size / this.depthFrameDescription.BytesPerPixel))
                         {
-                            int frame = windowSize/2;
+                            int frame = windowSize / 2;
                             DepthSpacePoint pl = coordinateMapper.MapCameraPointToDepthSpace(leftHandPostition);
-                            DepthSpacePoint pr = coordinateMapper.MapCameraPointToDepthSpace(rightHandPostition);                           
+                            DepthSpacePoint pr = coordinateMapper.MapCameraPointToDepthSpace(rightHandPostition);
 
                             //Draw recordState
                             bool record = btn_record.Content.Equals("Stop");
@@ -437,7 +434,7 @@ namespace SLRS
                                 dc.DrawImage(LeftHandSource, new Rect(0.0, 0.0, depthFrameDescription.Width, depthFrameDescription.Height));
                             }
                             pl_old = pl;
-                            
+
 
                             // === Rechts
                             if (pr.X <= frame || pr.X >= depthFrameDescription.Width - frame || pr.Y <= frame || pr.Y >= depthFrameDescription.Height - frame)
@@ -469,6 +466,20 @@ namespace SLRS
             byte initPos = (byte)(initDepth / MapDepthToByte);
             int factor = 80;
 
+            if (depthFrameSelector == 15 && rec)
+            {
+                if (left) 
+                {
+                    depthDataLeft = new StreamWriter(String.Format("c:/temp/SLRS/hands/depthDataLeft_{0}_{1}_{2}.txt", gestureWord[gestureNumber], sequenceID, depthFrameIndexL++), true);
+                    writePCDHeader(depthDataLeft);
+                }
+                if (!left)
+                {
+                    depthDataRight = new StreamWriter(String.Format("c:/temp/SLRS/hands/depthDataRight_{0}_{1}_{2}.txt", gestureWord[gestureNumber], sequenceID, depthFrameIndexR++), true);
+                    writePCDHeader(depthDataRight);
+                }
+            }
+
             int index = 0;
             for (int y = -frameSize; y < frameSize; y++)
             {
@@ -478,20 +489,40 @@ namespace SLRS
                     int i = (depthFrameDescription.Width * ((int)p.Y + y) + ((int)p.X + x));
                     ushort depth = frameData[i];
 
-                    //if (rec && left) depthDataLeft.WriteLine(String.Format("{0} {1} {2}", x + frameSize, y + frameSize, depth));
-                    //if (rec && !left) depthDataRight.WriteLine(String.Format("{0} {1} {2}", x + frameSize, y + frameSize, depth));
+                    if (depthFrameSelector == 15 && rec)
+                    {
+                        if (left)   depthDataLeft.WriteLine(String.Format("{0} {1} {2}", x + frameSize, y + frameSize, depth));
+                        else        depthDataRight.WriteLine(String.Format("{0} {1} {2}", x + frameSize, y + frameSize, depth));
+                    }
 
                     if (depth > initDepth + factor || depth < initDepth - factor) depth = 0;
                     else depth += (ushort)((depth - initDepth) * 10);                  
 
                     byte greyValue = (byte)(depth >= minDepth && depth <= maxDepth ? (depth / MapDepthToByte) : 0);
-                    this.depthPixels[index++] = (byte)(255 - greyValue);
+                    this.depthPixels[index++] = (byte)greyValue;//(255 - greyValue);
                 }
             }
+
+            if (depthFrameSelector == 15 && rec)
+            {
+                if (left)
+                {
+                    depthDataLeft.Flush();
+                    depthDataLeft.Close();
+                }
+                if (!left)
+                {
+                    depthDataRight.Flush();
+                    depthDataRight.Close();
+                }
+                depthFrameSelector = 0;
+            }
+
+            //if (rec) depthFrameSelector++;
         }
         //*******************
 
-        private double[] calculateData(IReadOnlyDictionary<JointType, Joint> joints, bool angleMode)
+        private double[] calculateData(IReadOnlyDictionary<JointType, Joint> joints, bool angleMode, IReadOnlyDictionary<JointType,JointOrientation> orientations)
         {
             List<double> allData = new List<double>();
 
@@ -555,6 +586,9 @@ namespace SLRS
                 allData.Add(calculateDistances(joints, (int)JointType.ElbowLeft, (int)JointType.ElbowRight));
                 allData.Add(calculateDistances(joints, (int)JointType.HandRight, (int)JointType.HandLeft));
 
+                //Z = roll ?
+                //allData.Add(orientations[JointType.WristLeft].Orientation.X);
+                //allData.Add(orientations[JointType.WristRight].Orientation.X);
             }
          
             return allData.ToArray<double>();
@@ -602,12 +636,14 @@ namespace SLRS
                 text += String.Format("\nHead -> H(r)\t{0:0.00}",allData[counter++]);
                 text += String.Format("\nE(r) -> E(l)\t{0:0.00}",allData[counter++]);
                 text += String.Format("\nH(l) -> H(r)\t{0:0.00}",allData[counter++]);
+                //text += String.Format("\nE(l) roll ->\t{0:0.00}", allData[counter++]);
+                //text += String.Format("\nE(r) roll ->\t{0:0.00}", allData[counter++]);
             }
 
             this.txtAngles.Text = text;
         }
 
-        int addId = 48;
+        int addId = 0;
         private void writeTrainingData(double[] allData) 
         {
             // seqID = xxxyy, xxx = LabelCode , yy = sequence
