@@ -12,7 +12,7 @@
         <Label Content="..." Name="lbl_output" HorizontalAlignment="Left" Margin="158,34,0,0" VerticalAlignment="Top" Width="423" BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="2"/>
         <Label Content="..." Name="lbl_mapping" HorizontalAlignment="Left" Margin="260,439,0,0" VerticalAlignment="Top" Width="129" BorderBrush="Black" BorderThickness="1" Grid.Column="1"/>
         <Button Content="Evaluate" FontWeight="Bold" FontSize="17px" HorizontalAlignment="Left" Margin="234,121,0,0" VerticalAlignment="Top" Width="163" Height="60" Click="btn_eval_click" Grid.Column="1"/>
-        <RichTextBox Name="box_eval" HorizontalAlignment="Left" Height="487" Margin="10,85,0,0" VerticalAlignment="Top" Width="386" BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="2"/>
+        <RichTextBox Name="box_eval" HorizontalAlignment="Left" Height="487" Margin="10,85,0,0" VerticalAlignment="Top" Width="386" BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="2" VerticalScrollBarVisibility="Auto"/>
         <Button Content="Write Mappings" Name="btn_writeMappings" HorizontalAlignment="Left" Margin="260,510,0,0" VerticalAlignment="Top" Width="129" Height="32" Click="btn_write_mappings_click" Grid.Column="1"/>
         <TextBox HorizontalAlignment="Left" Name="mappingsCount" Height="20" Margin="354,472,0,0" TextWrapping="Wrap" VerticalAlignment="Top" TextAlignment="Left" Width="35" Grid.Column="1"/>
         <Label Content="Tests/Wort:" HorizontalAlignment="Left" Margin="282,468,0,0" VerticalAlignment="Top" Width="72"  Grid.Column="1" Height="24"/>

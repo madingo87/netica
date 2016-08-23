@@ -92,20 +92,24 @@ namespace SLRS
 
                 if (line.Contains("%"))
                 {
+                    int sequenceHit = 0;
                     countAll++;
 
-                    var computedLabel = line.Split('%')[0].Trim();
+                    calculatedSequence.Add(line.Split('%')[0].Trim());
+
                     var originalLabel = line.Split('%')[1].Substring(1).Trim();
 
-                    if (computedLabel == originalLabel)
+                    foreach (string lbl in calculatedSequence)
                     {
-                        foreach (string lbl in calculatedSequence)
-                        {
-                            if (!lbl.Equals(originalLabel))
-                                latency++;
-                        }
-                        countHit++;
+                        if (!lbl.Equals(originalLabel) && sequenceHit == 0)
+                            latency++;
+                        else
+                            sequenceHit++;
                     }
+                                                  
+                    // EVALUATION: berechnete Werte entsprechen zu einem drittel des erwarteten Labels und das ziellabel ist mindestens einmal in den letzten 5 Frames enthalten
+                    if (sequenceHit >= calculatedSequence.Count*0.33 && calculatedSequence.GetRange(calculatedSequence.Count-6,5).Contains(originalLabel))
+                        countHit++;
                     else
                         latency = -1;
 
@@ -121,14 +125,16 @@ namespace SLRS
             reader.Close();
 
             float q = countHit / countAll;
-            box_eval.Document.Blocks.Add(new Paragraph(new Run(String.Format("Gesamt:\t{0}\nTreffer:\t{1}\nQuote:\t{2} %\n\n", countAll, countHit, q * 100))));
+            double latOverall =  calculatedLatency.Sum(i => i.Value) / calculatedLatency.Count;
+
+            box_eval.Document.Blocks.Add(new Paragraph(new Run(String.Format("Gesamt:\t{0}\nTreffer:\t{1}\nQuote:\t{2} %\n=================================\n",
+                countAll, countHit, q * 100, latOverall*100))));
 
             var latencyOutput = "";
             var latencySum = 0.0;
             var latencyCount = 0;
             foreach (var lat in calculatedLatency)
-            {
-                
+            {                
                 if (lat.Value >= 0)
                 {
                     latencyOutput += String.Format("'{0}' erkannt nach {1} Frames. (= {2} ms)\n", lat.Key, lat.Value, lat.Value * 100);//100ms (3*33ms bei 30 fps)
@@ -226,6 +232,7 @@ namespace SLRS
         {
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
             dlg.InitialDirectory = @"c:\CNTK\nets\";
+            dlg.Filter = "*.log|*.*";
             var result = dlg.ShowDialog();
 
             if (result.HasValue && result.Value)

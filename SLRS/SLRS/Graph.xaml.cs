@@ -53,7 +53,7 @@ namespace SLRS
                         {
                             hitMax = 1;
                             y_factor = 150; // 500/150 = 3.3333 ist höchste ce zahl (angenommen)
-                            x_factor = 1000 / epochs; //trainGraph.Width
+                            x_factor = 2000 / epochs; //trainGraph.Width
                         }
                         else
                         {
