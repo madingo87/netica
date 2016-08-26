@@ -1,5 +1,8 @@
-﻿using System;
+﻿using OxyPlot;
+using OxyPlot.Series;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -20,27 +23,44 @@ namespace SLRS
     /// </summary>
     public partial class Graph : Window
     {
+        public static PlotModel GraphPlott { get; set; }
 
-        public Graph(string outputFile)
+        public Graph()
         {
             InitializeComponent();
-            calculateGraph(outputFile);
+            calculateGraphData();
         }
 
-        public void calculateGraph(string outputFile)
+        public void calculateGraphData()
         {
-            string ceValue = "", errValue = "", epochTime = "", epochNum = "", firstCE = "";
+            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+            dlg.InitialDirectory = @"c:\CNTK\nets\";
+            dlg.Filter = "*.log|*.*";
+            var result = dlg.ShowDialog();
+
+            if (!(result.HasValue && result.Value))
+            {
+                MessageBox.Show("Fehler beim öffnen...");
+                return;
+            }
+
+            string ceValue = "", errValue = "", epochTime = "", firstCE = "";
             
-            double y_factor = 1, x_factor = 1;
+            //double y_factor = 1, x_factor = 1;
             int hitMax = 1, hit = 0;
             int epochs = 0;
             double epochSum = 0;
 
-            Point err_p1 = new Point(0, 0), err_p2 = new Point(0, 0), ce_p1 = new Point(0, 0), ce_p2 = new Point(0, 0);
+            // Create the plot model
+            GraphPlott = new PlotModel { Title = "Training", Subtitle = dlg.FileName };
+
+            // Create two line series (markers are hidden by default)
+            var ceSeries = new LineSeries { Title = "CrossEntropy", MarkerType = MarkerType.Circle };
+            var errSeries = new LineSeries { Title = "Error", MarkerType = MarkerType.Square };
 
             try
             {
-                StreamReader reader = new StreamReader(outputFile);
+                StreamReader reader = new StreamReader(dlg.FileName);
 
                 while (!reader.EndOfStream)
                 {
@@ -48,19 +68,6 @@ namespace SLRS
                     if (line.StartsWith("CNTKCommandTrainInfo: train :"))
                     {
                         epochs = Convert.ToInt16(line.Substring(line.IndexOf("train : ") + 8).Replace('.', ','));
-
-                        if (epochs <= 2000)
-                        {
-                            hitMax = 1;
-                            y_factor = 150; // 500/150 = 3.3333 ist höchste ce zahl (angenommen)
-                            x_factor = 2000 / epochs; //trainGraph.Width
-                        }
-                        else
-                        {
-                            hitMax = epochs / 2000;
-                            y_factor = 125; // 4 ist höchste ce zahl (angenommen)
-                            x_factor = 1;
-                        }
                     }
                     if (line.StartsWith("Finished Epoch"))
                     {
@@ -72,48 +79,21 @@ namespace SLRS
                             if (String.IsNullOrWhiteSpace(firstCE)) firstCE = ceValue;
                             errValue = line.Substring(line.IndexOf("err =") + 6, 10).Replace('.', ',');
                             epochTime = line.Substring(line.IndexOf("epochtime") + 10, (line.Length - 1) - (line.IndexOf("epochtime") + 10)).Replace('.', ',');
-                            //epochNum = line.Substring(line.IndexOf('[') + 1, (line.IndexOf(" of ") - (line.IndexOf('[') + 1)));
 
                             epochSum += Convert.ToDouble(epochTime);
 
-                            var x = hit * x_factor;
-                            var ce_y = (trainGraph.Height - (Convert.ToDouble(ceValue) * y_factor));
-                            var err_y = (trainGraph.Height - (Convert.ToDouble(errValue) * y_factor));
+                            ceSeries.Points.Add(new DataPoint(hit,Convert.ToDouble(ceValue)));
+                            errSeries.Points.Add(new DataPoint(hit, Convert.ToDouble(errValue)));
 
-                            err_p2 = new Point(x, err_y);
-                            ce_p2 = new Point(x, ce_y);
-
-                            Line ce = new Line();
-                            ce.Visibility = System.Windows.Visibility.Visible;
-                            ce.Opacity = 0.5;
-                            ce.StrokeThickness = 1;
-                            ce.Stroke = Brushes.Tomato;
-                            ce.X1 = ce_p1.X;
-                            ce.Y1 = ce_p1.Y;
-                            ce.X2 = ce_p2.X;
-                            ce.Y2 = ce_p2.Y;
-
-                            Line err = new Line();
-                            err.Visibility = System.Windows.Visibility.Visible;
-                            err.Opacity = 0.5;
-                            err.StrokeThickness = 1;
-                            err.Stroke = Brushes.Green;
-                            err.X1 = err_p1.X;
-                            err.Y1 = err_p1.Y;
-                            err.X2 = err_p2.X;
-                            err.Y2 = err_p2.Y;
-
-                            trainGraph.Children.Add(ce);
-                            trainGraph.Children.Add(err);
-
-                            err_p1 = err_p2;
-                            ce_p1 = ce_p2;
                         }
                     }
                 }
 
-                lbl_epochs.Content = epochs;
-                lbl_maxErr.Content = String.Format("{0:0.000}", Convert.ToDouble(firstCE) + 1);
+                // Add the series to the plot model
+                GraphPlott.Series.Add(errSeries);
+                GraphPlott.Series.Add(ceSeries);
+                graph.Model = Graph.GraphPlott;
+                
                 lbl_epochSum.Content = epochs;
                 lbl_timeSum.Content = String.Format("{0:0.000} s", epochSum);
 
@@ -126,9 +106,9 @@ namespace SLRS
             }
         }
 
-        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        private void newGraph_Click(object sender, RoutedEventArgs e)
         {
-            trainGraph.Width = window.Width-120;
+            calculateGraphData();
         }
     }
 }

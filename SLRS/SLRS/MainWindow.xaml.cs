@@ -15,21 +15,28 @@
         {
             EvaluationWindow evalWindow = new EvaluationWindow();
             evalWindow.Show();
-            this.Close();
+            //this.Close();
         }
 
         private void btn_start_click(object sender, RoutedEventArgs e)
         {
             KinectApp kinectApp = new KinectApp();
             kinectApp.Show();
-            this.Close();
+            //this.Close();
         }
 
         private void btn_lra(object sender, RoutedEventArgs e)
         {
             LRA lraWindow = new LRA();
             lraWindow.Show();
-            this.Close();
+            //this.Close();
+        }
+
+        private void btn_graph_click(object sender, RoutedEventArgs e)
+        {
+                Graph g = new Graph();
+                g.Show();
+                //this.Close();
         }
     }
 }

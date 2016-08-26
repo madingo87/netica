@@ -92,8 +92,8 @@ namespace SLRS
             "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0",
             "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1"};  
 
-        private int maxTestData = 10;
-        private int maxTrainData = 70;
+        private int maxTestData = 15;
+        private int maxTrainData = 0;
 
         private string statusText = null;
 
@@ -643,7 +643,7 @@ namespace SLRS
             this.txtAngles.Text = text;
         }
 
-        int addId = 0;
+        int addId = 81;
         private void writeTrainingData(double[] allData) 
         {
             // seqID = xxxyy, xxx = LabelCode , yy = sequence

@@ -227,21 +227,5 @@ namespace SLRS
                 return;
             }
         }
-
-        private void btn_graph_click(object sender, RoutedEventArgs e)
-        {
-            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-            dlg.InitialDirectory = @"c:\CNTK\nets\";
-            dlg.Filter = "*.log|*.*";
-            var result = dlg.ShowDialog();
-
-            if (result.HasValue && result.Value)
-            {
-                Graph g = new Graph(dlg.FileName);
-                g.Show();
-            }
-            else
-                MessageBox.Show("Fehler beim öffnen...");
-        }
     }
 }
