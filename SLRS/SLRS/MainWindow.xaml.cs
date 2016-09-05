@@ -38,6 +38,11 @@
                 g.Show();
                 //this.Close();
         }
+
+        private void btn_pcl_click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
 

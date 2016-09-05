@@ -23,14 +23,14 @@
             <Viewbox Grid.Row="0" Grid.Column="0" Margin="25" >
                 <Image Source="{Binding ImageSource}" />
             </Viewbox>
-            <Label Name="lbl_fpsBody" Content="0" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,40,60" Background="White" Width="30"/>
+            <Label Name="lbl_fpsBody" Content="0" Grid.Row="0" HorizontalContentAlignment="Right" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,40,60" Background="White" Width="60"/>
             <Viewbox Grid.Row="1" Width="150" Height="150" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="100,20,0,0">
                 <Image Source="{Binding LeftHandSource}"  />
             </Viewbox>
             <Viewbox Grid.Row="1" Width="150" Height="150" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,20,100,0">
                 <Image Source="{Binding RightHandSource}"  />
             </Viewbox>
-            <Label Name="lbl_fpsDepth" Content="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="30,40,0,0" Background="White" Width="30"/>
+            <Label Name="lbl_fpsDepth" Content="0" Grid.Row="1" HorizontalContentAlignment="Right" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="449,20,0,0" Background="White" Width="60"/>
         </Grid>
 
         <!-- Right Column -->
