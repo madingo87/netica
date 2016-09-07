@@ -70,7 +70,7 @@ namespace SLRS
                     "WIDTH 100  \n" +
                     "HEIGHT 100  \n" +
                     "VIEWPOINT 0 0 0 1 0 0 0  \n" +
-                    "OINTS 10000  \n" +
+                    "POINTS 10000  \n" +
                     "DATA ascii  \n");
         }
 

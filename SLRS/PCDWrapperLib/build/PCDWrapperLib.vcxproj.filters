@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\PCDWrapperLib.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{94D5352B-6399-31B2-8ABD-504FBE687A07}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

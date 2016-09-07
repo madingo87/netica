@@ -1,0 +1,10 @@
+﻿Der Buildvorgang wurde am 06.09.2016 22:39:08 gestartet.
+     1>Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\ALL_BUILD.vcxproj" auf Knoten "2", Build Ziel(e).
+     1>CustomBuild:
+         Building Custom Rule C:/Users/Martin/Documents/Visual Studio 2013/Projects/netica/SLRS/PCDWrapperLib/CMakeLists.txt
+         CMake does not need to re-run because C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\generate.stamp is up-to-date.
+     1>Die Erstellung des Projekts "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\ALL_BUILD.vcxproj" ist abgeschlossen, Build Ziel(e).
+
+Build erfolgreich.
+
+Verstrichene Zeit 00:00:00.07

@@ -41,7 +41,8 @@
 
         private void btn_pcl_click(object sender, RoutedEventArgs e)
         {
-
+            PCDEval pcdEval = new PCDEval();
+            pcdEval.Show();
         }
     }
 }
