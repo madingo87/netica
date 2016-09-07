@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
 using System.Runtime.InteropServices;
+using System.IO;
 
 namespace SLRS
 {
@@ -27,7 +28,7 @@ namespace SLRS
             InitializeComponent();
         }
 
-        [DllImport("PCDWrapperLib.dll")]
+        [DllImport("PCDWrapperLib.dll", CallingConvention=CallingConvention.Cdecl)]
         private static extern int evaluatePCD(StringBuilder filename, bool print, StringBuilder exportFile, int offset, bool plot);
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -37,14 +38,20 @@ namespace SLRS
 
             if (dlg.ShowDialog().Value)
             {
-                lbl_file.Content = dlg.FileName.Split('\\').Last();
+                var file = dlg.FileName.Split('\\').Last();
+                lbl_file.Content = file;
 
-                var exportFile = @"C:\temp\SLRS\PCDexport";
+                var exportFile = @"C:\temp\SLRS\PCDexport\" + file;
+
+                if (addHeader(dlg.FileName))
+                    listBox.Items.Add("Header bereits vorhanden!");
+                else
+                    listBox.Items.Add("Header hinzugefügt!");
 
                 //Calc PCD
                 int res = evaluate(dlg.FileName, exportFile);
 
-                listBox.Items.Add("Exportiert nach \" " + exportFile +" \"");
+                listBox.Items.Add("Exportiert nach \"" + exportFile +"\"");
                 listBox.Items.Add("Returncode: " + res);
             }
         }
@@ -54,6 +61,59 @@ namespace SLRS
             var export = new StringBuilder(exportFile);
 
             return evaluatePCD(file, false, export, 0, false);           
+        }
+
+
+
+        private bool addHeader(string file)
+        {
+            string content;
+            int width = 0;
+            using (StreamReader sr = new StreamReader(file))
+            {
+                var firstline = sr.ReadLine();
+
+                if (firstline.Contains(".PCD v.7")) 
+                    return true;
+
+                content = firstline + "\n";
+                width++;
+
+                while (!sr.EndOfStream)
+                {
+                    content += sr.ReadLine() + "\n";
+                    width++;
+                }
+
+                sr.Close();
+            }
+
+            using (StreamWriter sw = new StreamWriter(file, false))
+            {
+                writePCDHeader(sw, width);
+
+                sw.Write(content);
+
+                sw.Flush();
+                sw.Close();
+            }
+
+            return false;
+        }
+
+        private void writePCDHeader(StreamWriter sw, int width)
+        {
+            sw.Write("# .PCD v.7 - Point Cloud Data file format\n" +
+                    "VERSION .7  \n" +
+                    "FIELDS x y z  \n" +
+                    "SIZE 1 1 1  \n" +
+                    "TYPE F F F  \n" +
+                    "COUNT 1 1 1  \n" +
+                    "WIDTH " + width + " \n" +
+                    "HEIGHT 1  \n" +
+                    "VIEWPOINT 0 0 0 1 0 0 0  \n" +
+                    "POINTS " + width + " \n" +
+                    "DATA ascii  \n");
         }
     }
 }

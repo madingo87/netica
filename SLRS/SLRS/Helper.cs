@@ -67,10 +67,10 @@ namespace SLRS
                     "SIZE 1 1 1  \n" +
                     "TYPE F F F  \n" +
                     "COUNT 1 1 1  \n" +
-                    "WIDTH 100  \n" +
-                    "HEIGHT 100  \n" +
+                    "WIDTH \n" +
+                    "HEIGHT 1\n" +
                     "VIEWPOINT 0 0 0 1 0 0 0  \n" +
-                    "POINTS 10000  \n" +
+                    "POINTS \n" +
                     "DATA ascii  \n");
         }
 

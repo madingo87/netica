@@ -59,21 +59,6 @@ namespace SLRS
         */
         #endregion
 
-        public static void writePCDHeader(StreamWriter sw)
-        {
-            sw.Write("# .PCD v.7 - Point Cloud Data file format\n" +
-                    "VERSION .7  \n" +
-                    "FIELDS x y z  \n" +
-                    "SIZE 1 1 1  \n" +
-                    "TYPE F F F  \n" +
-                    "COUNT 1 1 1  \n" +
-                    "WIDTH 100  \n" +
-                    "HEIGHT 100  \n" +
-                    "VIEWPOINT 0 0 0 1 0 0 0  \n" +
-                    "POINTS 10000  \n" +
-                    "DATA ascii  \n");
-        }
-
         public static Point3D depthToPCD(int frameSize, float x, float y, int depthVal)
         {
             Point3D point = new Point3D();

@@ -1,0 +1,1 @@
+copy /V /Y "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\Debug\PCDWrapperLib.dll" "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\bin\Debug"

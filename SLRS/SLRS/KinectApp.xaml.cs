@@ -457,9 +457,9 @@ namespace SLRS
         // If you wish to filter by reliable depth distance, use:  depthFrame.DepthMaxReliableDistance
         private unsafe void ProcessDepthFrameData(IntPtr depthFrameData, int frameSize, ushort minDepth, ushort maxDepth, DepthSpacePoint p, bool rec, bool left)
         {
+            string file = "";
             if (depthFrameSelector == 15 && rec)
             {
-                string file = "";
                 if (left) 
                     file = String.Format("c:/temp/SLRS/hands/depthDataLeft_{0}_{1}_{2}.txt", gestureWord[gestureNumber], sequenceID, depthFrameIndexL++);
                 else
@@ -473,6 +473,7 @@ namespace SLRS
             ushort initDepth = frameData[depthFrameDescription.Width * ((int)p.Y) + ((int)p.X)];
             byte initPos = (byte)(initDepth / MapDepthToByte);
 
+            int cloudPointCount = 0;
             int factor = 80;
             int index = 0;
             for (int y = -frameSize; y < frameSize; y++)
@@ -490,6 +491,7 @@ namespace SLRS
                         {
                             var point = Helper.depthToPCD(frameSize, p.X + x, p.Y + y, depth);
                             depthData.WriteLine(String.Format("{0} {1} {2}", point.X, point.Y, point.Z));
+                            cloudPointCount++;
                         }
 
                         depth += (ushort)((depth - initDepth) * 10);
@@ -507,6 +509,22 @@ namespace SLRS
             {
                 depthData.Flush();
                 depthData.Close();
+
+                FileStream fs = new FileStream(file);
+                string heigth = cloudPointCount.ToString();
+                while (!fs.EndOfStream)
+                {
+                    var line = fs.ReadLine();
+                    if (line.Contains("WIDTH"))
+                        fs.Write(Encoding.ASCII.GetBytes(height), fs.Position+1, height.Lenght);
+                    if (line.Contains("POINTS")) {
+                        fs.Write(Encoding.ASCII.GetBytes(height), fs.Position+1, height.Lenght);
+                        break;
+                    }
+                }
+
+                fs.Flush();
+                fs.Close();
 
                 depthFrameSelector = 0;
             }

@@ -458,16 +458,16 @@ namespace SLRS
         // If you wish to filter by reliable depth distance, use:  depthFrame.DepthMaxReliableDistance
         private unsafe void ProcessDepthFrameData(IntPtr depthFrameData, int frameSize, ushort minDepth, ushort maxDepth, DepthSpacePoint p, bool rec, bool left)
         {
+            string file = "";
             if (depthFrameSelector == depthFrameThreshold && rec)
             {
-                string file = "";
                 if (left) 
                     file = String.Format("c:/temp/SLRS/hands/depthDataLeft_{0}_{1}_{2}.txt", gestureWord[gestureNumber], sequenceID, depthFrameIndexL++);
                 else
                     file = String.Format("c:/temp/SLRS/hands/depthDataRight_{0}_{1}_{2}.txt", gestureWord[gestureNumber], sequenceID, depthFrameIndexR++);
 
                 depthData = new StreamWriter(file, true);
-                Helper.writePCDHeader(depthData);
+                //Helper.writePCDHeader(depthData);
             }
 
             ushort* frameData = (ushort*)depthFrameData; // depth frame data is a 16 bit value
@@ -491,7 +491,7 @@ namespace SLRS
                         if (depthFrameSelector == depthFrameThreshold && rec)
                         {
                             var point = Helper.depthToPCD(frameSize, p.X + x, p.Y + y, depth);
-                            depthData.WriteLine(String.Format("{0} {1} {2}", point.X, point.Y, point.Z));
+                            depthData.WriteLine(String.Format("{0:0.00000} {1:0.00000} {2}", point.X, point.Y, point.Z));
                         }
                         //...and adapt depth map for visualization
                         depth += (ushort)((depth - initDepth) * 10);
@@ -508,7 +508,7 @@ namespace SLRS
             if (depthFrameSelector == depthFrameThreshold && rec)
             {
                 depthData.Flush();
-                depthData.Close();
+                depthData.Close();           
 
                 depthFrameSelector = 0;
             }
