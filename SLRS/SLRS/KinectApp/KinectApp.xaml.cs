@@ -481,21 +481,21 @@ namespace SLRS
                 for (int x = -frameSize; x < frameSize; x++)
                 {                    
                     //Select index for smaller frame and get Depth value
-                    int i = (depthFrameDescription.Width * ((int)p.Y + y) + ((int)p.X + x));
-                    ushort depth = frameData[i];
+                    int offset = (depthFrameDescription.Width * ((int)p.Y + y) + ((int)p.X + x));
+                    ushort depth = frameData[offset];
 
                     // if this depth is near to the initpoint (handpalm) ...  
                     if (depth < initDepth + factor && depth > initDepth - factor)
                     {
-                        //...record to PointCloud ...
+                        //... record to PointCloud ...
                         if (depthFrameSelector == depthFrameThreshold && rec)
                         {
-                            //var point = Helper.depthToPCD(frameSize, p.X + x, p.Y + y, depth);
+                            var point = Helper.depthToPCD(frameSize, (int)p.X + x, (int)p.Y + y, depth);
                             depthData.WriteLine(String.Format("{0:0.00000} {1:0.00000} {2}",
-                                (p.X + x).ToString().Replace(',', '.'), (p.Y + y).ToString().Replace(',', '.'), depth.ToString().Replace(',', '.')));
-                                //point.X.ToString().Replace(',', '.'), point.Y.ToString().Replace(',', '.'), point.Z.ToString().Replace(',', '.')));
+                                point.X.ToString().Replace(',', '.'), point.Y.ToString().Replace(',', '.'), point.Z.ToString().Replace(',', '.')));
                         }
-                        //...and adapt depth map for visualization
+
+                        //...and adapt depth for visualization in UI
                         depth += (ushort)((depth - initDepth) * 10);
                     }
                     else

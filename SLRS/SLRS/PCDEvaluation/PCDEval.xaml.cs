@@ -48,14 +48,29 @@ namespace SLRS
                 else
                     listBox.Items.Add("Header hinzugefügt!");
 
-                //Calc PCD
-                listBox.Items.Add("Berechne Histrogramm und exportiere...");
-                var print = this.chk_print.IsChecked ?? false;
-                var plot = this.chk_plot.IsChecked ?? false;
-                int res = evaluate(dlg.FileName, exportFile, print, plot);
+                var cvfh = this.chk_cvfh.IsChecked ?? false;
+                if (cvfh)
+                {
+                    //Calc PCD
+                    listBox.Items.Add("Berechne Histrogramm und exportiere...");
+                    var plot = this.chk_plot.IsChecked ?? false;
+                    int res = evaluate(dlg.FileName, exportFile, false, plot);
+                    listBox.Items.Add("Exportiert nach \"" + exportFile + "\"");
+                    listBox.Items.Add("Returncode: " + res);
+                }
 
-                listBox.Items.Add("Exportiert nach \"" + exportFile + "\"");
-                listBox.Items.Add("Returncode: " + res);
+                var print = this.chk_print.IsChecked ?? false;
+                if (print)
+                {
+                    if (File.Exists(exportFile))
+                    {
+                        foreach (var entry in exportCVFHFeatures(exportFile))
+                            listBox.Items.Add(entry);
+                    }
+                    else
+                        listBox.Items.Add("Datei \"" + exportFile + "\" nicht vorhanden!");
+                }
+
                 listBox.Items.Add("=========== \n\n");
             }
         }
@@ -67,7 +82,29 @@ namespace SLRS
             return evaluatePCD(file, print, export, 0, plot);           
         }
 
+        private float[] exportCVFHFeatures(string filename)
+        {
+            StreamReader sr = new StreamReader(filename);
+            var entries = sr.ReadToEnd().Split(' ');
+            var features = new float[308];
+            int entriesCounter = 0;
 
+            for (int i = 0; i < 308; i++)
+            {
+                if (entries[entriesCounter] == "" || entries[entriesCounter] == "\r\n") continue; //avoid empty strings
+
+                var pair = entries[entriesCounter].Split(':');
+                if (Convert.ToInt16(pair[0]) == i)
+                {
+                    features[i] = Convert.ToSingle(pair[1].Replace('.',','));
+                    entriesCounter++;
+                }
+                else
+                    features[i] = 0;
+            }
+
+            return features;
+        }
 
         private bool addHeader(string file)
         {

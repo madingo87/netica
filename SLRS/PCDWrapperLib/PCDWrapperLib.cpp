@@ -51,7 +51,8 @@ int evaluatePCD(const char* filename, bool print, const char* exportFile, int of
 	// Estimate the normals.
 	pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> normalEstimation;
 	normalEstimation.setInputCloud(object);
-	normalEstimation.setRadiusSearch(0.03);
+	normalEstimation.setRadiusSearch(0.01); //0.03
+
 	pcl::search::KdTree<pcl::PointXYZ>::Ptr kdtree(new pcl::search::KdTree<pcl::PointXYZ>);
 	normalEstimation.setSearchMethod(kdtree);
 	normalEstimation.compute(*normals);
@@ -61,12 +62,10 @@ int evaluatePCD(const char* filename, bool print, const char* exportFile, int of
 	ourcvfh.setInputCloud(object);
 	ourcvfh.setInputNormals(normals);
 	ourcvfh.setSearchMethod(kdtree);
-	ourcvfh.setEPSAngleThreshold(5.0 / 180.0 * M_PI); // 5 degrees.
-	ourcvfh.setCurvatureThreshold(1.0);
+	ourcvfh.setEPSAngleThreshold(3.0 / 180.0 * M_PI); // 5.0 degrees.
+	ourcvfh.setCurvatureThreshold(5.0);				 // 1.0
 	ourcvfh.setNormalizeBins(false);
-	// Set the minimum axis ratio between the SGURF axes. At the disambiguation phase,
-	// this will decide if additional Reference Frames need to be created, if ambiguous.
-	ourcvfh.setAxisRatio(0.8);
+	ourcvfh.setAxisRatio(0.6); //0.8  // Set the minimum axis ratio between the SGURF axes. At the disambiguation phase, this will decide if additional Reference Frames need to be created, if ambiguous.
 	ourcvfh.compute(*descriptors);
 
 	std::cout << "\nBerechnung von OUR-CVFH abgeschlossen!" << std::endl;

@@ -59,10 +59,10 @@ namespace SLRS
         */
         #endregion
 
-        public static Point3D depthToPCD(int frameSize, float x, float y, int depthVal)
+        public static Point3D depthToPCD(int frameSize, int x, int y, float depthVal)
         {
             Point3D point = new Point3D();
-            point.Z = (depthVal);	 //    / 1.0f 		//Convert from mm to meters
+            point.Z = 1.0f / (depthVal);	 	//Convert from mm to meters
             point.X = (x - CameraParams.cx) * point.Z / CameraParams.fx;    //(x + frameSize) * depthVal / CameraParams.fx; 
             point.Y = (y - CameraParams.cy) * point.Z / CameraParams.fy;    //(y + frameSize) * depthVal / CameraParams.fy;   
 
