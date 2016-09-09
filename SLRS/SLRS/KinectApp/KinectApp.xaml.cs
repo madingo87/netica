@@ -462,9 +462,9 @@ namespace SLRS
             if (depthFrameSelector == depthFrameThreshold && rec)
             {
                 if (left) 
-                    file = String.Format("c:/temp/SLRS/hands/depthDataLeft_{0}_{1}_{2}.txt", gestureWord[gestureNumber], sequenceID, depthFrameIndexL++);
+                    file = String.Format("c:/temp/SLRS/hands/ddLeft_{0}_{1}_{2}.pcd", gestureWord[gestureNumber], sequenceID, depthFrameIndexL++);
                 else
-                    file = String.Format("c:/temp/SLRS/hands/depthDataRight_{0}_{1}_{2}.txt", gestureWord[gestureNumber], sequenceID, depthFrameIndexR++);
+                    file = String.Format("c:/temp/SLRS/hands/ddRight_{0}_{1}_{2}.pcd", gestureWord[gestureNumber], sequenceID, depthFrameIndexR++);
 
                 depthData = new StreamWriter(file, true);
                 //Helper.writePCDHeader(depthData);
@@ -490,8 +490,10 @@ namespace SLRS
                         //...record to PointCloud ...
                         if (depthFrameSelector == depthFrameThreshold && rec)
                         {
-                            var point = Helper.depthToPCD(frameSize, p.X + x, p.Y + y, depth);
-                            depthData.WriteLine(String.Format("{0:0.00000} {1:0.00000} {2}", point.X, point.Y, point.Z));
+                            //var point = Helper.depthToPCD(frameSize, p.X + x, p.Y + y, depth);
+                            depthData.WriteLine(String.Format("{0:0.00000} {1:0.00000} {2}",
+                                (p.X + x).ToString().Replace(',', '.'), (p.Y + y).ToString().Replace(',', '.'), depth.ToString().Replace(',', '.')));
+                                //point.X.ToString().Replace(',', '.'), point.Y.ToString().Replace(',', '.'), point.Z.ToString().Replace(',', '.')));
                         }
                         //...and adapt depth map for visualization
                         depth += (ushort)((depth - initDepth) * 10);

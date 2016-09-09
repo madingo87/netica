@@ -24,6 +24,9 @@
 extern "C" __declspec(dllexport) int evaluatePCD(const char* filename, bool print, const char* exportFile, int offset, bool plot);
 int evaluatePCD(const char* filename, bool print, const char* exportFile, int offset, bool plot)
 {
+	std::cout <<
+		"\nourCVFH -- 160408\n"
+		"This program loads a Point Cloud Data File and extracts ourCVFH features from it. \n\n";
 	// Cloud for storing the object.
 	pcl::PointCloud<pcl::PointXYZ>::Ptr object(new pcl::PointCloud<pcl::PointXYZ>);
 	// Object for storing the normals.
@@ -34,11 +37,7 @@ int evaluatePCD(const char* filename, bool print, const char* exportFile, int of
 	// Note: you should have performed preprocessing to cluster out the object
 	// from the cloud, and save it to this individual file.
 
-	std::cout <<
-		"\nourCVFH -- 160408\n"
-		"This program loads a Point Cloud Data File and extracts ourCVFH features from it. \n\n";
-
-		//============================================================
+	//============================================================
 	// Read a PCD file from disk.
 	if (pcl::io::loadPCDFile<pcl::PointXYZ>(filename, *object) != 0)
 	{

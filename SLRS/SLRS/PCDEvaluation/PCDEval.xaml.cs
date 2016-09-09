@@ -41,7 +41,7 @@ namespace SLRS
                 var file = dlg.FileName.Split('\\').Last();
                 lbl_file.Content = file;
 
-                var exportFile = @"C:\temp\SLRS\PCDexport\" + file;
+                var exportFile = @"C:\temp\SLRS\PCDexport\" + file + ".vfh";
 
                 if (addHeader(dlg.FileName))
                     listBox.Items.Add("Header bereits vorhanden!");
@@ -49,18 +49,22 @@ namespace SLRS
                     listBox.Items.Add("Header hinzugefügt!");
 
                 //Calc PCD
-                int res = evaluate(dlg.FileName, exportFile);
+                listBox.Items.Add("Berechne Histrogramm und exportiere...");
+                var print = this.chk_print.IsChecked ?? false;
+                var plot = this.chk_plot.IsChecked ?? false;
+                int res = evaluate(dlg.FileName, exportFile, print, plot);
 
-                listBox.Items.Add("Exportiert nach \"" + exportFile +"\"");
+                listBox.Items.Add("Exportiert nach \"" + exportFile + "\"");
                 listBox.Items.Add("Returncode: " + res);
+                listBox.Items.Add("=========== \n\n");
             }
         }
-        private unsafe int evaluate(string fileName, string exportFile)
+        private unsafe int evaluate(string fileName, string exportFile, bool print, bool plot)
         {
             var file = new StringBuilder(fileName);
             var export = new StringBuilder(exportFile);
 
-            return evaluatePCD(file, false, export, 0, false);           
+            return evaluatePCD(file, print, export, 0, plot);           
         }
 
 
@@ -104,16 +108,21 @@ namespace SLRS
         private void writePCDHeader(StreamWriter sw, int width)
         {
             sw.Write("# .PCD v.7 - Point Cloud Data file format\n" +
-                    "VERSION .7  \n" +
-                    "FIELDS x y z  \n" +
-                    "SIZE 1 1 1  \n" +
-                    "TYPE F F F  \n" +
-                    "COUNT 1 1 1  \n" +
-                    "WIDTH " + width + " \n" +
+                    "VERSION .7\n" +
+                    "FIELDS x y z\n" +
+                    "SIZE 4 4 4\n" +
+                    "TYPE F F F\n" +
+                    "COUNT 1 1 1\n" +
+                    "WIDTH " + width + "\n" +
                     "HEIGHT 1  \n" +
-                    "VIEWPOINT 0 0 0 1 0 0 0  \n" +
-                    "POINTS " + width + " \n" +
-                    "DATA ascii  \n");
+                    "VIEWPOINT 0 0 0 1 0 0 0\n" +
+                    "POINTS " + width + "\n" +
+                    "DATA ascii\n");
+        }
+
+        private void listBoxClear_click(object sender, MouseEventArgs e)
+        {
+            this.listBox.Items.Clear();
         }
     }
 }
