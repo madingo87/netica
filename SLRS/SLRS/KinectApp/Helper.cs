@@ -73,6 +73,33 @@ namespace SLRS
             return point;
         }
 
+        public static string[] gestureWord = new string[] { 
+            "arbeiten", "alle", "begleiten", "besprechung", "bruder/schwester", 
+            "helfen", "immer", "internet", "was", "schluss", 
+            "schreiben", "termin", "verschieben", "warten", "besser", 
+            "danke", "idee", "sonne", "warum", "kinder" };
+        public static string[] gestureCode = new string[] { 
+            "1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0", 
+            "0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0",
+            "0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0",
+            "0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0",
+            "0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0",
+            "0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0",
+            "0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0",
+            "0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0",
+            "0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0",
+            "0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0",
+            "0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0",
+            "0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0",
+            "0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0",
+            "0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0",
+            "0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0",
+            "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0",
+            "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0",
+            "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0",
+            "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0",
+            "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1"};  
+
     }
 
     static class CameraParams

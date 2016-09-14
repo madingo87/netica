@@ -3,12 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="PCDEval" Height="737.731" Width="517.079">
     <Grid>
-        <Button Content="Select PCD File" HorizontalAlignment="Left" Margin="10,12,0,0" VerticalAlignment="Top" Width="133" Height="30" Click="Button_Click"/>
+        <Button Content="Select PCD Folder" HorizontalAlignment="Left" Margin="10,12,0,0" VerticalAlignment="Top" Width="133" Height="30" Click="selectFolder_Click"/>
         <Label Content="..." Name="lbl_file" HorizontalAlignment="Left" Margin="150,12,0,0" VerticalAlignment="Top" Width="341" BorderBrush="Black" BorderThickness="1"/>
         <ListBox Name="listBox" HorizontalAlignment="Left" Height="607" Margin="11,80,0,0" VerticalAlignment="Top" Width="486" MouseRightButtonUp="listBoxClear_click"/>
-        <CheckBox Content="Ausgabe" Name="chk_print" IsChecked="False" HorizontalAlignment="Left" Margin="413,57,0,0" VerticalAlignment="Top"/>
-        <CheckBox Content="Plotten" Name="chk_plot" IsChecked="True" HorizontalAlignment="Left" Margin="297,57,0,0" VerticalAlignment="Top"/>
-        <CheckBox Content="CVFH berechnen" Name="chk_cvfh" IsChecked="True" HorizontalAlignment="Left" Margin="19,57,0,0" VerticalAlignment="Top"/>
+        <CheckBox Content="Ausgabe" Name="chk_print" IsChecked="False" HorizontalAlignment="Left" Margin="84,57,0,0" VerticalAlignment="Top"/>
+        <CheckBox Content="Plotten" Name="chk_plot" IsChecked="False" HorizontalAlignment="Left" Margin="13,57,0,0" VerticalAlignment="Top"/>
+        <Button Content="Konvertieren" HorizontalAlignment="Left" Margin="404,46,0,0" VerticalAlignment="Top" Width="75" Height="30" Click="convert_Click"/>
 
     </Grid>
 </Window>

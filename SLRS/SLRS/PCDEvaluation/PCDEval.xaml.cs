@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 
 using System.Runtime.InteropServices;
 using System.IO;
+using System.Threading;
 
 namespace SLRS
 {
@@ -23,88 +24,221 @@ namespace SLRS
     /// </summary>
     public partial class PCDEval : Window
     {
+        string pcdPath = @"C:\temp\SLRS\pcd\";
+        string vfhPath = @"C:\temp\SLRS\vfh\";
+        string kfhPath = @"C:\temp\SLRS\kfh\";
+        string ctdPath = @"C:\temp\SLRS\";
+
         public PCDEval()
         {
             InitializeComponent();
+            lbl_file.Content = pcdPath;
         }
 
         [DllImport("PCDWrapperLib.dll", CallingConvention=CallingConvention.Cdecl)]
         private static extern int evaluatePCD(StringBuilder filename, bool print, StringBuilder exportFile, int offset, bool plot);
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void selectFolder_Click(object sender, RoutedEventArgs e)
         {
             FileDialog dlg = new OpenFileDialog();
-            dlg.InitialDirectory = @"C:\temp\SLRS\hands";
+            dlg.InitialDirectory = @"C:\temp";
 
             if (dlg.ShowDialog().Value)
             {
                 var file = dlg.FileName.Split('\\').Last();
-                lbl_file.Content = file;
+                FileInfo fInfo = new FileInfo(dlg.FileName);
+                var parentDir = fInfo.DirectoryName.Split('\\').Last();
+                var dir = fInfo.DirectoryName.Remove(fInfo.DirectoryName.IndexOf(parentDir));
+                lbl_file.Content = dir;
 
-                var exportFile = @"C:\temp\SLRS\PCDexport\" + file + ".vfh";
-
-                if (addHeader(dlg.FileName))
-                    listBox.Items.Add("Header bereits vorhanden!");
-                else
-                    listBox.Items.Add("Header hinzugefügt!");
-
-                var cvfh = this.chk_cvfh.IsChecked ?? false;
-                if (cvfh)
-                {
-                    //Calc PCD
-                    listBox.Items.Add("Berechne Histrogramm und exportiere...");
-                    var plot = this.chk_plot.IsChecked ?? false;
-                    int res = evaluate(dlg.FileName, exportFile, false, plot);
-                    listBox.Items.Add("Exportiert nach \"" + exportFile + "\"");
-                    listBox.Items.Add("Returncode: " + res);
-                }
-
-                var print = this.chk_print.IsChecked ?? false;
-                if (print)
-                {
-                    if (File.Exists(exportFile))
-                    {
-                        foreach (var entry in exportCVFHFeatures(exportFile))
-                            listBox.Items.Add(entry);
-                    }
-                    else
-                        listBox.Items.Add("Datei \"" + exportFile + "\" nicht vorhanden!");
-                }
-
-                listBox.Items.Add("=========== \n\n");
+                pcdPath = dir + "\\pcd\\";
+                vfhPath = dir + "\\vfh\\";
+                kfhPath = dir + "\\kfh\\";
+                ctdPath = dir;
             }
+            checkDirs();
+        }
+
+        bool plot, print;
+        DateTime time;
+        private void convert_Click(object sender, RoutedEventArgs e)
+        {
+            time = DateTime.Now;
+            listBox.Items.Add(String.Format("Konvertierung gestartet... ( {0:HH:mm:ss} )\n",time));
+
+            plot = this.chk_plot.IsChecked ?? false;
+            print = this.chk_print.IsChecked ?? false;
+
+            new Thread(new ThreadStart(convert)).Start();
+        }
+
+        private void addMessage(string info)
+        {
+            Dispatcher.BeginInvoke(new Action(delegate() { 
+                listBox.Items.Add(info); 
+            }));
+        }
+
+        private void convert() 
+        {
+            checkDirs();
+            var dirInfo = new DirectoryInfo(pcdPath);
+            var files = dirInfo.GetFiles("*.pcd");
+
+            foreach (var file in files)
+            {
+                var filename = file.FullName.Split('\\').Last().Split('.').First();
+                var vfhFile = vfhPath + filename + ".vfh";
+                var kfhFile = kfhPath + filename + ".kfh";
+
+                var res = exportVFH(file.FullName, vfhFile);
+                addMessage("Histogramm erstellt (\"" + vfhFile + "\") [Returncode: " + res + "]");
+
+                createKFH(vfhFile, kfhFile);
+                addMessage("KFH Datei erstellt: \"" + kfhFile + "\"");
+                var t = DateTime.Now - time;
+                time = DateTime.Now;
+                addMessage(String.Format("--- Time needed: {1}.{2} s\n", t.Minutes, t.Seconds, t.Milliseconds));
+            }
+            createCTD();
+            addMessage(String.Format("\nKonvertierung abgeschlossen ==> CTD Dateien erstellt! ( {0:HH:mm:ss} )\n", DateTime.Now));
+            
+        }
+
+        private int exportVFH(string file, string exportFile)
+        {
+            //pcd datei-header ggf hinzufügen
+            if (addHeader(file))
+                addMessage("Header bereits vorhanden!");
+            else
+                addMessage("Header hinzugefügt!");
+
+            int res = evaluate(file, exportFile, false, plot);
+
+            if (print)
+            {
+                if (File.Exists(exportFile))
+                {
+                    StreamReader sr = new StreamReader(exportFile);
+                    addMessage(sr.ReadToEnd());
+                    sr.Close();
+                }
+                else
+                    addMessage("Datei \"" + exportFile + "\" nicht vorhanden!");
+            }
+
+            return res;
         }
         private unsafe int evaluate(string fileName, string exportFile, bool print, bool plot)
         {
             var file = new StringBuilder(fileName);
             var export = new StringBuilder(exportFile);
 
-            return evaluatePCD(file, print, export, 0, plot);           
+            return evaluatePCD(file, print, export, 0, plot);
         }
 
-        private float[] exportCVFHFeatures(string filename)
+        private void createKFH(string filename, string exportFile)
         {
             StreamReader sr = new StreamReader(filename);
             var entries = sr.ReadToEnd().Split(' ');
-            var features = new float[308];
-            int entriesCounter = 0;
+            sr.Close();
 
+            StreamWriter sw = new StreamWriter(exportFile, false);
+
+            int entriesCounter = 0;
             for (int i = 0; i < 308; i++)
             {
-                if (entries[entriesCounter] == "" || entries[entriesCounter] == "\r\n") continue; //avoid empty strings
-
-                var pair = entries[entriesCounter].Split(':');
-                if (Convert.ToInt16(pair[0]) == i)
-                {
-                    features[i] = Convert.ToSingle(pair[1].Replace('.',','));
-                    entriesCounter++;
-                }
+                //avoid empty strings
+                if (entries[entriesCounter] == "" || entries[entriesCounter] == "\r\n")
+                    sw.Write(0);
                 else
-                    features[i] = 0;
+                {
+                    var pair = entries[entriesCounter].Split(':');
+                    if (Convert.ToInt16(pair[0]) == i)
+                    {
+                        sw.Write(pair[1].Replace('.', ','));
+                        entriesCounter++;
+                    }
+                    else
+                        sw.Write(0);
+                }
+
+                sw.Write(" ");
             }
 
-            return features;
+            sw.Flush();
+            sw.Close();
         }
+
+        private void createCTD()
+        {
+            var dirInfo = new DirectoryInfo(kfhPath);
+            var files = dirInfo.GetFiles("*.kfh");
+
+            StreamWriter swRight = new StreamWriter(ctdPath + "cntkDataRight.ctd", false); // ctd = CNTK Train Data
+            StreamWriter swLeft = new StreamWriter(ctdPath + "cntkDataLeft.ctd", false); // ctd = CNTK Train Data
+
+            int gestureNo = 0;
+            int sequenceNo = 0;
+            bool left = true;
+
+            foreach (var file in files)
+            {
+                //FileCode: dd_[left/right]_[gestureNumber]_[sequence]_[sequenceIndex]
+                var fileCode = file.FullName.Split('_');
+
+                left = fileCode[1] == "left";
+                gestureNo = Convert.ToInt16(fileCode[2]);
+                sequenceNo = Convert.ToInt16(fileCode[3]);
+
+                StreamReader sr = new StreamReader(file.FullName);
+                var content = sr.ReadToEnd().Split(' ');
+                sr.Close();
+
+                if (left)
+                {
+                    //      String.Format("{0:000}{1:000}\t|L {2}\t|F", gestureNumber, sequenceID+addId, Helper.gestureCode[gestureNumber]);
+                    string line = String.Format("{0:000}{1:000}\t|L {2}\t|F", gestureNo, sequenceNo, gestureCode[gestureNo]);
+                    foreach (var entry in content)
+                    {
+                        line += " " + entry.ToString().Replace(',', '.');
+                    }
+                    swLeft.WriteLine(line);
+                }
+                else
+                {
+                    string line = String.Format("{0:000}{1:000}\t|L{2}\t|F ", gestureNo, sequenceNo, gestureCode[gestureNo]);
+                    foreach (var entry in content)
+                    {
+                        line += entry.ToString().Replace(',', '.') + " ";
+                    }
+                    swRight.WriteLine(line);
+                }
+                addMessage(file.Name + " konvertiert");
+            }
+
+            swLeft.Flush();
+            swLeft.Close();
+            swRight.Flush();
+            swRight.Close();
+
+            //Create Single File
+            StreamReader srLeft = new StreamReader(ctdPath + "cntkDataLeft.ctd");
+            StreamReader srRight = new StreamReader(ctdPath + "cntkDataRight.ctd");
+            StreamWriter sw = new StreamWriter(ctdPath + "cntkData.ctd", false);
+
+            while (!srLeft.EndOfStream)
+            {
+                var leftFeatures = srLeft.ReadLine();            
+                var rightFeatures = srRight.ReadLine().Split('F')[1];
+                sw.WriteLine(leftFeatures + " " + rightFeatures);
+            }
+            sw.Flush();
+            sw.Close();
+            srLeft.Close();
+            srRight.Close();
+        }
+
 
         private bool addHeader(string file)
         {
@@ -114,7 +248,7 @@ namespace SLRS
             {
                 var firstline = sr.ReadLine();
 
-                if (firstline.Contains(".PCD v.7")) 
+                if (firstline.Contains(".PCD v.7"))
                     return true;
 
                 content = firstline + "\n";
@@ -131,7 +265,17 @@ namespace SLRS
 
             using (StreamWriter sw = new StreamWriter(file, false))
             {
-                writePCDHeader(sw, width);
+                sw.Write("# .PCD v.7 - Point Cloud Data file format\n" +
+                            "VERSION .7\n" +
+                            "FIELDS x y z\n" +
+                            "SIZE 4 4 4\n" +
+                            "TYPE F F F\n" +
+                            "COUNT 1 1 1\n" +
+                            "WIDTH " + width + "\n" +
+                            "HEIGHT 1  \n" +
+                            "VIEWPOINT 0 0 0 1 0 0 0\n" +
+                            "POINTS " + width + "\n" +
+                            "DATA ascii\n");
 
                 sw.Write(content);
 
@@ -142,24 +286,45 @@ namespace SLRS
             return false;
         }
 
-        private void writePCDHeader(StreamWriter sw, int width)
+        private void checkDirs()
         {
-            sw.Write("# .PCD v.7 - Point Cloud Data file format\n" +
-                    "VERSION .7\n" +
-                    "FIELDS x y z\n" +
-                    "SIZE 4 4 4\n" +
-                    "TYPE F F F\n" +
-                    "COUNT 1 1 1\n" +
-                    "WIDTH " + width + "\n" +
-                    "HEIGHT 1  \n" +
-                    "VIEWPOINT 0 0 0 1 0 0 0\n" +
-                    "POINTS " + width + "\n" +
-                    "DATA ascii\n");
+            var pcdPathInfo = new DirectoryInfo(pcdPath);
+            var vfhPathInfo = new DirectoryInfo(vfhPath);
+            var kfhPathInfo = new DirectoryInfo(kfhPath);
+
+            if (!pcdPathInfo.Exists) pcdPathInfo.Create();
+            if (!vfhPathInfo.Exists) vfhPathInfo.Create();
+            if (!kfhPathInfo.Exists) kfhPathInfo.Create();
         }
 
         private void listBoxClear_click(object sender, MouseEventArgs e)
         {
             this.listBox.Items.Clear();
         }
+
+        private string[] gestureCode = new string[] { 
+            "1 0 0 0 0", "0 1 0 0 0", "0 0 1 0 0", "0 0 0 1 0", "0 0 0 0 1"};
+
+
+    //        "1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0", 
+    //        "0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0",
+    //        "0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0",
+    //        "0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0",
+    //        "0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0",
+    //        "0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0",
+    //        "0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0",
+    //        "0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0",
+    //        "0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0",
+    //        "0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0",
+    //        "0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0",
+    //        "0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0",
+    //        "0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0",
+    //        "0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0",
+    //        "0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0",
+    //        "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0",
+    //        "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0",
+    //        "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0",
+    //        "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0",
+    //        "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1"};  
     }
 }

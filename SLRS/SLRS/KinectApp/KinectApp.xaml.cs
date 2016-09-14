@@ -27,7 +27,8 @@ namespace SLRS
     /// </summary>
     public partial class KinectApp : Window, INotifyPropertyChanged
     {
-                /// <summary>
+        #region definitions
+        /// <summary>
         /// Size of the RGB pixel in the bitmap
         /// </summary>
         private const int BytesPerPixel = 4;
@@ -65,38 +66,13 @@ namespace SLRS
 
         private int sequenceID = 0; 
         private int gestureNumber;
-        private string[] gestureWord = new string[] { 
-            "arbeiten", "alle", "begleiten", "besprechung", "bruder/schwester", 
-            "helfen", "immer", "internet", "was", "schluss", 
-            "schreiben", "termin", "verschieben", "warten", "besser", 
-            "danke", "idee", "sonne", "warum", "kinder" };
-        private string[] gestureCode = new string[] { 
-            "1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0", 
-            "0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0",
-            "0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0",
-            "0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0",
-            "0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0",
-            "0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0",
-            "0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0",
-            "0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0",
-            "0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0",
-            "0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0",
-            "0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0",
-            "0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0",
-            "0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0",
-            "0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0",
-            "0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0",
-            "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0",
-            "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0",
-            "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0",
-            "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0",
-            "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1"};  
-
-        private int maxTestData = 15;
-        private int maxTrainData = 0;
 
         private string statusText = null;
+        #endregion
 
+        private char test;
+        private int maxTestData = 5;
+        private int maxTrainData = 0;
 
         public KinectApp()
         {
@@ -186,7 +162,7 @@ namespace SLRS
             switch (btn_record.Content.ToString())
             {             
                 case "Begin Record":
-                    sequenceID++;           
+                    //sequenceID++;           
                     btn_record.Content = "Start";
                     depthFrameIndexL = 0;
                     depthFrameIndexR = 0;
@@ -203,11 +179,11 @@ namespace SLRS
                     btn_record.Content = "Start";
                     break;
             }
-            if (sequenceID != 0)
-            {
+            //if (sequenceID != 0)
+            //{
                 var dataType = sequenceID <= maxTrainData ? "train" : "test";
-                StatusText = gestureWord[gestureNumber] + " (" + dataType + " [" + ((maxTrainData + maxTestData) - sequenceID + 1) + "])";
-            }
+                StatusText = Helper.gestureWord[gestureNumber] + " (" + dataType + " [" + ((maxTrainData + maxTestData) - sequenceID + 1) + "])";
+            //}
              
             if (sequenceID == maxTrainData)
             {
@@ -218,7 +194,7 @@ namespace SLRS
 
             if (sequenceID == (maxTrainData + maxTestData))
             {
-                if (gestureNumber + 1 < gestureWord.Length)
+                if (gestureNumber + 1 < Helper.gestureWord.Length)
                 {
                     sequenceID = 0;
                     gestureNumber++;
@@ -391,7 +367,7 @@ namespace SLRS
         DepthSpacePoint pr_old;
         private int windowSize = 100;
         private int depthFrameSelector = 0;
-        private int depthFrameThreshold = 20;
+        private int depthFrameThreshold = 15;
         private int depthFrameIndexL = 0;
         private int depthFrameIndexR = 0;
         private void depthFrameReader_FrameArrived(object sender, DepthFrameArrivedEventArgs e)
@@ -404,16 +380,19 @@ namespace SLRS
                     {
                         if ((this.depthFrameDescription.Width * this.depthFrameDescription.Height) == (depthBuffer.Size / this.depthFrameDescription.BytesPerPixel))
                         {
+                            //Frame handler
+                            if (btn_record.Content.Equals("Stop"))
+                            {
+                                lbl_fpsDepth.Content = Convert.ToUInt64(lbl_fpsBody.Content) + 1;
+                                depthFrameSelector++;
+                            }
+                            bool record = depthFrameSelector == depthFrameThreshold;
+                            if (record) depthFrameSelector = 0;
+
+
                             int frame = windowSize / 2;
                             DepthSpacePoint pl = coordinateMapper.MapCameraPointToDepthSpace(leftHandPostition);
                             DepthSpacePoint pr = coordinateMapper.MapCameraPointToDepthSpace(rightHandPostition);
-
-                            //Draw recordState
-                            bool record = btn_record.Content.Equals("Stop");
-                            if (record)
-                            {
-                                lbl_fpsDepth.Content = Convert.ToUInt64(lbl_fpsBody.Content) + 1;
-                            }
 
                             // === Links
                             if (pl.X <= frame || pl.X >= depthFrameDescription.Width - frame || pl.Y <= frame || pl.Y >= depthFrameDescription.Height - frame)
@@ -449,7 +428,7 @@ namespace SLRS
                                 dc.DrawImage(RightHandSource, new Rect(0.0, 0.0, depthFrameDescription.Width, depthFrameDescription.Height));
                             }
                             pr_old = pr;
-                        }
+                        }                                           
                     }
                 }
             }
@@ -459,12 +438,13 @@ namespace SLRS
         private unsafe void ProcessDepthFrameData(IntPtr depthFrameData, int frameSize, ushort minDepth, ushort maxDepth, DepthSpacePoint p, bool rec, bool left)
         {
             string file = "";
-            if (depthFrameSelector == depthFrameThreshold && rec)
+            if (rec)
             {
-                if (left) 
-                    file = String.Format("c:/temp/SLRS/hands/ddLeft_{0}_{1}_{2}.pcd", gestureWord[gestureNumber], sequenceID, depthFrameIndexL++);
+                //FileCode: [left/right]_[gestureNumber]_[sequence]_[sequneceIndex]
+                if (left)
+                    file = String.Format("c:/temp/SLRS/pcd/dd_left_{0}_{1}_{2}.pcd", gestureNumber, sequenceID, depthFrameIndexL++);
                 else
-                    file = String.Format("c:/temp/SLRS/hands/ddRight_{0}_{1}_{2}.pcd", gestureWord[gestureNumber], sequenceID, depthFrameIndexR++);
+                    file = String.Format("c:/temp/SLRS/pcd/dd_right_{0}_{1}_{2}.pcd", gestureNumber, sequenceID, depthFrameIndexR++);
 
                 depthData = new StreamWriter(file, true);
                 //Helper.writePCDHeader(depthData);
@@ -488,7 +468,7 @@ namespace SLRS
                     if (depth < initDepth + factor && depth > initDepth - factor)
                     {
                         //... record to PointCloud ...
-                        if (depthFrameSelector == depthFrameThreshold && rec)
+                        if (rec)
                         {
                             var point = Helper.depthToPCD(frameSize, (int)p.X + x, (int)p.Y + y, depth);
                             depthData.WriteLine(String.Format("{0:0.00000} {1:0.00000} {2}",
@@ -507,17 +487,13 @@ namespace SLRS
                 }
             }
 
-            if (depthFrameSelector == depthFrameThreshold && rec)
+            if (rec)
             {
                 depthData.Flush();
                 depthData.Close();           
-
-                depthFrameSelector = 0;
             }
 
-            if (rec) depthFrameSelector++;
         }
-
         //*******************
 
         private double[] calculateData(IReadOnlyDictionary<JointType, Joint> joints, bool angleMode, IReadOnlyDictionary<JointType,JointOrientation> orientations)
@@ -644,13 +620,13 @@ namespace SLRS
         int addId = 0;
         private void writeTrainingData(double[] allData) 
         {
-            // seqID = xxxyy, xxx = LabelCode , yy = sequence
-            // 00000     |L 0 0 0 0 0   |F <features ...>
-            // 00000     |L 0 0 0 0 0    |F <features ...>
-            // 00001     |L 0 0 0 0 0    |F <features ...>
+            // seqID = xxxyyy, xxx = Label , yyy = sequence
+            // 000001     |L 0 0 0 0 0   |F <features ...>
+            // 000001     |L 0 0 0 0 0   |F <features ...>
+            // 000001     |L 0 0 0 0 0   |F <features ...>
             //  ...
-            // 00100     |L 1    |F <features ...>
-            var entry = String.Format("{0:000}{1:00}\t|L {2}\t|F", gestureNumber, sequenceID+addId, gestureCode[gestureNumber]);
+            // 001023     |L 1 0 0 0 0   |F <features ...>
+            var entry = String.Format("{0:000}{1:000}\t|L {2}\t|F", gestureNumber, sequenceID+addId, Helper.gestureCode[gestureNumber]);
             for (int i = 0; i < allData.Length; )
                 entry += String.Format(" {0:0.000000}", allData[i++]);
 
