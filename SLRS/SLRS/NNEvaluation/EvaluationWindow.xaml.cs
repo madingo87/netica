@@ -108,8 +108,8 @@ namespace SLRS
                     }
                                                   
                     // EVALUATION: berechnete Werte entsprechen zu einem drittel des erwarteten Labels und das ziellabel ist mindestens einmal in den letzten 5 Frames enthalten
-                    var hit = sequenceHit >= calculatedSequence.Count*0.33 && calculatedSequence.GetRange(calculatedSequence.Count-6,5).Contains(originalLabel);
-                    //var hit = originalLabel == calculatedSequence.Last();
+                    //var hit = sequenceHit >= calculatedSequence.Count*0.33 && calculatedSequence.GetRange(calculatedSequence.Count-6,5).Contains(originalLabel);
+                    var hit = originalLabel == calculatedSequence.Last();
                     if (hit)
                         countHit++;
                     else

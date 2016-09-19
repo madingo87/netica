@@ -35,7 +35,7 @@ namespace SLRS
             lbl_file.Content = pcdPath;
         }
 
-        [DllImport("PCDWrapperLib.dll", CallingConvention=CallingConvention.Cdecl)]
+        [DllImport("PCDWrapperLib.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern int evaluatePCD(StringBuilder filename, bool print, StringBuilder exportFile, int offset, bool plot);
 
         private void selectFolder_Click(object sender, RoutedEventArgs e)
@@ -45,17 +45,23 @@ namespace SLRS
 
             if (dlg.ShowDialog().Value)
             {
-                var file = dlg.FileName.Split('\\').Last();
-                FileInfo fInfo = new FileInfo(dlg.FileName);
-                var parentDir = fInfo.DirectoryName.Split('\\').Last();
-                var dir = fInfo.DirectoryName.Remove(fInfo.DirectoryName.IndexOf(parentDir));
-                lbl_file.Content = dir;
+                selectFolder(dlg.FileName);
+            }      
+        }
 
-                pcdPath = dir + "\\pcd\\";
-                vfhPath = dir + "\\vfh\\";
-                kfhPath = dir + "\\kfh\\";
-                ctdPath = dir;
-            }
+        public void selectFolder(string folder)
+        {
+            var file = folder.Split('\\').Last();
+            FileInfo fInfo = new FileInfo(folder);
+            var parentDir = fInfo.DirectoryName.Split('\\').Last();
+            var dir = fInfo.DirectoryName.Remove(fInfo.DirectoryName.IndexOf(parentDir));
+            lbl_file.Content = dir;
+
+            pcdPath = dir + "pcd\\";
+            vfhPath = dir + "vfh\\";
+            kfhPath = dir + "kfh\\";
+            ctdPath = dir;
+
             checkDirs();
         }
 
@@ -104,6 +110,28 @@ namespace SLRS
             addMessage(String.Format("\nKonvertierung abgeschlossen ==> CTD Dateien erstellt! ( {0:HH:mm:ss} )\n", DateTime.Now));
             
         }
+        public List<double> convertExtern()
+        {
+            checkDirs();
+            var dirInfo = new DirectoryInfo(pcdPath);
+            var files = dirInfo.GetFiles("*.pcd");
+
+            var fileL = pcdPath + "dd_left.pcd";
+            var fileR = pcdPath + "dd_right.pcd";
+
+
+            var filename = fileL.Split('\\').Last().Split('.').First();
+            var vfhFile = vfhPath + filename + ".vfh";
+            var res = exportVFHExtern(fileL, vfhFile);
+            var kfhDataL = createKFH(vfhFile);
+
+            filename = fileR.Split('\\').Last().Split('.').First();
+            vfhFile = vfhPath + filename + ".vfh";
+            res = exportVFHExtern(fileR, vfhFile);
+            var kfhDataR = createKFH(vfhFile);
+
+            return createCTD(kfhDataL, kfhDataR);
+        }
 
         private int exportVFH(string file, string exportFile)
         {
@@ -129,10 +157,18 @@ namespace SLRS
 
             return res;
         }
+        private int exportVFHExtern(string file, string exportFile)
+        {
+            //pcd datei-header ggf hinzufügen
+            addHeader(file);
+            return evaluate(file, exportFile, false, plot);
+        }
         private unsafe int evaluate(string fileName, string exportFile, bool print, bool plot)
         {
             var file = new StringBuilder(fileName);
             var export = new StringBuilder(exportFile);
+
+            var test = Environment.CurrentDirectory;
 
             return evaluatePCD(file, print, export, 0, plot);
         }
@@ -168,6 +204,34 @@ namespace SLRS
 
             sw.Flush();
             sw.Close();
+        }
+        private List<double> createKFH(string filename)
+        {
+            StreamReader sr = new StreamReader(filename);
+            var entries = sr.ReadToEnd().Split(' ');
+            sr.Close();
+
+            var kfhData = new List<double>();
+
+            int entriesCounter = 0;
+            for (int i = 0; i < 308; i++)
+            {
+                //avoid empty strings
+                if (entries[entriesCounter] == "" || entries[entriesCounter] == "\r\n")
+                    kfhData.Add(0);
+                else
+                {
+                    var pair = entries[entriesCounter].Split(':');
+                    if (Convert.ToInt16(pair[0]) == i)
+                    {
+                        kfhData.Add(double.Parse(pair[1].Replace('.', ',')));
+                        entriesCounter++;
+                    }
+                    else
+                        kfhData.Add(0);
+                }
+            }
+            return kfhData;
         }
 
         private void createCTD()
@@ -238,6 +302,18 @@ namespace SLRS
             srLeft.Close();
             srRight.Close();
         }
+        private List<double> createCTD(List<double> kfhDataLeft, List<double> kfhDataRight)
+        {
+            var features = new List<double>();
+
+            foreach (var entry in kfhDataLeft)
+                    features.Add(entry);
+
+            foreach (var entry in kfhDataRight)
+                    features.Add(entry);
+
+            return features;
+        }
 
 
         private bool addHeader(string file)
@@ -303,28 +379,25 @@ namespace SLRS
         }
 
         private string[] gestureCode = new string[] { 
-            "1 0 0 0 0", "0 1 0 0 0", "0 0 1 0 0", "0 0 0 1 0", "0 0 0 0 1"};
-
-
-    //        "1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0", 
-    //        "0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0",
-    //        "0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0",
-    //        "0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0",
-    //        "0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0",
-    //        "0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0",
-    //        "0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0",
-    //        "0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0",
-    //        "0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0",
-    //        "0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0",
-    //        "0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0",
-    //        "0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0",
-    //        "0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0",
-    //        "0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0",
-    //        "0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0",
-    //        "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0",
-    //        "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0",
-    //        "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0",
-    //        "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0",
-    //        "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1"};  
+            "1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0", 
+            "0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0",
+            "0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0",
+            "0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0",
+            "0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0",
+            "0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0",
+            "0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0",
+            "0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0",
+            "0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0",
+            "0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0",
+            "0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0",
+            "0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0",
+            "0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0",
+            "0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0",
+            "0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0",
+            "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0",
+            "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0",
+            "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0",
+            "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0",
+            "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1"};  
     }
 }

@@ -22,9 +22,6 @@ using System.Windows.Media.Media3D;
 
 namespace SLRS
 {
-    /// <summary>
-    /// Interaktionslogik für KinectApp.xaml
-    /// </summary>
     public partial class KinectApp : Window, INotifyPropertyChanged
     {
         #region definitions
@@ -70,9 +67,8 @@ namespace SLRS
         private string statusText = null;
         #endregion
 
-        private char test;
-        private int maxTestData = 5;
-        private int maxTrainData = 0;
+        private int maxTestData = 2;
+        private int maxTrainData = 5;
 
         public KinectApp()
         {
@@ -162,7 +158,7 @@ namespace SLRS
             switch (btn_record.Content.ToString())
             {             
                 case "Begin Record":
-                    //sequenceID++;           
+                    sequenceID++;           
                     btn_record.Content = "Start";
                     depthFrameIndexL = 0;
                     depthFrameIndexR = 0;
@@ -179,11 +175,11 @@ namespace SLRS
                     btn_record.Content = "Start";
                     break;
             }
-            //if (sequenceID != 0)
-            //{
+            if (sequenceID != 0)
+            {
                 var dataType = sequenceID <= maxTrainData ? "train" : "test";
                 StatusText = Helper.gestureWord[gestureNumber] + " (" + dataType + " [" + ((maxTrainData + maxTestData) - sequenceID + 1) + "])";
-            //}
+            }
              
             if (sequenceID == maxTrainData)
             {
@@ -456,6 +452,7 @@ namespace SLRS
 
             int factor = 80;
             int index = 0;
+            int pixelOffset = 5;
             for (int y = -frameSize; y < frameSize; y++)
             {
                 for (int x = -frameSize; x < frameSize; x++)
@@ -468,7 +465,7 @@ namespace SLRS
                     if (depth < initDepth + factor && depth > initDepth - factor)
                     {
                         //... record to PointCloud ...
-                        if (rec)
+                        if (rec && (x % pixelOffset == 0))
                         {
                             var point = Helper.depthToPCD(frameSize, (int)p.X + x, (int)p.Y + y, depth);
                             depthData.WriteLine(String.Format("{0:0.00000} {1:0.00000} {2}",

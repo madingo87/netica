@@ -1,9 +1,14 @@
-﻿namespace SLRS
-{
-    using System;
-    using System.ComponentModel;
-    using System.Windows;
+﻿using Microsoft.MSR.CNTK.Extensibility.Managed;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Windows;
 
+namespace SLRS
+{
     public partial class MainWindow : Window
     {
         public MainWindow()
@@ -34,9 +39,9 @@
 
         private void btn_graph_click(object sender, RoutedEventArgs e)
         {
-                Graph g = new Graph();
-                g.Show();
-                //this.Close();
+            Graph g = new Graph();
+            g.Show();
+            //this.Close();
         }
 
         private void btn_pcl_click(object sender, RoutedEventArgs e)
@@ -44,6 +49,14 @@
             PCDEval pcdEval = new PCDEval();
             pcdEval.Show();
         }
+
+        private void btn_live_Click(object sender, RoutedEventArgs e)
+        {
+            LiveWindow lw = new LiveWindow();
+            lw.Show();
+        }
+
+        
     }
 }
 

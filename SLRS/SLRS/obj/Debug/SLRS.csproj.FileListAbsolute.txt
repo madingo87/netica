@@ -16,10 +16,8 @@ C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\SLRS.Properties.Resources.resources
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\SLRS.exe
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\SLRS.pdb
-C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\SLRS.csprojResolveAssemblyReference.cache
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\bin\Debug\MathNet.Numerics.dll
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\bin\Debug\MathNet.Numerics.xml
-C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\bin\Debug\EvalWrapper.dll
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\NNEvaluation\EvaluationWindow.baml
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\LRA\LRA.baml
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\NNEvaluation\EvaluationWindow.g.cs
@@ -30,3 +28,9 @@ C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\KinectApp\KinectApp.baml
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\PCDEvaluation\PCDEval.baml
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\PCDEvaluation\PCDEval.g.cs
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\bin\Debug\EvalWrapper.dll
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\Live\LiveWindow.baml
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\Live\LiveWindow.g.cs
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\SLRS.csprojResolveAssemblyReference.cache
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\bin\Debug\OxyPlot.dll
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\bin\Debug\OxyPlot.Wpf.dll
