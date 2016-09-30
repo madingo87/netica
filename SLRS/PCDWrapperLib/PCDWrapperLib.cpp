@@ -92,7 +92,7 @@ int evaluatePCD(const char* filename, bool print, const char* exportFile, int of
 	// write histogram values to file
 	std::ofstream output_file;
 	std::cout << "output: " << exportFile << std::endl;
-	output_file.open(exportFile, ios::out | ios::app);
+	output_file.open(exportFile, ios::out);// | ios::app);
 
 	bool gnuplot = false;
 	for (int binIdx = 0; binIdx < histo_bins; ++binIdx){

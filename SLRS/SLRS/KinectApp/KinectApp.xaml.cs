@@ -67,8 +67,8 @@ namespace SLRS
         private string statusText = null;
         #endregion
 
-        private int maxTestData = 2;
-        private int maxTrainData = 5;
+        private int maxTestData = 3;
+        private int maxTrainData = 0;
 
         public KinectApp()
         {
@@ -363,7 +363,7 @@ namespace SLRS
         DepthSpacePoint pr_old;
         private int windowSize = 100;
         private int depthFrameSelector = 0;
-        private int depthFrameThreshold = 15;
+        private int depthFrameThreshold = 8;
         private int depthFrameIndexL = 0;
         private int depthFrameIndexR = 0;
         private void depthFrameReader_FrameArrived(object sender, DepthFrameArrivedEventArgs e)
@@ -438,9 +438,9 @@ namespace SLRS
             {
                 //FileCode: [left/right]_[gestureNumber]_[sequence]_[sequneceIndex]
                 if (left)
-                    file = String.Format("c:/temp/SLRS/pcd/dd_left_{0}_{1}_{2}.pcd", gestureNumber, sequenceID, depthFrameIndexL++);
+                    file = String.Format("c:/temp/SLRS/pcd/dd_left_{0:00}_{1:00}_{2}.pcd", gestureNumber, sequenceID, depthFrameIndexL++);
                 else
-                    file = String.Format("c:/temp/SLRS/pcd/dd_right_{0}_{1}_{2}.pcd", gestureNumber, sequenceID, depthFrameIndexR++);
+                    file = String.Format("c:/temp/SLRS/pcd/dd_right_{0:00}_{1:00}_{2}.pcd", gestureNumber, sequenceID, depthFrameIndexR++);
 
                 depthData = new StreamWriter(file, true);
                 //Helper.writePCDHeader(depthData);

@@ -7,6 +7,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -52,6 +53,9 @@ namespace SLRS
 
         private CoordinateMapper coordinateMapper = null;
         private Body[] bodies = null;
+
+        //private Thread handsThread;
+        //private Thread distThread;
 
         private string statusText = null;
         #endregion
@@ -239,7 +243,6 @@ namespace SLRS
                                 frameSelector++;
                                 if (frameSelector == 2)
                                 {
-
                                     var allData = calculateData(body.Joints, body.JointOrientations);
                                     evaluateDistances(allData);
                                     frameSelector = 0;
@@ -257,6 +260,7 @@ namespace SLRS
         private int windowSize = 100;
         private int depthFrameSelector = 0;
         private int depthFrameThreshold = 15;
+        private Object pcdFileLock = new Object();
         private void depthFrameReader_FrameArrived(object sender, DepthFrameArrivedEventArgs e)
         {
             using (DepthFrame depthFrame = e.FrameReference.AcquireFrame())
@@ -272,7 +276,6 @@ namespace SLRS
                             bool recordThisFrame = depthFrameSelector == depthFrameThreshold;
                             if (recordThisFrame) depthFrameSelector = 0;
 
-
                             int frame = windowSize / 2;
                             DepthSpacePoint pl = coordinateMapper.MapCameraPointToDepthSpace(leftHandPostition);
                             DepthSpacePoint pr = coordinateMapper.MapCameraPointToDepthSpace(rightHandPostition);
@@ -281,7 +284,7 @@ namespace SLRS
                             if (pl.X <= frame || pl.X >= depthFrameDescription.Width - frame || pl.Y <= frame || pl.Y >= depthFrameDescription.Height - frame)
                                 pl = pl_old;
 
-                            ProcessDepthFrameData(depthBuffer.UnderlyingBuffer, frame, 0, ushort.MaxValue, pl, true);
+                            ProcessDepthFrameData(depthBuffer.UnderlyingBuffer, frame, 0, ushort.MaxValue, pl, true, recordThisFrame);
                             this.depthBitmapLeft.WritePixels(
                                 new Int32Rect(0, 0, this.depthBitmapLeft.PixelWidth, this.depthBitmapLeft.PixelHeight),
                                 this.depthPixels,
@@ -299,7 +302,7 @@ namespace SLRS
                             if (pr.X <= frame || pr.X >= depthFrameDescription.Width - frame || pr.Y <= frame || pr.Y >= depthFrameDescription.Height - frame)
                                 pr = pr_old;
 
-                            ProcessDepthFrameData(depthBuffer.UnderlyingBuffer, frame, 0, ushort.MaxValue, pr, false);
+                            ProcessDepthFrameData(depthBuffer.UnderlyingBuffer, frame, 0, ushort.MaxValue, pr, false, recordThisFrame);
                             this.depthBitmapRight.WritePixels(
                                 new Int32Rect(0, 0, this.depthBitmapRight.PixelWidth, this.depthBitmapRight.PixelHeight),
                                 this.depthPixels,
@@ -311,14 +314,17 @@ namespace SLRS
                                 dc.DrawImage(RightHandSource, new Rect(0.0, 0.0, depthFrameDescription.Width, depthFrameDescription.Height));
                             }
                             pr_old = pr;
-                        }
 
-                        if (started)
-                        {
-                            PCDEval pcdEvaluate = new PCDEval();
-                            pcdEvaluate.selectFolder(@"c:\CNTK\models\pcd\dd_left.pcd");
-                            var pclOutput = pcdEvaluate.convertExtern();
-                            evaluateHands(pclOutput.ToArray());
+                            if (started && recordThisFrame)
+                            {
+                                PCDEval pcdEvaluate = new PCDEval();
+                                //handsThread = new Thread(new ThreadStart( delegate() { 
+                                pcdEvaluate.selectFolder(@"c:\CNTK\models\pcd\dd_left.pcd");
+                                var pclOutput = pcdEvaluate.convertExtern();
+                                evaluateHands(pclOutput.ToArray());
+                                //}));
+                                //handsThread.Start();
+                            }
                         }
                     }
                 }
@@ -326,8 +332,9 @@ namespace SLRS
         }
         // Note: In order to see the full range of depth (including the less reliable far field depth) we are setting maxDepth (ushort.MaxValue) to the extreme potential depth threshold
         // If you wish to filter by reliable depth distance, use:  depthFrame.DepthMaxReliableDistance
-        private unsafe void ProcessDepthFrameData(IntPtr depthFrameData, int frameSize, ushort minDepth, ushort maxDepth, DepthSpacePoint p, bool left)
+        private unsafe void ProcessDepthFrameData(IntPtr depthFrameData, int frameSize, ushort minDepth, ushort maxDepth, DepthSpacePoint p, bool left, bool rec)
         {
+            StreamWriter depthData = null;
             string file = "";
             //FileCode: [left/right]_[gestureNumber]_[sequence]_[sequneceIndex]
             if (left)
@@ -335,7 +342,7 @@ namespace SLRS
             else
                 file = @"c:/CNTK/models/pcd/dd_right.pcd";
 
-            StreamWriter depthData = new StreamWriter(file, false);
+            if (rec) depthData = new StreamWriter(file, false);
 
             ushort* frameData = (ushort*)depthFrameData; // depth frame data is a 16 bit value
             ushort initDepth = frameData[depthFrameDescription.Width * ((int)p.Y) + ((int)p.X)];
@@ -343,7 +350,7 @@ namespace SLRS
 
             int factor = 80;
             int index = 0;
-            int pixelOffset = 5;
+            int pixelOffset = 10;
             for (int y = -frameSize; y < frameSize; y++)
             {
                 for (int x = -frameSize; x < frameSize; x++)
@@ -358,9 +365,12 @@ namespace SLRS
                         //... record to PointCloud ...
                         if ((x % pixelOffset == 0))
                         {
-                            var point = Helper.depthToPCD(frameSize, (int)p.X + x, (int)p.Y + y, depth);
-                            depthData.WriteLine(String.Format("{0:0.00000} {1:0.00000} {2}",
-                                point.X.ToString().Replace(',', '.'), point.Y.ToString().Replace(',', '.'), point.Z.ToString().Replace(',', '.')));
+                            if (rec)
+                            {
+                                var point = Helper.depthToPCD(frameSize, (int)p.X + x, (int)p.Y + y, depth);
+                                depthData.WriteLine(String.Format("{0:0.00000} {1:0.00000} {2}",
+                                   point.X.ToString().Replace(',', '.'), point.Y.ToString().Replace(',', '.'), point.Z.ToString().Replace(',', '.')));
+                            }
                         }
 
                         //...and adapt depth for visualization in UI
@@ -372,8 +382,11 @@ namespace SLRS
                     this.depthPixels[index++] = (byte)(depth / MapDepthToByte);
                 }
             }
-            depthData.Flush();
-            depthData.Close();
+            if (rec)
+            {
+                depthData.Flush();
+                depthData.Close();
+            }
         }
         //*******************
 
@@ -462,7 +475,6 @@ namespace SLRS
                 }
 
                 model.CreateNetwork(string.Format("modelPath=\"{0}\"", modelFilePath), deviceId: -1);
-
 
             }
         }

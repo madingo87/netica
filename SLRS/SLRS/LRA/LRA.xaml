@@ -7,5 +7,7 @@
         <Button Content="LRA-File" Name="select" HorizontalAlignment="Right" Margin="0,5,10,0" VerticalAlignment="Top" Width="280" Click="select_Click"/>
         <TextBox Name="epsilon" HorizontalAlignment="Left" Height="20" Margin="70,6,0,0" Text="0.05" VerticalAlignment="Top" Width="87"/>
         <Label Content="epsilon:" HorizontalAlignment="Left" Margin="11,1,0,0" VerticalAlignment="Top"/>
+        <Button Content="Hands Testdaten extrahieren" Name="btn_extract" HorizontalAlignment="Right" Margin="0,103,346,0" VerticalAlignment="Top" Width="210" Click="extractTestData_Click" Height="94"/>
+        <Button Content="LSTM Daten zusammenfassen" Name="btn_convert" HorizontalAlignment="Right" Margin="0,103,74,0" VerticalAlignment="Top" Width="210" Click="convertToLSTMData_Click" Height="94"/>
     </Grid>
 </Window>

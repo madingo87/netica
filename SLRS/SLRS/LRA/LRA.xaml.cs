@@ -148,5 +148,112 @@ namespace SLRS
         {
             textBox.Document.Blocks.Clear();
         }
+
+        private void convertToLSTMData_Click(object sender, RoutedEventArgs e)
+        {
+            //TODO: Dateien gleich --> evtl in einem durchgang?????
+
+            StreamReader srHand = new StreamReader(@"C:\CNTK\SLRS\hands\Output.out");
+            StreamReader srDist = new StreamReader(@"C:\CNTK\SLRS\distance\Output.out");
+
+            List<string> listHandTemp = new List<string>();
+            List<string> listDistTemp = new List<string>();
+            List<string> listHand = new List<string>();
+            List<string> listDist = new List<string>();
+
+            int takeLastFew = 3;
+
+            while (!srDist.EndOfStream)
+            {
+                var line = srDist.ReadLine();
+                if (!line.Contains("==="))
+                {
+                    if (line.Contains('%'))
+                        line = line.Remove(line.IndexOf('%'));
+                    listDistTemp.Add(line.Trim());
+                }
+                else
+                {
+                    for (var i = takeLastFew; i > 0; i--)
+                        listDist.Add(listDistTemp.ElementAt(listDistTemp.Count - i));
+                    listDistTemp.Clear();
+                }
+            }
+            srDist.Close();
+
+            //TODO: Datei manuell abändern, da nach 0 die 10 folgt
+            while (!srHand.EndOfStream)
+            {
+                var line = srHand.ReadLine();
+                if (!line.Contains("==="))
+                {
+                    if (line.Contains('%'))
+                        line = line.Remove(line.IndexOf('%'));
+                    listHandTemp.Add(line.Trim());
+                }
+                else
+                {
+                    for (var i = takeLastFew; i > 0; i--)
+                        listHand.Add(listHandTemp.ElementAt(listHandTemp.Count - i));
+                    listHandTemp.Clear();
+                }
+            }
+            srHand.Close();
+
+
+            StreamWriter sw = new StreamWriter(@"C:\CNTK\SLRS\final\lstmEvalData.txt", false);
+            int seqPerGesture = 3;
+            int gestureNo = 0;
+            int sequenceNo = 0;
+
+            for (var i = 0; i < listDist.Count; i++)
+            {
+                sw.WriteLine(String.Format("{0:000}{1:000} |L {2} |F {3} {4}", gestureNo,sequenceNo, Helper.gestureCode[gestureNo], listDist[i], listHand[i]));
+
+                if (i % takeLastFew == (takeLastFew-1)) sequenceNo++;
+                if (sequenceNo == seqPerGesture)
+                {
+                    sequenceNo = 0;
+                    gestureNo++;
+                }
+            }
+            sw.Flush();
+            sw.Close();
+
+            MessageBox.Show("Done");
+        }
+
+        private void extractTestData_Click(object sender, RoutedEventArgs e)
+        {
+            var testNbrs = new[] { "010", "011", "012", "013", "014"};
+            var trainData = new List<string>();
+            StreamReader handsTrainData = new StreamReader(@"C:\temp\SLRS\cntkAllData.ctd");
+            StreamWriter handsTestData = new StreamWriter(@"C:\temp\SLRS\cntkTestData.ctd");
+
+            while (!handsTrainData.EndOfStream)
+            {
+                var line = handsTrainData.ReadLine();
+                var sequenceNo = line.Substring(3, 3);
+                if (testNbrs.Any(i => i == sequenceNo))
+                    handsTestData.WriteLine(line);
+                else
+                    trainData.Add(line);
+            }
+
+            handsTestData.Flush();
+            handsTestData.Close();
+            handsTrainData.Close();
+
+            StreamWriter handsTrainDataNew = new StreamWriter(@"C:\temp\SLRS\cntkTrainData.ctd", false);
+
+            foreach (var line in trainData)
+            {
+                handsTrainDataNew.WriteLine(line);
+            }
+
+            handsTrainDataNew.Flush();
+            handsTrainDataNew.Close();
+        }
+
     }
 }
