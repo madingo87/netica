@@ -15,6 +15,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using Microsoft.Kinect;
 using System.Windows.Media.Media3D;
@@ -36,6 +37,8 @@ namespace SLRS
         private FrameDescription depthFrameDescription = null;
         private DepthFrameReader depthFrameReader = null;
         private byte[] depthPixels;
+        private byte[] colorFrameData;
+                                    
         private const int MapDepthToByte = 8000 / 256;
         private WriteableBitmap depthBitmapLeft = null;
         private WriteableBitmap depthBitmapRight = null;        
@@ -52,6 +55,7 @@ namespace SLRS
 
         private CameraSpacePoint leftHandPostition;
         private CameraSpacePoint rightHandPostition;
+        private CameraSpacePoint headPosition;
 
         private int[] allAngleJointsForUI = new[] { 4, 5, 8, 9 };
         private CameraSpacePoint nx, ny, nz;
@@ -62,13 +66,13 @@ namespace SLRS
         private StreamWriter depthData;
 
         private int sequenceID = 0; 
-        private int gestureNumber;
+        private int gestureNumber = 0;
 
         private string statusText = null;
         #endregion
 
-        private int maxTestData = 3;
-        private int maxTrainData = 0;
+        private int maxTestData = 2;
+        private int maxTrainData = 2;
 
         public KinectApp()
         {
@@ -80,12 +84,14 @@ namespace SLRS
             this.depthBitmapLeft = new WriteableBitmap(windowSize, windowSize, 96.0, 96.0, PixelFormats.Gray8, null);
             this.depthBitmapRight = new WriteableBitmap(windowSize, windowSize, 96.0, 96.0, PixelFormats.Gray8, null);
 
-            this.depthPixels = new byte[windowSize * windowSize];
+            this.depthPixels = new byte[windowSize * windowSize];       
 
             this.colorFrameDescription = this.kinectSensor.ColorFrameSource.CreateFrameDescription(ColorImageFormat.Bgra);
             this.colorFrameReader = this.kinectSensor.ColorFrameSource.OpenReader();
             this.colorFrameReader.FrameArrived += this.colorFrameReader_FrameArrived;     
             this.colorBitmap = new WriteableBitmap(colorFrameDescription.Width, colorFrameDescription.Height, 96.0, 96.0, PixelFormats.Bgr32, null);
+
+            this.colorFrameData = new byte[colorFrameDescription.Width * colorFrameDescription.Height * BytesPerPixel];
 
             this.bodyFrameReader = this.kinectSensor.BodyFrameSource.OpenReader();
             this.bodyFrameReader.FrameArrived += bodyFrameReader_FrameArrived;
@@ -157,56 +163,57 @@ namespace SLRS
         {
             switch (btn_record.Content.ToString())
             {             
-                case "Begin Record":
-                    sequenceID++;           
+                case "Begin Record":          
                     btn_record.Content = "Start";
                     depthFrameIndexL = 0;
                     depthFrameIndexR = 0;
+
                     break;
 
                 case "Start":
-                    btn_record.Content = "Stop";
+                    btn_record.Content = "Stop";          
                     break;
 
                 case "Stop":
+                    btn_record.Content = "Start";
+
                     sequenceID++;
                     depthFrameIndexL = 0;
                     depthFrameIndexR = 0;
-                    btn_record.Content = "Start";
+
+                    if (sequenceID == maxTrainData)
+                    {
+                        swData.Flush();
+                        swData.Close();
+                        swData = new StreamWriter(@"c:/temp/SLRS/testData.txt", true);
+                    }   
+
+                    if (sequenceID == (maxTrainData + maxTestData))
+                    {
+                        if (gestureNumber + 1 < Helper.gestureWord.Length)
+                        {
+                            sequenceID = 0;
+                            gestureNumber++;
+
+                            swData.Flush();
+                            swData.Close();
+                            swData = new StreamWriter(@"c:/temp/SLRS/trainData.txt", true);
+                        }
+                        else
+                        {
+                            StatusText = "Done";
+                            btn_record.Content = "Done";
+                            btn_record.IsEnabled = false;
+                            closeStreams();
+                            return;
+                        }
+                    }
+
                     break;
             }
-            if (sequenceID != 0)
-            {
-                var dataType = sequenceID <= maxTrainData ? "train" : "test";
-                StatusText = Helper.gestureWord[gestureNumber] + " (" + dataType + " [" + ((maxTrainData + maxTestData) - sequenceID + 1) + "])";
-            }
-             
-            if (sequenceID == maxTrainData)
-            {
-                swData.Flush();
-                swData.Close();
-                swData = new StreamWriter(@"c:/temp/SLRS/testData.txt", true);
-            }           
 
-            if (sequenceID == (maxTrainData + maxTestData))
-            {
-                if (gestureNumber + 1 < Helper.gestureWord.Length)
-                {
-                    sequenceID = 0;
-                    gestureNumber++;
-
-                    swData.Flush();
-                    swData.Close();
-                    swData = new StreamWriter(@"c:/temp/SLRS/trainData.txt", true);
-                }
-                else
-                {
-                    StatusText = "Done";
-                    btn_record.IsEnabled = false;
-                    closeStreams();
-                    return;
-                }
-            }    
+            var dataType = sequenceID < maxTrainData ? "train" : "test";
+            StatusText = Helper.gestureWord[gestureNumber] + " (" + dataType + " [" + ((maxTrainData + maxTestData) - sequenceID) + "] )";         
         }
 
         private void Sensor_IsAvailableChanged(object sender, IsAvailableChangedEventArgs e)
@@ -270,6 +277,10 @@ namespace SLRS
                 {
                     FrameDescription colorFrameDescription = colorFrame.FrameDescription;
 
+                    var handLeft = coordinateMapper.MapCameraPointToColorSpace(leftHandPostition);
+                    var handRight = coordinateMapper.MapCameraPointToColorSpace(rightHandPostition);
+                    var head = coordinateMapper.MapCameraPointToColorSpace(headPosition);
+
                     using (KinectBuffer colorBuffer = colorFrame.LockRawImageBuffer())
                     {
                         this.colorBitmap.Lock();
@@ -277,9 +288,12 @@ namespace SLRS
                         // verify data and write the new color frame data to the display bitmap
                         if ((colorFrameDescription.Width == this.colorBitmap.PixelWidth) && (colorFrameDescription.Height == this.colorBitmap.PixelHeight))
                         {
+                            //colorFrame.CopyConvertedFrameDataToArray(colorFrameData, ColorImageFormat.Bgra);
+                            //getSkinColor(handLeft, handRight, head); 
+
                             colorFrame.CopyConvertedFrameDataToIntPtr(
                                 this.colorBitmap.BackBuffer,
-                                (uint)(colorFrameDescription.Width * colorFrameDescription.Height * 4),
+                                (uint)(colorFrameDescription.Width * colorFrameDescription.Height * BytesPerPixel),
                                 ColorImageFormat.Bgra); //32Bit(4Byte)
 
                             this.colorBitmap.AddDirtyRect(new Int32Rect(0, 0, this.colorBitmap.PixelWidth, this.colorBitmap.PixelHeight));
@@ -289,6 +303,59 @@ namespace SLRS
                     }
                 }
             }
+        }
+        Color skin = new Color();
+        private unsafe void getSkinColor(ColorSpacePoint leftHand, ColorSpacePoint rightHand, ColorSpacePoint head)
+        {
+            byte bl, gl, rl, al, br, gr, rr, ar, bh, gh, rh, ah;
+            int handLeftOffset = ((colorFrameDescription.Width * ((int)leftHand.Y) + ((int)leftHand.X)) * BytesPerPixel);
+            int handRightOffset = ((colorFrameDescription.Width * ((int)rightHand.Y) + ((int)rightHand.X)) * BytesPerPixel);
+            int headOffset = ((colorFrameDescription.Width * ((int)head.Y) + ((int)head.X)) * BytesPerPixel);
+            if (handLeftOffset > 0 && handRightOffset > 0 && headOffset > 0 && handLeftOffset < 8294400 && handRightOffset < 8294400 && headOffset < 8294400)
+            {
+                bl = colorFrameData[handLeftOffset];
+                gl = colorFrameData[handLeftOffset + 1];
+                rl = colorFrameData[handLeftOffset + 2];
+                al = colorFrameData[handLeftOffset + 3];
+                br = colorFrameData[handRightOffset];
+                gr = colorFrameData[handRightOffset + 1];
+                rr = colorFrameData[handRightOffset + 2];
+                ar = colorFrameData[handRightOffset + 3];
+                bh = colorFrameData[headOffset];
+                gh = colorFrameData[headOffset + 1];
+                rh = colorFrameData[headOffset + 2];
+                ah = colorFrameData[headOffset + 3];
+
+                skin.B = (byte)((bl + br + bh) / 3);
+                skin.G = (byte)((gl + gr + gh) / 3);
+                skin.R = (byte)((rl + rr + rh) / 3);
+                skin.A = (byte)((al + ar + ah) / 3);
+
+                this.ellipseSkinColor.Fill = new SolidColorBrush(skin);
+            }
+        }
+        int colorThreshold = 40;
+        private unsafe bool isSkinColor(ColorSpacePoint point)
+        {
+            int offset = ((colorFrameDescription.Width * ((int)point.Y) + ((int)point.X)) * BytesPerPixel);
+
+            if (offset > 0 && offset < 8294400)
+            {
+                byte b = colorFrameData[offset];
+                byte g = colorFrameData[offset + 1];
+                byte r = colorFrameData[offset + 2];
+                byte a = colorFrameData[offset + 3];
+
+                if (b < skin.B + 20 && b > skin.B - 20 &&
+                    g < skin.G + 50 && g > skin.G - 50 &&
+                    r < skin.R + 50 && r > skin.R - 50 &&
+                    a < skin.A + colorThreshold && a > skin.A - colorThreshold)
+                    return true;
+
+                return false;
+            }
+
+            return false;
         }
 
         int frameSelector = 0;
@@ -332,6 +399,7 @@ namespace SLRS
                         {
                             leftHandPostition = body.Joints[JointType.HandLeft].Position;
                             rightHandPostition = body.Joints[JointType.HandRight].Position;
+                            headPosition = body.Joints[JointType.Head].Position;
 
                             bool angleMode = radio_angle.IsChecked ?? false;
                             drawUI(body.Joints, dc, angleMode);
@@ -361,7 +429,7 @@ namespace SLRS
 
         DepthSpacePoint pl_old;
         DepthSpacePoint pr_old;
-        private int windowSize = 100;
+        private int windowSize = 60;
         private int depthFrameSelector = 0;
         private int depthFrameThreshold = 8;
         private int depthFrameIndexL = 0;
@@ -438,9 +506,9 @@ namespace SLRS
             {
                 //FileCode: [left/right]_[gestureNumber]_[sequence]_[sequneceIndex]
                 if (left)
-                    file = String.Format("c:/temp/SLRS/pcd/dd_left_{0:00}_{1:00}_{2}.pcd", gestureNumber, sequenceID, depthFrameIndexL++);
+                    file = String.Format("c:/temp/SLRS/pcd/dd_left_{0:00}_{1:00}_{2:00}.pcd", gestureNumber, sequenceID, depthFrameIndexL++);
                 else
-                    file = String.Format("c:/temp/SLRS/pcd/dd_right_{0:00}_{1:00}_{2}.pcd", gestureNumber, sequenceID, depthFrameIndexR++);
+                    file = String.Format("c:/temp/SLRS/pcd/dd_right_{0:00}_{1:00}_{2:00}.pcd", gestureNumber, sequenceID, depthFrameIndexR++);
 
                 depthData = new StreamWriter(file, true);
                 //Helper.writePCDHeader(depthData);
@@ -450,9 +518,9 @@ namespace SLRS
             ushort initDepth = frameData[depthFrameDescription.Width * ((int)p.Y) + ((int)p.X)];
             byte initPos = (byte)(initDepth / MapDepthToByte);
 
-            int factor = 80;
+            int distanceFactor = 80;
             int index = 0;
-            int pixelOffset = 5;
+            int pixelOffset = 1;
             for (int y = -frameSize; y < frameSize; y++)
             {
                 for (int x = -frameSize; x < frameSize; x++)
@@ -461,8 +529,14 @@ namespace SLRS
                     int offset = (depthFrameDescription.Width * ((int)p.Y + y) + ((int)p.X + x));
                     ushort depth = frameData[offset];
 
+                    // For Skincolor selection
+                    //DepthSpacePoint depthPoint = new DepthSpacePoint(){ X = p.X + x, Y = p.Y + y };
+                    //ColorSpacePoint colorPoint = coordinateMapper.MapDepthPointToColorSpace(depthPoint, depth);
+                    //if (!isSkinColor(colorPoint))
+                    //    depth = 0;
+
                     // if this depth is near to the initpoint (handpalm) ...  
-                    if (depth < initDepth + factor && depth > initDepth - factor)
+                    if (depth < initDepth + distanceFactor && depth > initDepth - distanceFactor)
                     {
                         //... record to PointCloud ...
                         if (rec && (x % pixelOffset == 0))

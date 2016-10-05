@@ -31,6 +31,7 @@
                 <Image Source="{Binding RightHandSource}"  />
             </Viewbox>
             <Label Name="lbl_fpsDepth" Content="0" Grid.Row="1" HorizontalContentAlignment="Right" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="449,20,0,0" Background="White" Width="60"/>
+            <Ellipse Name="ellipseSkinColor" Fill="#00FFFFFF" HorizontalAlignment="Left" Height="40" Margin="433,60,0,0" Grid.Row="1" Stroke="White" VerticalAlignment="Top" Width="40"/>
         </Grid>
 
         <!-- Right Column -->

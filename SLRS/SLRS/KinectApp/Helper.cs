@@ -59,12 +59,17 @@ namespace SLRS
         */
         #endregion
 
+        static float constant = 1.0f / CameraParams.fx;
         public static Point3D depthToPCD(int frameSize, int x, int y, float depthVal)
         {
             Point3D point = new Point3D();
-            point.Z = 1.0f / (depthVal);	 	//Convert from mm to meters
-            point.X = (x - CameraParams.cx) * point.Z / CameraParams.fx;    //(x + frameSize) * depthVal / CameraParams.fx; 
-            point.Y = (y - CameraParams.cy) * point.Z / CameraParams.fy;    //(y + frameSize) * depthVal / CameraParams.fy;   
+            point.Z = 0.001f * depthVal; // 1.0f / (depthVal);	 	//Convert from mm to meters
+            point.X = (x - CameraParams.cx) * point.Z / CameraParams.fx; 
+            point.Y = (y - CameraParams.cy) * point.Z / CameraParams.fy;    
+
+            //http://www.pcl-users.org/Getting-strange-results-when-moving-from-depth-map-to-point-cloud-td4025104.html#a4025138
+            //point.X = (float)x * point.Z * constant;
+            //point.Y = (float)y * point.Z * constant; 
 
             // finalVertex.x = (x - width/2) *( ((float)(current)) / depthFrame.stereoCameraParameters.depthIntrinsics.fx);
             // finalVertex.y = (y - height/2)*( ((float)(current)) / depthFrame.stereoCameraParameters.depthIntrinsics.fy);

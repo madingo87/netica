@@ -75,6 +75,18 @@ namespace SLRS
             plot = this.chk_plot.IsChecked ?? false;
             print = this.chk_print.IsChecked ?? false;
 
+            //var o = new { pcd = file.FullName, vfh = vfhFile, kfh = kfhFile };
+            //Action<object> action = (object obj) =>
+            //{
+            //calculateHistogram(o);                   
+            //};
+            //var thisTask = Task.Factory.StartNew(action, o);
+            //allTasks.Add(thisTask);
+            //if (allTasks.Count > 5)
+            //    Task.WaitAll(allTasks.ToArray());
+            //}
+            //Task.WaitAll(allTasks.ToArray());
+
             new Thread(new ThreadStart(convert)).Start();
         }
 
@@ -83,6 +95,11 @@ namespace SLRS
             Dispatcher.BeginInvoke(new Action(delegate()
             {
                 listBox.Items.Add(info);
+                if (listBox.Items.Count > 10)
+                {
+                    listBox.SelectedIndex = listBox.Items.Count - 3; //index of filename
+                    listBox.ScrollIntoView(listBox.Items[listBox.SelectedIndex]);
+                }
             }));
         }
 
@@ -105,7 +122,7 @@ namespace SLRS
                 addMessage("KFH Datei erstellt: \"" + kfhFile + "\"");
                 var t = DateTime.Now - time;
                 time = DateTime.Now;
-                addMessage(String.Format("--- Time needed: {1}.{2} s\n", t.Minutes, t.Seconds, t.Milliseconds));
+                addMessage(String.Format("--- Time needed: {0}.{1} s\n", t.Seconds, t.Milliseconds));
             }
             createCTD();
             addMessage(String.Format("\nKonvertierung abgeschlossen ==> CTD Dateien erstellt! ( {0:HH:mm:ss} )\n", DateTime.Now));
