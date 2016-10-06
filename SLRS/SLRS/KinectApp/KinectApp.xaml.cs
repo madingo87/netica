@@ -62,7 +62,7 @@ namespace SLRS
         private CoordinateMapper coordinateMapper = null;
         private Body[] bodies = null;
 
-        private StreamWriter swData = new StreamWriter(@"c:/temp/SLRS/trainData.txt", true);
+        private StreamWriter swData = new StreamWriter(@"c:/temp/SLRS/handsTrainData.txt", true);
         private StreamWriter depthData;
 
         private int sequenceID = 0; 
@@ -72,7 +72,7 @@ namespace SLRS
         #endregion
 
         private int maxTestData = 2;
-        private int maxTrainData = 2;
+        private int maxTrainData = 3;
 
         public KinectApp()
         {
@@ -185,7 +185,7 @@ namespace SLRS
                     {
                         swData.Flush();
                         swData.Close();
-                        swData = new StreamWriter(@"c:/temp/SLRS/testData.txt", true);
+                        swData = new StreamWriter(@"c:/temp/SLRS/handsTestData.txt", true);
                     }   
 
                     if (sequenceID == (maxTrainData + maxTestData))
@@ -197,7 +197,7 @@ namespace SLRS
 
                             swData.Flush();
                             swData.Close();
-                            swData = new StreamWriter(@"c:/temp/SLRS/trainData.txt", true);
+                            swData = new StreamWriter(@"c:/temp/SLRS/handsTrainData.txt", true);
                         }
                         else
                         {
@@ -691,12 +691,11 @@ namespace SLRS
         int addId = 0;
         private void writeTrainingData(double[] allData) 
         {
+            var mean = allData.Sum() / allData.Length;
+            for (var i = 0; i < allData.Length; i++)
+                allData[i] -= mean;
+
             // seqID = xxxyyy, xxx = Label , yyy = sequence
-            // 000001     |L 0 0 0 0 0   |F <features ...>
-            // 000001     |L 0 0 0 0 0   |F <features ...>
-            // 000001     |L 0 0 0 0 0   |F <features ...>
-            //  ...
-            // 001023     |L 1 0 0 0 0   |F <features ...>
             var entry = String.Format("{0:000}{1:000}\t|L {2}\t|F", gestureNumber, sequenceID+addId, Helper.gestureCode[gestureNumber]);
             for (int i = 0; i < allData.Length; )
                 entry += String.Format(" {0:0.000000}", allData[i++]);

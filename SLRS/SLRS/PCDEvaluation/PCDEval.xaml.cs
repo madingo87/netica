@@ -27,12 +27,12 @@ namespace SLRS
         string pcdPath = @"C:\temp\SLRS\pcd\";
         string vfhPath = @"C:\temp\SLRS\vfh\";
         string kfhPath = @"C:\temp\SLRS\kfh\";
-        string ctdPath = @"C:\temp\SLRS\";
+        string ctdPath = @"C:\temp\SLRS\hands\";
 
         public PCDEval()
         {
             InitializeComponent();
-            lbl_file.Content = pcdPath;
+            lbl_file.Content = @"C:\temp\SLRS\";
         }
 
         [DllImport("PCDWrapperLib.dll", CallingConvention = CallingConvention.Cdecl)]
@@ -45,25 +45,21 @@ namespace SLRS
 
             if (dlg.ShowDialog().Value)
             {
-                selectFolder(dlg.FileName);
+                var file = dlg.FileName.Split('\\').Last();
+                FileInfo fInfo = new FileInfo(dlg.FileName);
+                var parentDir = fInfo.DirectoryName.Split('\\').Last();
+                var dir = fInfo.DirectoryName.Remove(fInfo.DirectoryName.IndexOf(parentDir));
+                lbl_file.Content = dir;
+
+                pcdPath = dir + "pcd\\";
+                vfhPath = dir + "vfh\\";
+                kfhPath = dir + "kfh\\";
+                ctdPath = dir + "hands\\";
+
+                checkDirs();
             }
         }
 
-        public void selectFolder(string folder)
-        {
-            var file = folder.Split('\\').Last();
-            FileInfo fInfo = new FileInfo(folder);
-            var parentDir = fInfo.DirectoryName.Split('\\').Last();
-            var dir = fInfo.DirectoryName.Remove(fInfo.DirectoryName.IndexOf(parentDir));
-            //lbl_file.Content = dir;
-
-            pcdPath = dir + "pcd\\";
-            vfhPath = dir + "vfh\\";
-            kfhPath = dir + "kfh\\";
-            ctdPath = dir;
-
-            checkDirs();
-        }
 
         bool plot, print;
         DateTime time;
@@ -88,19 +84,6 @@ namespace SLRS
             //Task.WaitAll(allTasks.ToArray());
 
             new Thread(new ThreadStart(convert)).Start();
-        }
-
-        private void addMessage(string info)
-        {
-            Dispatcher.BeginInvoke(new Action(delegate()
-            {
-                listBox.Items.Add(info);
-                if (listBox.Items.Count > 10)
-                {
-                    listBox.SelectedIndex = listBox.Items.Count - 3; //index of filename
-                    listBox.ScrollIntoView(listBox.Items[listBox.SelectedIndex]);
-                }
-            }));
         }
 
         private void convert()
@@ -153,7 +136,6 @@ namespace SLRS
 
             return res;
         }
-
         private unsafe int evaluate(string fileName, string exportFile, bool print, bool plot)
         {
             var file = new StringBuilder(fileName);
@@ -170,26 +152,34 @@ namespace SLRS
             var entries = sr.ReadToEnd().Split(' ');
             sr.Close();
 
-            StreamWriter sw = new StreamWriter(exportFile, false);
-
+            var allEntries = new float[308];
             int entriesCounter = 0;
             for (int i = 0; i < 308; i++)
             {
-                //avoid empty strings
-                if (entries[entriesCounter] == "" || entries[entriesCounter] == "\r\n")
-                    sw.Write(0);
+                //avoid empty strings and line feeds
+                if (!entries[entriesCounter].Contains(":"))
+                    continue;
+
                 else
                 {
                     var pair = entries[entriesCounter].Split(':');
                     if (Convert.ToInt16(pair[0]) == i)
                     {
-                        sw.Write(pair[1].Replace('.', ','));
+                        allEntries[i] = float.Parse(pair[1].Replace('.', ','));
                         entriesCounter++;
                     }
                     else
-                        sw.Write(0);
+                        allEntries[i] = 0;
                 }
+            }
 
+            var mean = allEntries.Sum() / allEntries.Length;
+            var max = allEntries.Max<float>();
+
+            StreamWriter sw = new StreamWriter(exportFile, false);
+            foreach (var entry in allEntries)
+            {
+                sw.Write((entry-mean) / max);
                 sw.Write(" ");
             }
 
@@ -344,6 +334,20 @@ namespace SLRS
         #endregion
 
         #region HelperMethods
+
+        private void addMessage(string info)
+        {
+            Dispatcher.BeginInvoke(new Action(delegate()
+            {
+                listBox.Items.Add(info);
+                if (listBox.Items.Count > 10)
+                {
+                    listBox.SelectedIndex = listBox.Items.Count - 3; //index of filename
+                    listBox.ScrollIntoView(listBox.Items[listBox.SelectedIndex]);
+                }
+            }));
+        }
+
         private bool addHeader(string file)
         {
             string content;
@@ -395,10 +399,12 @@ namespace SLRS
             var pcdPathInfo = new DirectoryInfo(pcdPath);
             var vfhPathInfo = new DirectoryInfo(vfhPath);
             var kfhPathInfo = new DirectoryInfo(kfhPath);
+            var ctdPathInfo = new DirectoryInfo(ctdPath);
 
             if (!pcdPathInfo.Exists) pcdPathInfo.Create();
             if (!vfhPathInfo.Exists) vfhPathInfo.Create();
             if (!kfhPathInfo.Exists) kfhPathInfo.Create();
+            if (!ctdPathInfo.Exists) ctdPathInfo.Create();
         }
 
         private void listBoxClear_click(object sender, MouseEventArgs e)

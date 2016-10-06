@@ -161,7 +161,7 @@ namespace SLRS
             List<string> listHand = new List<string>();
             List<string> listDist = new List<string>();
 
-            int takeLastFew = 3;
+            int takeLastFew = 2;
 
             while (!srDist.EndOfStream)
             {
@@ -201,7 +201,7 @@ namespace SLRS
             srHand.Close();
 
 
-            StreamWriter sw = new StreamWriter(@"C:\CNTK\SLRS\final\lstmEvalData.txt", false);
+            StreamWriter sw = new StreamWriter(@"C:\CNTK\SLRS\final\finalEvalData.txt", false);
             int seqPerGesture = 3;
             int gestureNo = 0;
             int sequenceNo = 0;
@@ -225,10 +225,10 @@ namespace SLRS
 
         private void extractTestData_Click(object sender, RoutedEventArgs e)
         {
-            var testNbrs = new[] { "010", "011", "012", "013", "014"};
+            var testNbrs = new[] { "003", "004"};
             var trainData = new List<string>();
-            StreamReader handsTrainData = new StreamReader(@"C:\temp\SLRS\cntkAllData.ctd");
-            StreamWriter handsTestData = new StreamWriter(@"C:\temp\SLRS\cntkTestData.ctd");
+            StreamReader handsTrainData = new StreamReader(@"C:\temp\SLRS\hands\cntkAllData.ctd");
+            StreamWriter handsTestData = new StreamWriter(@"C:\temp\SLRS\handsTestData.ctd");
 
             while (!handsTrainData.EndOfStream)
             {
@@ -244,7 +244,7 @@ namespace SLRS
             handsTestData.Close();
             handsTrainData.Close();
 
-            StreamWriter handsTrainDataNew = new StreamWriter(@"C:\temp\SLRS\cntkTrainData.ctd", false);
+            StreamWriter handsTrainDataNew = new StreamWriter(@"C:\temp\SLRS\handsTrainData.ctd", false);
 
             foreach (var line in trainData)
             {
