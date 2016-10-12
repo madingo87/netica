@@ -147,6 +147,21 @@ namespace SLRS
         private void textBox_Clear(object sender, MouseButtonEventArgs e)
         {
             textBox.Document.Blocks.Clear();
+
+            //StreamReader sr = new StreamReader(@"C:\temp\SLRS\Handnet\SimpleOutput.Sll");
+            //var entries = sr.ReadLine().Split(' ');
+            //sr.Close();
+
+            //StreamWriter sw = new StreamWriter(@"C:\temp\SLRS\Handnet\SimpleOutput4.Sll", false);
+            //for (var i = 0; i < entries.Length; i++)
+            //{
+            //    if (i % 60 == 0) sw.Write("\n");
+
+            //    var str = float.Parse(entries[i].Replace('.', ',')) < 3 ? 1 : 0;
+            //    sw.Write(str + " ");
+            //}
+            //sw.Close();
+
         }
 
         private void convertToLSTMData_Click(object sender, RoutedEventArgs e)

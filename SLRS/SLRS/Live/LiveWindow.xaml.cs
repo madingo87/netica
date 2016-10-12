@@ -319,7 +319,7 @@ namespace SLRS
                             {
                                 PCDEval pcdEvaluate = new PCDEval();
                                 //handsThread = new Thread(new ThreadStart( delegate() { 
-                                pcdEvaluate.selectFolder(@"c:\CNTK\models\pcd\dd_left.pcd");
+                                //pcdEvaluate.selectFolder(@"c:\CNTK\models\pcd\dd_left.pcd");
                                 var pclOutput = pcdEvaluate.convertExtern();
                                 evaluateHands(pclOutput.ToArray());
                                 //}));
@@ -367,7 +367,7 @@ namespace SLRS
                         {
                             if (rec)
                             {
-                                var point = Helper.depthToPCD(frameSize, (int)p.X + x, (int)p.Y + y, depth);
+                                var point = Helper.depthToPCD((int)p.X + x, (int)p.Y + y, depth);
                                 depthData.WriteLine(String.Format("{0:0.00000} {1:0.00000} {2}",
                                    point.X.ToString().Replace(',', '.'), point.Y.ToString().Replace(',', '.'), point.Z.ToString().Replace(',', '.')));
                             }

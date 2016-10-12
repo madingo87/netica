@@ -63,7 +63,8 @@ namespace SLRS
         private Body[] bodies = null;
 
         private StreamWriter swData = new StreamWriter(@"c:/temp/SLRS/handsTrainData.txt", true);
-        private StreamWriter depthData;
+        private StreamWriter depthData = new StreamWriter(@"c:/temp/SLRS/testData.txt", true);
+        StreamWriter rdfTrainData = new StreamWriter(@"c:/temp/SLRS/rdfTrainData.dat", false);
 
         private int sequenceID = 0; 
         private int gestureNumber = 0;
@@ -71,8 +72,8 @@ namespace SLRS
         private string statusText = null;
         #endregion
 
-        private int maxTestData = 2;
-        private int maxTrainData = 3;
+        private int maxTestData = 10;
+        private int maxTrainData = 50;
 
         public KinectApp()
         {
@@ -84,7 +85,9 @@ namespace SLRS
             this.depthBitmapLeft = new WriteableBitmap(windowSize, windowSize, 96.0, 96.0, PixelFormats.Gray8, null);
             this.depthBitmapRight = new WriteableBitmap(windowSize, windowSize, 96.0, 96.0, PixelFormats.Gray8, null);
 
-            this.depthPixels = new byte[windowSize * windowSize];       
+            this.depthPixels = new byte[windowSize * windowSize];
+
+            rdfTrainData.WriteLine("f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f13 f14 f15 f16 f17 f18 f19 f20 f21 f22 f23 f24 Class");
 
             this.colorFrameDescription = this.kinectSensor.ColorFrameSource.CreateFrameDescription(ColorImageFormat.Bgra);
             this.colorFrameReader = this.kinectSensor.ColorFrameSource.OpenReader();
@@ -118,8 +121,7 @@ namespace SLRS
 
             this.InitializeComponent();
         }
-
-       
+     
         #region Properies
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -245,18 +247,23 @@ namespace SLRS
             if (this.kinectSensor != null)
             {
                 this.kinectSensor.Close();
-                this.kinectSensor = null;
+                //this.kinectSensor = null;
             }
         }
         private void closeStreams()
         {
             try
             {
+                if (rdfTrainData != null)
+                {
+                    rdfTrainData.Flush();
+                    rdfTrainData.Close();
+                }
+
                 if (swData != null)
                 {
                     swData.Flush();
                     swData.Close();
-                    swData = null;
                 }
             }
             catch (IOException ex)
@@ -267,7 +274,7 @@ namespace SLRS
         
         #endregion
 
-        //** FRAME READER ***
+        #region ** FRAME READER ***
         private void colorFrameReader_FrameArrived(object sender, ColorFrameArrivedEventArgs e)
         {
             // ColorFrame is IDisposable
@@ -288,8 +295,8 @@ namespace SLRS
                         // verify data and write the new color frame data to the display bitmap
                         if ((colorFrameDescription.Width == this.colorBitmap.PixelWidth) && (colorFrameDescription.Height == this.colorBitmap.PixelHeight))
                         {
-                            //colorFrame.CopyConvertedFrameDataToArray(colorFrameData, ColorImageFormat.Bgra);
-                            //getSkinColor(handLeft, handRight, head); 
+                            colorFrame.CopyConvertedFrameDataToArray(colorFrameData, ColorImageFormat.Bgra);
+                            getSkinColor(handLeft, handRight, head); 
 
                             colorFrame.CopyConvertedFrameDataToIntPtr(
                                 this.colorBitmap.BackBuffer,
@@ -307,11 +314,12 @@ namespace SLRS
         Color skin = new Color();
         private unsafe void getSkinColor(ColorSpacePoint leftHand, ColorSpacePoint rightHand, ColorSpacePoint head)
         {
-            byte bl, gl, rl, al, br, gr, rr, ar, bh, gh, rh, ah;
+            byte bl, gl, rl, al, br, gr, rr, ar; //, bh, gh, rh, ah;
             int handLeftOffset = ((colorFrameDescription.Width * ((int)leftHand.Y) + ((int)leftHand.X)) * BytesPerPixel);
             int handRightOffset = ((colorFrameDescription.Width * ((int)rightHand.Y) + ((int)rightHand.X)) * BytesPerPixel);
-            int headOffset = ((colorFrameDescription.Width * ((int)head.Y) + ((int)head.X)) * BytesPerPixel);
-            if (handLeftOffset > 0 && handRightOffset > 0 && headOffset > 0 && handLeftOffset < 8294400 && handRightOffset < 8294400 && headOffset < 8294400)
+            //int headOffset = ((colorFrameDescription.Width * ((int)head.Y) + ((int)head.X)) * BytesPerPixel);
+            //if (handLeftOffset > 0 && handRightOffset > 0 && headOffset > 0 && handLeftOffset < 8294400 && handRightOffset < 8294400 && headOffset < 8294400)
+            if (handLeftOffset > 0 && handRightOffset > 0 && handLeftOffset < 8294400 && handRightOffset < 8294400)
             {
                 bl = colorFrameData[handLeftOffset];
                 gl = colorFrameData[handLeftOffset + 1];
@@ -321,20 +329,20 @@ namespace SLRS
                 gr = colorFrameData[handRightOffset + 1];
                 rr = colorFrameData[handRightOffset + 2];
                 ar = colorFrameData[handRightOffset + 3];
-                bh = colorFrameData[headOffset];
-                gh = colorFrameData[headOffset + 1];
-                rh = colorFrameData[headOffset + 2];
-                ah = colorFrameData[headOffset + 3];
+                //bh = colorFrameData[headOffset];
+                //gh = colorFrameData[headOffset + 1];
+                //rh = colorFrameData[headOffset + 2];
+                //ah = colorFrameData[headOffset + 3];
 
-                skin.B = (byte)((bl + br + bh) / 3);
-                skin.G = (byte)((gl + gr + gh) / 3);
-                skin.R = (byte)((rl + rr + rh) / 3);
-                skin.A = (byte)((al + ar + ah) / 3);
+                skin.B = (byte)((bl + br) / 2);
+                skin.G = (byte)((gl + gr) / 2);
+                skin.R = (byte)((rl + rr) / 2);
+                skin.A = (byte)((al + ar) / 2);
 
                 this.ellipseSkinColor.Fill = new SolidColorBrush(skin);
             }
         }
-        int colorThreshold = 40;
+        int colorThreshold = 100;
         private unsafe bool isSkinColor(ColorSpacePoint point)
         {
             int offset = ((colorFrameDescription.Width * ((int)point.Y) + ((int)point.X)) * BytesPerPixel);
@@ -346,9 +354,9 @@ namespace SLRS
                 byte r = colorFrameData[offset + 2];
                 byte a = colorFrameData[offset + 3];
 
-                if (b < skin.B + 20 && b > skin.B - 20 &&
-                    g < skin.G + 50 && g > skin.G - 50 &&
-                    r < skin.R + 50 && r > skin.R - 50 &&
+                if (b < skin.B + colorThreshold && b > skin.B - colorThreshold &&
+                    g < skin.G + colorThreshold && g > skin.G - colorThreshold &&
+                    r < skin.R + colorThreshold && r > skin.R - colorThreshold &&
                     a < skin.A + colorThreshold && a > skin.A - colorThreshold)
                     return true;
 
@@ -358,7 +366,7 @@ namespace SLRS
             return false;
         }
 
-        int frameSelector = 0;
+        int bodyFrameSelector = 0;
         private void bodyFrameReader_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
         {
             bool dataReceived = false;
@@ -404,8 +412,8 @@ namespace SLRS
                             bool angleMode = radio_angle.IsChecked ?? false;
                             drawUI(body.Joints, dc, angleMode);
 
-                            frameSelector++;
-                            if (frameSelector == 2)
+                            bodyFrameSelector++;
+                            if (bodyFrameSelector == 2)
                             {
                                 // 1) Calculate All Data (angles or distances)
                                 var allData = calculateData(body.Joints, angleMode, body.JointOrientations);
@@ -419,7 +427,7 @@ namespace SLRS
                                     writeTrainingData(allData);
                                 }                                   
 
-                                frameSelector = 0;
+                                bodyFrameSelector = 0;
                             }
                         }
                     }                                         
@@ -429,7 +437,7 @@ namespace SLRS
 
         DepthSpacePoint pl_old;
         DepthSpacePoint pr_old;
-        private int windowSize = 60;
+        private int windowSize = 100;
         private int depthFrameSelector = 0;
         private int depthFrameThreshold = 8;
         private int depthFrameIndexL = 0;
@@ -502,7 +510,7 @@ namespace SLRS
         private unsafe void ProcessDepthFrameData(IntPtr depthFrameData, int frameSize, ushort minDepth, ushort maxDepth, DepthSpacePoint p, bool rec, bool left)
         {
             string file = "";
-            if (rec)
+            if (rec && (bool)chk_recPCD.IsChecked)
             {
                 //FileCode: [left/right]_[gestureNumber]_[sequence]_[sequneceIndex]
                 if (left)
@@ -511,7 +519,6 @@ namespace SLRS
                     file = String.Format("c:/temp/SLRS/pcd/dd_right_{0:00}_{1:00}_{2:00}.pcd", gestureNumber, sequenceID, depthFrameIndexR++);
 
                 depthData = new StreamWriter(file, true);
-                //Helper.writePCDHeader(depthData);
             }
 
             ushort* frameData = (ushort*)depthFrameData; // depth frame data is a 16 bit value
@@ -520,35 +527,65 @@ namespace SLRS
 
             int distanceFactor = 80;
             int index = 0;
-            int pixelOffset = 1;
+
             for (int y = -frameSize; y < frameSize; y++)
             {
                 for (int x = -frameSize; x < frameSize; x++)
-                {                    
+                {
                     //Select index for smaller frame and get Depth value
                     int offset = (depthFrameDescription.Width * ((int)p.Y + y) + ((int)p.X + x));
                     ushort depth = frameData[offset];
 
-                    // For Skincolor selection
-                    //DepthSpacePoint depthPoint = new DepthSpacePoint(){ X = p.X + x, Y = p.Y + y };
-                    //ColorSpacePoint colorPoint = coordinateMapper.MapDepthPointToColorSpace(depthPoint, depth);
-                    //if (!isSkinColor(colorPoint))
-                    //    depth = 0;
+                    bool isNearPalm = depth < initDepth + distanceFactor && depth > initDepth - distanceFactor;
 
-                    // if this depth is near to the initpoint (handpalm) ...  
-                    if (depth < initDepth + distanceFactor && depth > initDepth - distanceFactor)
+                    // For Skincolor selection
+                    if ((bool)chk_skin.IsChecked)
                     {
-                        //... record to PointCloud ...
-                        if (rec && (x % pixelOffset == 0))
+                        DepthSpacePoint depthPoint = new DepthSpacePoint() { X = p.X + x, Y = p.Y + y };
+                        ColorSpacePoint colorPoint = coordinateMapper.MapDepthPointToColorSpace(depthPoint, depth);
+                        if (!isSkinColor(colorPoint))
+                            isNearPalm = false;//depth = 0;
+                    }
+
+                    if (rec)
+                    { 
+                        // Record RDF
+                        if ((bool)chk_recRDF.IsChecked && left)
                         {
-                            var point = Helper.depthToPCD(frameSize, (int)p.X + x, (int)p.Y + y, depth);
-                            depthData.WriteLine(String.Format("{0:0.00000} {1:0.00000} {2}",
-                                point.X.ToString().Replace(',', '.'), point.Y.ToString().Replace(',', '.'), point.Z.ToString().Replace(',', '.')));
+                            string feat = "";
+
+                            //select frame
+                            for (int i = 0; i < 25; i++)
+                            {
+                                if (i == 12) continue;
+
+                                int currentOffset = 0;
+                                int range = 2 - (i % 5);
+                                if (i < 5) currentOffset =          offset - (2 * depthFrameDescription.Width + range);
+                                else if (i < 10) currentOffset =    offset - (depthFrameDescription.Width + range);
+                                else if (i < 15) currentOffset =    offset - range;
+                                else if (i < 20) currentOffset =    offset + (depthFrameDescription.Width - range);
+                                else currentOffset =                offset + (2 * depthFrameDescription.Width - range);
+
+                                //TODO:	NORMALIZATION???
+                                float entry = frameData[currentOffset] - depth;
+                                feat += entry + " ";
+                            }                                                    
+                            rdfTrainData.WriteLine(String.Format("{0}{1}", feat, isNearPalm ? "1" : "0"));
                         }
 
-                        //...and adapt depth for visualization in UI
-                        depth += (ushort)((depth - initDepth) * 10);
+                        // Record PointCloud
+                        if ((bool)chk_recPCD.IsChecked)
+                        {
+                            var point = Helper.depthToPCD((int)p.X + x, (int)p.Y + y, depth);
+                            depthData.WriteLine(String.Format("{0} {1} {2}", point.X.ToString().Replace(',', '.'), point.Y.ToString().Replace(',', '.'), point.Z.ToString().Replace(',', '.')));
+                        }
                     }
+
+                    // Handle UI
+                    // if this depth is near to the initpoint (handpalm) ...  
+                    if (isNearPalm)
+                        depth += (ushort)((depth - initDepth) * 10); //...and adapt depth for visualization in UI
                     else
                         depth = 0;
 
@@ -560,12 +597,19 @@ namespace SLRS
 
             if (rec)
             {
-                depthData.Flush();
-                depthData.Close();           
+                if ((bool)chk_recPCD.IsChecked)
+                {
+                    depthData.Flush();
+                    depthData.Close();
+                }
+                if ((bool)chk_recRDF.IsChecked)
+                {
+                    rdfTrainData.Flush();
+                }
             }
 
         }
-        //*******************
+        #endregion //*******************
 
         private double[] calculateData(IReadOnlyDictionary<JointType, Joint> joints, bool angleMode, IReadOnlyDictionary<JointType,JointOrientation> orientations)
         {
@@ -631,9 +675,8 @@ namespace SLRS
                 allData.Add(calculateDistances(joints, (int)JointType.ElbowLeft, (int)JointType.ElbowRight));
                 allData.Add(calculateDistances(joints, (int)JointType.HandRight, (int)JointType.HandLeft));
 
-                //Z = roll ?
-                //allData.Add(orientations[JointType.WristLeft].Orientation.X);
-                //allData.Add(orientations[JointType.WristRight].Orientation.X);
+                allData.Add(calculateDistances(joints, (int)JointType.HandLeft, (int)JointType.SpineMid));
+                allData.Add(calculateDistances(joints, (int)JointType.HandRight, (int)JointType.SpineMid));
             }
          
             return allData.ToArray<double>();
@@ -672,7 +715,7 @@ namespace SLRS
             }
             else
             {
-                text += "\nAbstände\n";
+                text += "Abstände\n";
                 text += String.Format("\nHead -> E(l)\t{0:0.00}",allData[counter++]);
                 text += String.Format("\nHead -> E(r)\t{0:0.00}",allData[counter++]);
                 text += String.Format("\nE(r) -> H(l)\t{0:0.00}",allData[counter++]);
@@ -681,8 +724,8 @@ namespace SLRS
                 text += String.Format("\nHead -> H(r)\t{0:0.00}",allData[counter++]);
                 text += String.Format("\nE(r) -> E(l)\t{0:0.00}",allData[counter++]);
                 text += String.Format("\nH(l) -> H(r)\t{0:0.00}",allData[counter++]);
-                //text += String.Format("\nE(l) roll ->\t{0:0.00}", allData[counter++]);
-                //text += String.Format("\nE(r) roll ->\t{0:0.00}", allData[counter++]);
+                text += String.Format("\nH(l) -> S\t{0:0.00}", allData[counter++]);
+                text += String.Format("\nH(r) -> S\t{0:0.00}", allData[counter++]);
             }
 
             this.txtAngles.Text = text;
@@ -777,19 +820,21 @@ namespace SLRS
             }
             else 
             {
-                ColorSpacePoint cSPoint0, cSPoint1, cSPoint2, cSPoint3, cSPoint4;
-                Point p0, p1, p2, p3, p4;
+                ColorSpacePoint cSPoint0, cSPoint1, cSPoint2, cSPoint3, cSPoint4, cSPoint5;
+                Point p0, p1, p2, p3, p4, p5;
 
                 cSPoint0 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[JointType.HandLeft]);
                 cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[JointType.ElbowLeft]);
                 cSPoint2 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[JointType.Head]);
                 cSPoint3 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[JointType.HandRight]);
                 cSPoint4 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[JointType.ElbowRight]);
+                cSPoint5 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[JointType.SpineMid]);
                 p0 = new Point(cSPoint0.X, cSPoint0.Y);
                 p1 = new Point(cSPoint1.X, cSPoint1.Y);
                 p2 = new Point(cSPoint2.X, cSPoint2.Y);
                 p3 = new Point(cSPoint3.X, cSPoint3.Y);
                 p4 = new Point(cSPoint4.X, cSPoint4.Y);
+                p5 = new Point(cSPoint5.X, cSPoint5.Y);
 
                 drawingContext.DrawLine(orientationPen, p0, p2);
                 drawingContext.DrawLine(orientationPen, p1, p2);
@@ -799,6 +844,9 @@ namespace SLRS
                 drawingContext.DrawLine(orientationPen, p0, p4);
                 drawingContext.DrawLine(orientationPen, p1, p3);
                 drawingContext.DrawLine(orientationPen, p1, p4);
+
+                drawingContext.DrawLine(orientationPen, p0, p5);
+                drawingContext.DrawLine(orientationPen, p3, p5);
             }
             
         }
