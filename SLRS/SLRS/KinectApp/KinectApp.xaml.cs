@@ -284,10 +284,6 @@ namespace SLRS
                 {
                     FrameDescription colorFrameDescription = colorFrame.FrameDescription;
 
-                    var handLeft = coordinateMapper.MapCameraPointToColorSpace(leftHandPostition);
-                    var handRight = coordinateMapper.MapCameraPointToColorSpace(rightHandPostition);
-                    var head = coordinateMapper.MapCameraPointToColorSpace(headPosition);
-
                     using (KinectBuffer colorBuffer = colorFrame.LockRawImageBuffer())
                     {
                         this.colorBitmap.Lock();
@@ -295,8 +291,14 @@ namespace SLRS
                         // verify data and write the new color frame data to the display bitmap
                         if ((colorFrameDescription.Width == this.colorBitmap.PixelWidth) && (colorFrameDescription.Height == this.colorBitmap.PixelHeight))
                         {
-                            colorFrame.CopyConvertedFrameDataToArray(colorFrameData, ColorImageFormat.Bgra);
-                            getSkinColor(handLeft, handRight, head); 
+                            if ((bool)chk_skin.IsChecked)
+                            {
+                                var handLeft = coordinateMapper.MapCameraPointToColorSpace(leftHandPostition);
+                                var handRight = coordinateMapper.MapCameraPointToColorSpace(rightHandPostition);
+
+                                colorFrame.CopyConvertedFrameDataToArray(colorFrameData, ColorImageFormat.Bgra);
+                                getSkinColor(handLeft, handRight);
+                            }
 
                             colorFrame.CopyConvertedFrameDataToIntPtr(
                                 this.colorBitmap.BackBuffer,
@@ -311,14 +313,13 @@ namespace SLRS
                 }
             }
         }
-        Color skin = new Color();
-        private unsafe void getSkinColor(ColorSpacePoint leftHand, ColorSpacePoint rightHand, ColorSpacePoint head)
+        System.Windows.Media.Color skin = new System.Windows.Media.Color();
+        private unsafe void getSkinColor(ColorSpacePoint leftHand, ColorSpacePoint rightHand)
         {
-            byte bl, gl, rl, al, br, gr, rr, ar; //, bh, gh, rh, ah;
+            byte bl, gl, rl, al, br, gr, rr, ar;
             int handLeftOffset = ((colorFrameDescription.Width * ((int)leftHand.Y) + ((int)leftHand.X)) * BytesPerPixel);
             int handRightOffset = ((colorFrameDescription.Width * ((int)rightHand.Y) + ((int)rightHand.X)) * BytesPerPixel);
-            //int headOffset = ((colorFrameDescription.Width * ((int)head.Y) + ((int)head.X)) * BytesPerPixel);
-            //if (handLeftOffset > 0 && handRightOffset > 0 && headOffset > 0 && handLeftOffset < 8294400 && handRightOffset < 8294400 && headOffset < 8294400)
+
             if (handLeftOffset > 0 && handRightOffset > 0 && handLeftOffset < 8294400 && handRightOffset < 8294400)
             {
                 bl = colorFrameData[handLeftOffset];
@@ -329,20 +330,16 @@ namespace SLRS
                 gr = colorFrameData[handRightOffset + 1];
                 rr = colorFrameData[handRightOffset + 2];
                 ar = colorFrameData[handRightOffset + 3];
-                //bh = colorFrameData[headOffset];
-                //gh = colorFrameData[headOffset + 1];
-                //rh = colorFrameData[headOffset + 2];
-                //ah = colorFrameData[headOffset + 3];
 
                 skin.B = (byte)((bl + br) / 2);
                 skin.G = (byte)((gl + gr) / 2);
                 skin.R = (byte)((rl + rr) / 2);
                 skin.A = (byte)((al + ar) / 2);
 
-                this.ellipseSkinColor.Fill = new SolidColorBrush(skin);
+                this.ellipseSkinColor.Fill = new System.Windows.Media.SolidColorBrush(skin);
             }
         }
-        int colorThreshold = 100;
+        int colorThreshold = 50;
         private unsafe bool isSkinColor(ColorSpacePoint point)
         {
             int offset = ((colorFrameDescription.Width * ((int)point.Y) + ((int)point.X)) * BytesPerPixel);
@@ -354,10 +351,16 @@ namespace SLRS
                 byte r = colorFrameData[offset + 2];
                 byte a = colorFrameData[offset + 3];
 
-                if (b < skin.B + colorThreshold && b > skin.B - colorThreshold &&
-                    g < skin.G + colorThreshold && g > skin.G - colorThreshold &&
-                    r < skin.R + colorThreshold && r > skin.R - colorThreshold &&
-                    a < skin.A + colorThreshold && a > skin.A - colorThreshold)
+                var color = System.Drawing.Color.FromArgb(r, g, b);
+                var hue = color.GetHue(); //290 - 340
+                var sat = color.GetSaturation(); //0-100
+                var bri = color.GetBrightness(); //0-100
+
+                //if (b < skin.B + colorThreshold && b > skin.B - colorThreshold &&
+                //    g < skin.G + colorThreshold && g > skin.G - colorThreshold &&
+                //    r < skin.R + colorThreshold && r > skin.R - colorThreshold &&
+                //    a < skin.A + colorThreshold && a > skin.A - colorThreshold)
+                if (hue > 290 && hue < 340)
                     return true;
 
                 return false;
@@ -388,7 +391,7 @@ namespace SLRS
                 using (DrawingContext dc = this.bodyDrawingGroup.Open())
                 {
                     // Draw a transparent background to set the render size 
-                    dc.DrawRectangle(Brushes.Black, null, new Rect(0.0, 0.0, this.colorFrameDescription.Width, this.colorFrameDescription.Height));
+                    dc.DrawRectangle(System.Windows.Media.Brushes.Black, null, new Rect(0.0, 0.0, this.colorFrameDescription.Width, this.colorFrameDescription.Height));
                     // prevent drawing outside of our render area
                     bodyDrawingGroup.ClipGeometry = new RectangleGeometry(new Rect(0.0, 0.0, this.colorFrameDescription.Width, this.colorFrameDescription.Height));
                     dc.DrawImage(colorBitmap, new Rect(0.0, 0.0, this.colorFrameDescription.Width, this.colorFrameDescription.Height));
@@ -397,8 +400,8 @@ namespace SLRS
                     bool record = btn_record.Content.Equals("Stop");
                     if (record)
                     {
-                        dc.DrawRectangle(Brushes.Firebrick, null, new Rect(new Point(80, 80), new Size(80, 80)));
-                        dc.DrawText(new FormattedText("Rec",CultureInfo.CurrentUICulture,FlowDirection.LeftToRight,new Typeface("Arial"),35,Brushes.Black), new Point(90, 95));
+                        dc.DrawRectangle(System.Windows.Media.Brushes.Firebrick, null, new Rect(new System.Windows.Point(80, 80), new System.Windows.Size(80, 80)));
+                        dc.DrawText(new FormattedText("Rec", CultureInfo.CurrentUICulture, FlowDirection.LeftToRight, new Typeface("Arial"), 35, System.Windows.Media.Brushes.Black), new System.Windows.Point(90, 95));
                     }
 
                     foreach (Body body in this.bodies)
@@ -437,7 +440,7 @@ namespace SLRS
 
         DepthSpacePoint pl_old;
         DepthSpacePoint pr_old;
-        private int windowSize = 100;
+        private int windowSize = 60;
         private int depthFrameSelector = 0;
         private int depthFrameThreshold = 8;
         private int depthFrameIndexL = 0;
@@ -523,7 +526,7 @@ namespace SLRS
 
             ushort* frameData = (ushort*)depthFrameData; // depth frame data is a 16 bit value
             ushort initDepth = frameData[depthFrameDescription.Width * ((int)p.Y) + ((int)p.X)];
-            byte initPos = (byte)(initDepth / MapDepthToByte);
+            //byte initPos = (byte)(initDepth / MapDepthToByte);
 
             int distanceFactor = 80;
             int index = 0;
@@ -544,7 +547,7 @@ namespace SLRS
                         DepthSpacePoint depthPoint = new DepthSpacePoint() { X = p.X + x, Y = p.Y + y };
                         ColorSpacePoint colorPoint = coordinateMapper.MapDepthPointToColorSpace(depthPoint, depth);
                         if (!isSkinColor(colorPoint))
-                            isNearPalm = false;//depth = 0;
+                            isNearPalm = false; //depth = 0;
                     }
 
                     if (rec)
@@ -585,7 +588,7 @@ namespace SLRS
                     // Handle UI
                     // if this depth is near to the initpoint (handpalm) ...  
                     if (isNearPalm)
-                        depth += (ushort)((depth - initDepth) * 10); //...and adapt depth for visualization in UI
+                        depth += (ushort)((depth - initDepth));// * 10); //...and adapt depth for visualization in UI
                     else
                         depth = 0;
 
@@ -751,10 +754,10 @@ namespace SLRS
         int resizer = 10;
         List<JointType> jointTypes = new List<JointType>() { JointType.Head, JointType.SpineMid, JointType.ShoulderLeft, JointType.ElbowLeft, JointType.WristLeft, JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight, JointType.HandLeft, JointType.HandRight };
         private const float InferredZPositionClamp = 0.1f;
-        private Pen orientationPen = new Pen(Brushes.OrangeRed, 10);
-        private Pen zPen = new Pen(Brushes.Yellow, 3);
-        private Pen yPen = new Pen(Brushes.Magenta, 3);
-        private Pen xPen = new Pen(Brushes.Cyan, 3);
+        private System.Windows.Media.Pen orientationPen = new System.Windows.Media.Pen(System.Windows.Media.Brushes.OrangeRed, 10);
+        private System.Windows.Media.Pen zPen = new System.Windows.Media.Pen(System.Windows.Media.Brushes.Yellow, 3);
+        private System.Windows.Media.Pen yPen = new System.Windows.Media.Pen(System.Windows.Media.Brushes.Magenta, 3);
+        private System.Windows.Media.Pen xPen = new System.Windows.Media.Pen(System.Windows.Media.Brushes.Cyan, 3);
         private void drawUI(IReadOnlyDictionary<JointType, Joint> joints, DrawingContext drawingContext, bool angleMode)
         {
             Dictionary<JointType, CameraSpacePoint> jointPoints = new Dictionary<JointType, CameraSpacePoint>();
@@ -771,7 +774,7 @@ namespace SLRS
             {
                 // ====== Draw Orientation
                 ColorSpacePoint cSPoint0, cSPoint1;
-                Point p0, p1;
+                System.Windows.Point p0, p1;
                 CameraSpacePoint p = new CameraSpacePoint();
 
                 foreach (int thisJoint in allAngleJointsForUI)
@@ -787,41 +790,41 @@ namespace SLRS
 
                     cSPoint0 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[(JointType)thisJoint]);
                     cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[(JointType)neighbour]);
-                    p0 = new Point(cSPoint0.X, cSPoint0.Y);
-                    p1 = new Point(cSPoint1.X, cSPoint1.Y);
+                    p0 = new System.Windows.Point(cSPoint0.X, cSPoint0.Y);
+                    p1 = new System.Windows.Point(cSPoint1.X, cSPoint1.Y);
                     drawingContext.DrawLine(orientationPen, p0, p1);
                 }
 
                 // ====== Draw Normals
                 cSPoint0 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[JointType.SpineMid]);
-                p0 = new Point(cSPoint0.X, cSPoint0.Y);
+                p0 = new System.Windows.Point(cSPoint0.X, cSPoint0.Y);
 
                 p.X = jointPoints[JointType.SpineMid].X - nx.X * resizer;
                 p.Y = jointPoints[JointType.SpineMid].Y + nx.Y * resizer;
                 p.Z = jointPoints[JointType.SpineMid].Z - nx.Z * resizer;
                 cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(p);
-                p1 = new Point(cSPoint1.X, cSPoint1.Y);
+                p1 = new System.Windows.Point(cSPoint1.X, cSPoint1.Y);
                 drawingContext.DrawLine(xPen, p0, p1);
 
                 p.X = jointPoints[JointType.SpineMid].X - ny.X * resizer;
                 p.Y = jointPoints[JointType.SpineMid].Y + ny.Y * resizer;
                 p.Z = jointPoints[JointType.SpineMid].Z + ny.Z * resizer;
                 cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(p);
-                p1 = new Point(cSPoint1.X, cSPoint1.Y);
+                p1 = new System.Windows.Point(cSPoint1.X, cSPoint1.Y);
                 drawingContext.DrawLine(yPen, p0, p1);
 
                 p.X = jointPoints[JointType.SpineMid].X + nz.X * resizer;
                 p.Y = jointPoints[JointType.SpineMid].Y - nz.Y * resizer;
                 p.Z = jointPoints[JointType.SpineMid].Z - nz.Z * resizer;
                 cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(p);
-                p1 = new Point(cSPoint1.X, cSPoint1.Y);
+                p1 = new System.Windows.Point(cSPoint1.X, cSPoint1.Y);
                 drawingContext.DrawLine(zPen, p0, p1);
 
             }
             else 
             {
                 ColorSpacePoint cSPoint0, cSPoint1, cSPoint2, cSPoint3, cSPoint4, cSPoint5;
-                Point p0, p1, p2, p3, p4, p5;
+                System.Windows.Point p0, p1, p2, p3, p4, p5;
 
                 cSPoint0 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[JointType.HandLeft]);
                 cSPoint1 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[JointType.ElbowLeft]);
@@ -829,12 +832,12 @@ namespace SLRS
                 cSPoint3 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[JointType.HandRight]);
                 cSPoint4 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[JointType.ElbowRight]);
                 cSPoint5 = this.coordinateMapper.MapCameraPointToColorSpace(jointPoints[JointType.SpineMid]);
-                p0 = new Point(cSPoint0.X, cSPoint0.Y);
-                p1 = new Point(cSPoint1.X, cSPoint1.Y);
-                p2 = new Point(cSPoint2.X, cSPoint2.Y);
-                p3 = new Point(cSPoint3.X, cSPoint3.Y);
-                p4 = new Point(cSPoint4.X, cSPoint4.Y);
-                p5 = new Point(cSPoint5.X, cSPoint5.Y);
+                p0 = new System.Windows.Point(cSPoint0.X, cSPoint0.Y);
+                p1 = new System.Windows.Point(cSPoint1.X, cSPoint1.Y);
+                p2 = new System.Windows.Point(cSPoint2.X, cSPoint2.Y);
+                p3 = new System.Windows.Point(cSPoint3.X, cSPoint3.Y);
+                p4 = new System.Windows.Point(cSPoint4.X, cSPoint4.Y);
+                p5 = new System.Windows.Point(cSPoint5.X, cSPoint5.Y);
 
                 drawingContext.DrawLine(orientationPen, p0, p2);
                 drawingContext.DrawLine(orientationPen, p1, p2);
