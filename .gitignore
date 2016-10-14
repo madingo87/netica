@@ -1,2 +1,5 @@
 *.sdf
 *.opensdf
+*.lref
+*.suo
+*.db
