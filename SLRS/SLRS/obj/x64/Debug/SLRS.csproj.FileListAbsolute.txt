@@ -32,3 +32,22 @@ C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\D
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\Debug\SLRS.exe
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\Debug\SLRS.pdb
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\Debug\SLRS.csprojResolveAssemblyReference.cache
+C:\Users\Maddin\Desktop\netica\SLRS\SLRS\bin\x64\Debug\SLRS.exe.config
+C:\Users\Maddin\Desktop\netica\SLRS\SLRS\obj\x64\Debug\SLRS.exe
+C:\Users\Maddin\Desktop\netica\SLRS\SLRS\obj\x64\Debug\SLRS.pdb
+C:\Users\Maddin\Desktop\netica\SLRS\SLRS\obj\x64\Debug\SLRS.csprojResolveAssemblyReference.cache
+C:\Users\Maddin\Desktop\netica\SLRS\SLRS\obj\x64\Debug\Live\LiveWindow.baml
+C:\Users\Maddin\Desktop\netica\SLRS\SLRS\obj\x64\Debug\NNEvaluation\EvaluationWindow.baml
+C:\Users\Maddin\Desktop\netica\SLRS\SLRS\obj\x64\Debug\LRA\LRA.baml
+C:\Users\Maddin\Desktop\netica\SLRS\SLRS\obj\x64\Debug\MainWindow.baml
+C:\Users\Maddin\Desktop\netica\SLRS\SLRS\obj\x64\Debug\PCDEvaluation\PCDEval.baml
+C:\Users\Maddin\Desktop\netica\SLRS\SLRS\obj\x64\Debug\Live\LiveWindow.g.cs
+C:\Users\Maddin\Desktop\netica\SLRS\SLRS\obj\x64\Debug\NNEvaluation\EvaluationWindow.g.cs
+C:\Users\Maddin\Desktop\netica\SLRS\SLRS\obj\x64\Debug\NNEvaluation\Graph.g.cs
+C:\Users\Maddin\Desktop\netica\SLRS\SLRS\obj\x64\Debug\KinectApp\KinectApp.g.cs
+C:\Users\Maddin\Desktop\netica\SLRS\SLRS\obj\x64\Debug\LRA\LRA.g.cs
+C:\Users\Maddin\Desktop\netica\SLRS\SLRS\obj\x64\Debug\MainWindow.g.cs
+C:\Users\Maddin\Desktop\netica\SLRS\SLRS\obj\x64\Debug\PCDEvaluation\PCDEval.g.cs
+C:\Users\Maddin\Desktop\netica\SLRS\SLRS\obj\x64\Debug\App.g.cs
+C:\Users\Maddin\Desktop\netica\SLRS\SLRS\obj\x64\Debug\SLRS_MarkupCompile.cache
+C:\Users\Maddin\Desktop\netica\SLRS\SLRS\obj\x64\Debug\SLRS_MarkupCompile.lref

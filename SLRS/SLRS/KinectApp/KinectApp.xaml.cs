@@ -313,7 +313,8 @@ namespace SLRS
                 }
             }
         }
-        System.Windows.Media.Color skin = new System.Windows.Media.Color();
+
+        float skinColorHue = 0.0f;
         private unsafe void getSkinColor(ColorSpacePoint leftHand, ColorSpacePoint rightHand)
         {
             byte bl, gl, rl, al, br, gr, rr, ar;
@@ -331,15 +332,17 @@ namespace SLRS
                 rr = colorFrameData[handRightOffset + 2];
                 ar = colorFrameData[handRightOffset + 3];
 
-                skin.B = (byte)((bl + br) / 2);
-                skin.G = (byte)((gl + gr) / 2);
-                skin.R = (byte)((rl + rr) / 2);
-                skin.A = (byte)((al + ar) / 2);
+                var color = new System.Windows.Media.Color();
+                color.B = (byte)((bl + br) / 2);
+                color.G = (byte)((gl + gr) / 2);
+                color.R = (byte)((rl + rr) / 2);
+                color.A = (byte)((al + ar) / 2);
 
-                this.ellipseSkinColor.Fill = new System.Windows.Media.SolidColorBrush(skin);
+                skinColorHue = System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B).GetHue();
+                this.ellipseSkinColor.Fill = new System.Windows.Media.SolidColorBrush(color);
             }
         }
-        int colorThreshold = 50;
+        int colorThreshold = 25;
         private unsafe bool isSkinColor(ColorSpacePoint point)
         {
             int offset = ((colorFrameDescription.Width * ((int)point.Y) + ((int)point.X)) * BytesPerPixel);
@@ -353,13 +356,10 @@ namespace SLRS
 
                 var color = System.Drawing.Color.FromArgb(r, g, b);
                 var hue = color.GetHue(); //290 - 340
-                var sat = color.GetSaturation(); //0-100
-                var bri = color.GetBrightness(); //0-100
+                //var sat = color.GetSaturation(); //0-100
+                //var bri = color.GetBrightness(); //0-100
 
-                //if (b < skin.B + colorThreshold && b > skin.B - colorThreshold &&
-                //    g < skin.G + colorThreshold && g > skin.G - colorThreshold &&
-                //    r < skin.R + colorThreshold && r > skin.R - colorThreshold &&
-                //    a < skin.A + colorThreshold && a > skin.A - colorThreshold)
+                //if (hue > skinColorHue - colorThreshold && hue < skinColorHue + colorThreshold)
                 if (hue > 290 && hue < 340)
                     return true;
 
@@ -553,7 +553,7 @@ namespace SLRS
                     if (rec)
                     { 
                         // Record RDF
-                        if ((bool)chk_recRDF.IsChecked && left)
+                        if ((bool)chk_recRDF.IsChecked && left) // && isNearPalm --> reduces time per frame (only for classification)
                         {
                             string feat = "";
 
