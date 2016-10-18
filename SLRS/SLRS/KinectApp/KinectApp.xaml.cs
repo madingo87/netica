@@ -52,6 +52,7 @@ namespace SLRS
         private DrawingImage imageSource;
         private DrawingImage leftHandImage;
         private DrawingImage rightHandImage;
+        int[] offsets;
 
         private CameraSpacePoint leftHandPostition;
         private CameraSpacePoint rightHandPostition;
@@ -87,7 +88,33 @@ namespace SLRS
 
             this.depthPixels = new byte[windowSize * windowSize];
 
+            //rdfTrainData.WriteLine("f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f13 f14 f15 f16 f17 f18 f19 f20 f21 f22 f23 f24 f25 f26 f27 f28 f29 f30 f31 f32 f33 f34 f35 f36 f37 f38 f39 f40 f41 f42 f43 f44 f45 f46 f47 f48 Class");
             rdfTrainData.WriteLine("f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f13 f14 f15 f16 f17 f18 f19 f20 f21 f22 f23 f24 Class");
+            offsets = new int[24];
+            offsets[0] = -1;
+            offsets[1] = -2;
+            offsets[2] = -3;
+            offsets[3] = -(depthFrameDescription.Width + 1);
+            offsets[4] = -(2 * depthFrameDescription.Width + 2);
+            offsets[5] = -(3 * depthFrameDescription.Width + 3);
+            offsets[6] = -(depthFrameDescription.Width);
+            offsets[7] = -(2 * depthFrameDescription.Width);
+            offsets[8] = -(3 * depthFrameDescription.Width);
+            offsets[9] = -(depthFrameDescription.Width - 1);
+            offsets[10] = -(2 * depthFrameDescription.Width - 2);
+            offsets[11] = -(3 * depthFrameDescription.Width - 3);
+            offsets[12] = 1;
+            offsets[13] = 2;
+            offsets[14] = 3;
+            offsets[15] = (depthFrameDescription.Width + 1);
+            offsets[16] = (2 * depthFrameDescription.Width + 2);
+            offsets[17] = (3 * depthFrameDescription.Width + 3);
+            offsets[18] = (depthFrameDescription.Width);
+            offsets[19] = (2 * depthFrameDescription.Width);
+            offsets[20] = (3 * depthFrameDescription.Width);
+            offsets[21] = (depthFrameDescription.Width - 1);
+            offsets[22] = (2 * depthFrameDescription.Width - 2);
+            offsets[23] = (3 * depthFrameDescription.Width - 3); 
 
             this.colorFrameDescription = this.kinectSensor.ColorFrameSource.CreateFrameDescription(ColorImageFormat.Bgra);
             this.colorFrameReader = this.kinectSensor.ColorFrameSource.OpenReader();
@@ -342,7 +369,7 @@ namespace SLRS
                 this.ellipseSkinColor.Fill = new System.Windows.Media.SolidColorBrush(color);
             }
         }
-        int colorThreshold = 25;
+        int colorThreshold = 50;
         private unsafe bool isSkinColor(ColorSpacePoint point)
         {
             int offset = ((colorFrameDescription.Width * ((int)point.Y) + ((int)point.X)) * BytesPerPixel);
@@ -360,7 +387,7 @@ namespace SLRS
                 //var bri = color.GetBrightness(); //0-100
 
                 //if (hue > skinColorHue - colorThreshold && hue < skinColorHue + colorThreshold)
-                if (hue > 290 && hue < 340)
+                if (hue > 290 && hue < 345)
                     return true;
 
                 return false;
@@ -440,7 +467,7 @@ namespace SLRS
 
         DepthSpacePoint pl_old;
         DepthSpacePoint pr_old;
-        private int windowSize = 60;
+        private int windowSize = 80;
         private int depthFrameSelector = 0;
         private int depthFrameThreshold = 8;
         private int depthFrameIndexL = 0;
@@ -512,9 +539,13 @@ namespace SLRS
         // If you wish to filter by reliable depth distance, use:  depthFrame.DepthMaxReliableDistance
         private unsafe void ProcessDepthFrameData(IntPtr depthFrameData, int frameSize, ushort minDepth, ushort maxDepth, DepthSpacePoint p, bool rec, bool left)
         {
-            string file = "";
+            ushort* frameData = (ushort*)depthFrameData; // depth frame data is a 16 bit value
+            ushort initDepth = frameData[depthFrameDescription.Width * ((int)p.Y) + ((int)p.X)];
+
             if (rec && (bool)chk_recPCD.IsChecked)
             {
+                string file = "";
+
                 //FileCode: [left/right]_[gestureNumber]_[sequence]_[sequneceIndex]
                 if (left)
                     file = String.Format("c:/temp/SLRS/pcd/dd_left_{0:00}_{1:00}_{2:00}.pcd", gestureNumber, sequenceID, depthFrameIndexL++);
@@ -524,11 +555,7 @@ namespace SLRS
                 depthData = new StreamWriter(file, true);
             }
 
-            ushort* frameData = (ushort*)depthFrameData; // depth frame data is a 16 bit value
-            ushort initDepth = frameData[depthFrameDescription.Width * ((int)p.Y) + ((int)p.X)];
-            //byte initPos = (byte)(initDepth / MapDepthToByte);
-
-            int distanceFactor = 80;
+            int distanceFactor = 100;
             int index = 0;
 
             for (int y = -frameSize; y < frameSize; y++)
@@ -540,41 +567,29 @@ namespace SLRS
                     ushort depth = frameData[offset];
 
                     bool isNearPalm = depth < initDepth + distanceFactor && depth > initDepth - distanceFactor;
+                    bool isSkin = true;
 
                     // For Skincolor selection
                     if ((bool)chk_skin.IsChecked)
                     {
                         DepthSpacePoint depthPoint = new DepthSpacePoint() { X = p.X + x, Y = p.Y + y };
                         ColorSpacePoint colorPoint = coordinateMapper.MapDepthPointToColorSpace(depthPoint, depth);
-                        if (!isSkinColor(colorPoint))
-                            isNearPalm = false; //depth = 0;
+                        isSkin = isSkinColor(colorPoint);
                     }
 
                     if (rec)
                     { 
                         // Record RDF
-                        if ((bool)chk_recRDF.IsChecked && left) // && isNearPalm --> reduces time per frame (only for classification)
+                        if ((bool)chk_recRDF.IsChecked) // && isNearPalm --> reduces time per frame (only for classification)
                         {
-                            string feat = "";
-
-                            //select frame
-                            for (int i = 0; i < 25; i++)
+                            string featStr = "";
+                            foreach (var o in offsets)
                             {
-                                if (i == 12) continue;
-
-                                int currentOffset = 0;
-                                int range = 2 - (i % 5);
-                                if (i < 5) currentOffset =          offset - (2 * depthFrameDescription.Width + range);
-                                else if (i < 10) currentOffset =    offset - (depthFrameDescription.Width + range);
-                                else if (i < 15) currentOffset =    offset - range;
-                                else if (i < 20) currentOffset =    offset + (depthFrameDescription.Width - range);
-                                else currentOffset =                offset + (2 * depthFrameDescription.Width - range);
-
-                                //TODO:	NORMALIZATION???
-                                float entry = frameData[currentOffset] - depth;
-                                feat += entry + " ";
-                            }                                                    
-                            rdfTrainData.WriteLine(String.Format("{0}{1}", feat, isNearPalm ? "1" : "0"));
+                                ushort thisDepth = frameData[offset + o]; 
+                                var entry = thisDepth - depth;
+                                featStr += (entry + " ");                                
+                            }
+                            rdfTrainData.WriteLine(String.Format("{0}{1}", featStr, (isSkin && isNearPalm) ? "1" : "0"));
                         }
 
                         // Record PointCloud
@@ -586,15 +601,9 @@ namespace SLRS
                     }
 
                     // Handle UI
-                    // if this depth is near to the initpoint (handpalm) ...  
-                    if (isNearPalm)
-                        depth += (ushort)((depth - initDepth));// * 10); //...and adapt depth for visualization in UI
-                    else
-                        depth = 0;
-
+                    // if this depth is near to the initpoint (handpalm) //if ...and adapt depth for visualization in UI
+                    depth = isNearPalm && isSkin ? (ushort)(depth + ((depth - initDepth) * 10)) : (ushort)0;
                     this.depthPixels[index++] = (byte)(depth / MapDepthToByte);
-                    //byte greyValue = (byte)(depth >= minDepth && depth <= maxDepth ? (depth / MapDepthToByte) : 0);
-                    //this.depthPixels[index++] = (byte)greyValue;//(255 - greyValue);
                 }
             }
 
