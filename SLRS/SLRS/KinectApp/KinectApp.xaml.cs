@@ -465,11 +465,14 @@ namespace SLRS
             }
         }
 
+        [DllImport("NetWrapper.dll")]
+        private unsafe static extern int classifyPx(float* input, float* output);
+
         DepthSpacePoint pl_old;
         DepthSpacePoint pr_old;
-        private int windowSize = 80;
+        private int windowSize = 70;
         private int depthFrameSelector = 0;
-        private int depthFrameThreshold = 8;
+        private int depthFrameThreshold = 10;
         private int depthFrameIndexL = 0;
         private int depthFrameIndexR = 0;
         private void depthFrameReader_FrameArrived(object sender, DepthFrameArrivedEventArgs e)
@@ -555,7 +558,7 @@ namespace SLRS
                 depthData = new StreamWriter(file, true);
             }
 
-            int distanceFactor = 100;
+            int distanceFactor = 80;
             int index = 0;
 
             for (int y = -frameSize; y < frameSize; y++)
@@ -569,6 +572,32 @@ namespace SLRS
                     bool isNearPalm = depth < initDepth + distanceFactor && depth > initDepth - distanceFactor;
                     bool isSkin = true;
 
+                    //TEST ======================================
+                    float[] output = new float[1];
+                    output[0] = 0;
+                    if (isNearPalm)
+                    {
+                        float[] input = new float[24];
+                        for (var i = 0; i < 24; i++)
+                        {
+                            if ((offset + offsets[i] > 217088 || offset + offsets[i] < 0))
+                            {
+                                input[i] = 0;
+                                continue;
+                            }
+                            ushort thisDepth = frameData[offset + offsets[i]];
+                            input[i] = (float)(thisDepth - depth) / 1000.0f;
+                        }
+                        fixed (float* inp = input)
+                        {
+                            fixed (float* outp = output)
+                            {
+                                classifyPx(inp, outp);
+                            }
+                        }
+                    }
+                    //test ende!! ================================
+
                     // For Skincolor selection
                     if ((bool)chk_skin.IsChecked)
                     {
@@ -578,16 +607,16 @@ namespace SLRS
                     }
 
                     if (rec)
-                    { 
+                    {
                         // Record RDF
                         if ((bool)chk_recRDF.IsChecked) // && isNearPalm --> reduces time per frame (only for classification)
                         {
                             string featStr = "";
                             foreach (var o in offsets)
                             {
-                                ushort thisDepth = frameData[offset + o]; 
-                                var entry = thisDepth - depth;
-                                featStr += (entry + " ");                                
+                                ushort thisDepth = frameData[offset + o];
+                                var entry = (float)(thisDepth - depth) / 1000.0f;
+                                featStr += (entry.ToString().Replace(',','.') + " ");
                             }
                             rdfTrainData.WriteLine(String.Format("{0}{1}", featStr, (isSkin && isNearPalm) ? "1" : "0"));
                         }
@@ -602,7 +631,11 @@ namespace SLRS
 
                     // Handle UI
                     // if this depth is near to the initpoint (handpalm) //if ...and adapt depth for visualization in UI
-                    depth = isNearPalm && isSkin ? (ushort)(depth + ((depth - initDepth) * 10)) : (ushort)0;
+                    if (output[0] > 0.3)
+                        depth = ushort.MaxValue;
+                    else
+                        depth = 0;
+                    //depth = isNearPalm && isSkin ? (ushort)(depth + ((depth - initDepth) * 10)) : (ushort)0;
                     this.depthPixels[index++] = (byte)(depth / MapDepthToByte);
                 }
             }

@@ -31,6 +31,8 @@ C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\bin\Debug\EvalWrapper.dll
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\Live\LiveWindow.baml
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\Live\LiveWindow.g.cs
-C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\SLRS.csprojResolveAssemblyReference.cache
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\bin\Debug\OxyPlot.dll
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\bin\Debug\OxyPlot.Wpf.dll
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\SLRS.csprojResolveAssemblyReference.cache
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\bin\Debug\NetWrapper.dll
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\bin\Debug\NetWrapper.pdb

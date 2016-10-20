@@ -203,6 +203,12 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NetWrapper\NetWrapper.vcxproj">
+      <Project>{6933d071-bcdc-4f5d-831d-db72f74cde8f}</Project>
+      <Name>NetWrapper</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Research.CNTK.CpuEval-mkl.1.7\build\net45\Microsoft.Research.CNTK.CpuEval-mkl.targets" Condition="Exists('..\packages\Microsoft.Research.CNTK.CpuEval-mkl.1.7\build\net45\Microsoft.Research.CNTK.CpuEval-mkl.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
