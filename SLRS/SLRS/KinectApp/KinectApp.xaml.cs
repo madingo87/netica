@@ -90,31 +90,39 @@ namespace SLRS
 
             //rdfTrainData.WriteLine("f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f13 f14 f15 f16 f17 f18 f19 f20 f21 f22 f23 f24 f25 f26 f27 f28 f29 f30 f31 f32 f33 f34 f35 f36 f37 f38 f39 f40 f41 f42 f43 f44 f45 f46 f47 f48 Class");
             rdfTrainData.WriteLine("f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f13 f14 f15 f16 f17 f18 f19 f20 f21 f22 f23 f24 Class");
-            offsets = new int[24];
+            offsets = new int[8];
             offsets[0] = -1;
-            offsets[1] = -2;
-            offsets[2] = -3;
-            offsets[3] = -(depthFrameDescription.Width + 1);
-            offsets[4] = -(2 * depthFrameDescription.Width + 2);
-            offsets[5] = -(3 * depthFrameDescription.Width + 3);
-            offsets[6] = -(depthFrameDescription.Width);
-            offsets[7] = -(2 * depthFrameDescription.Width);
-            offsets[8] = -(3 * depthFrameDescription.Width);
-            offsets[9] = -(depthFrameDescription.Width - 1);
-            offsets[10] = -(2 * depthFrameDescription.Width - 2);
-            offsets[11] = -(3 * depthFrameDescription.Width - 3);
-            offsets[12] = 1;
-            offsets[13] = 2;
-            offsets[14] = 3;
-            offsets[15] = (depthFrameDescription.Width + 1);
-            offsets[16] = (2 * depthFrameDescription.Width + 2);
-            offsets[17] = (3 * depthFrameDescription.Width + 3);
-            offsets[18] = (depthFrameDescription.Width);
-            offsets[19] = (2 * depthFrameDescription.Width);
-            offsets[20] = (3 * depthFrameDescription.Width);
-            offsets[21] = (depthFrameDescription.Width - 1);
-            offsets[22] = (2 * depthFrameDescription.Width - 2);
-            offsets[23] = (3 * depthFrameDescription.Width - 3); 
+            offsets[1] = -(depthFrameDescription.Width + 1); ;
+            offsets[2] = -depthFrameDescription.Width;
+            offsets[3] = -(depthFrameDescription.Width - 1);
+            offsets[4] = 1;
+            offsets[5] = depthFrameDescription.Width - 1; ;
+            offsets[6] = depthFrameDescription.Width;
+            offsets[7] = depthFrameDescription.Width + 1;
+            //offsets[0] = -1;
+            //offsets[1] = -2;
+            //offsets[2] = -3;
+            //offsets[3] = -(depthFrameDescription.Width + 1);
+            //offsets[4] = -(2 * depthFrameDescription.Width + 2);
+            //offsets[5] = -(3 * depthFrameDescription.Width + 3);
+            //offsets[6] = -(depthFrameDescription.Width);
+            //offsets[7] = -(2 * depthFrameDescription.Width);
+            //offsets[8] = -(3 * depthFrameDescription.Width);
+            //offsets[9] = -(depthFrameDescription.Width - 1);
+            //offsets[10] = -(2 * depthFrameDescription.Width - 2);
+            //offsets[11] = -(3 * depthFrameDescription.Width - 3);
+            //offsets[12] = 1;
+            //offsets[13] = 2;
+            //offsets[14] = 3;
+            //offsets[15] = (depthFrameDescription.Width + 1);
+            //offsets[16] = (2 * depthFrameDescription.Width + 2);
+            //offsets[17] = (3 * depthFrameDescription.Width + 3);
+            //offsets[18] = (depthFrameDescription.Width);
+            //offsets[19] = (2 * depthFrameDescription.Width);
+            //offsets[20] = (3 * depthFrameDescription.Width);
+            //offsets[21] = (depthFrameDescription.Width - 1);
+            //offsets[22] = (2 * depthFrameDescription.Width - 2);
+            //offsets[23] = (3 * depthFrameDescription.Width - 3); 
 
             this.colorFrameDescription = this.kinectSensor.ColorFrameSource.CreateFrameDescription(ColorImageFormat.Bgra);
             this.colorFrameReader = this.kinectSensor.ColorFrameSource.OpenReader();
@@ -577,16 +585,18 @@ namespace SLRS
                     output[0] = 0;
                     if (isNearPalm)
                     {
-                        float[] input = new float[24];
-                        for (var i = 0; i < 24; i++)
+                        float[] input = new float[offsets.Length];
+                        for (int i = 0; i < offsets.Length; i++)
                         {
                             if ((offset + offsets[i] > 217088 || offset + offsets[i] < 0))
                             {
                                 input[i] = 0;
                                 continue;
                             }
-                            ushort thisDepth = frameData[offset + offsets[i]];
-                            input[i] = (float)(thisDepth - depth) / 1000.0f;
+                            ushort thisDepth = frameData[offset + offsets[i]] != 0 ? frameData[offset + offsets[i]] : depth;
+                            input[i] = (depth - initDepth) / thisDepth;
+                            //ushort thisDepth = frameData[offset + offsets[i]];
+                            //input[i] = (thisDepth - depth) / 1000.0f;
                         }
                         fixed (float* inp = input)
                         {
@@ -614,8 +624,9 @@ namespace SLRS
                             string featStr = "";
                             foreach (var o in offsets)
                             {
-                                ushort thisDepth = frameData[offset + o];
-                                var entry = (float)(thisDepth - depth) / 1000.0f;
+                                ushort thisDepth = frameData[offset + o] != 0 ? frameData[offset + o] : depth;
+                                var entry = (depth - initDepth) / thisDepth;
+                                //var entry = (thisDepth - depth) / 1000.0f;
                                 featStr += (entry.ToString().Replace(',','.') + " ");
                             }
                             rdfTrainData.WriteLine(String.Format("{0}{1}", featStr, (isSkin && isNearPalm) ? "1" : "0"));
@@ -636,7 +647,7 @@ namespace SLRS
                     else
                         depth = 0;
                     //depth = isNearPalm && isSkin ? (ushort)(depth + ((depth - initDepth) * 10)) : (ushort)0;
-                    this.depthPixels[index++] = (byte)(depth / MapDepthToByte);
+                    depthPixels[index++] = (byte)(depth / MapDepthToByte);
                 }
             }
 
