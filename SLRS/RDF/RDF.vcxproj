@@ -78,44 +78,25 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Data.h" />
-    <ClInclude Include="DataChar.h" />
     <ClInclude Include="DataDouble.h" />
-    <ClInclude Include="DataFloat.h" />
     <ClInclude Include="Forest.h" />
     <ClInclude Include="ForestClassification.h" />
-    <ClInclude Include="ForestProbability.h" />
-    <ClInclude Include="ForestRegression.h" />
-    <ClInclude Include="ForestSurvival.h" />
     <ClInclude Include="globals.h" />
-    <ClInclude Include="RDF.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Stdafx.h" />
     <ClInclude Include="Tree.h" />
     <ClInclude Include="TreeClassification.h" />
-    <ClInclude Include="TreeProbability.h" />
-    <ClInclude Include="TreeRegression.h" />
-    <ClInclude Include="TreeSurvival.h" />
+    <ClInclude Include="utility.h" />
     <ClInclude Include="version.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="Data.cpp" />
-    <ClCompile Include="DataChar.cpp" />
     <ClCompile Include="DataDouble.cpp" />
-    <ClCompile Include="DataFloat.cpp" />
     <ClCompile Include="Forest.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
     </ClCompile>
     <ClCompile Include="ForestClassification.cpp">
-      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
-    </ClCompile>
-    <ClCompile Include="ForestProbability.cpp">
-      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
-    </ClCompile>
-    <ClCompile Include="ForestRegression.cpp">
-      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
-    </ClCompile>
-    <ClCompile Include="ForestSurvival.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
     </ClCompile>
     <ClCompile Include="RDF.cpp">
@@ -127,9 +108,7 @@
     </ClCompile>
     <ClCompile Include="Tree.cpp" />
     <ClCompile Include="TreeClassification.cpp" />
-    <ClCompile Include="TreeProbability.cpp" />
-    <ClCompile Include="TreeRegression.cpp" />
-    <ClCompile Include="TreeSurvival.cpp" />
+    <ClCompile Include="utility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />

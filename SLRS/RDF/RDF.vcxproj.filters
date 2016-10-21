@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="RDF.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="Stdafx.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
@@ -36,40 +33,19 @@
     <ClInclude Include="ForestClassification.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="ForestProbability.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="ForestRegression.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="ForestSurvival.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="Tree.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="TreeClassification.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="TreeProbability.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="TreeRegression.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="TreeSurvival.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="Data.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="DataChar.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="DataDouble.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="DataFloat.h">
+    <ClInclude Include="utility.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
@@ -89,40 +65,19 @@
     <ClCompile Include="ForestClassification.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="ForestProbability.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="ForestRegression.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="ForestSurvival.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="Tree.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="TreeClassification.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="TreeProbability.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="TreeRegression.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="TreeSurvival.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="Data.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="DataChar.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="DataDouble.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="DataFloat.cpp">
+    <ClCompile Include="utility.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>

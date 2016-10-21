@@ -164,41 +164,41 @@ void drawWithoutReplacementKnuth(std::vector<size_t>& result, std::mt19937_64& r
 void drawWithoutReplacementWeighted(std::vector<size_t>& result, std::mt19937_64& random_number_generator,
     std::vector<size_t>& indices, size_t num_samples, std::vector<double>& weights) {
 
-  result.reserve(num_samples);
+  //result.reserve(num_samples);
 
-  // Set all to not selected
-  std::vector<bool> temp;
-  temp.resize(indices.size(), false);
+  //// Set all to not selected
+  //std::vector<bool> temp;
+  //temp.resize(indices.size(), false);
 
-  std::discrete_distribution<> weighted_dist(weights.begin(), weights.end());
-  for (size_t i = 0; i < num_samples; ++i) {
-    size_t draw;
-    do {
-      draw = weighted_dist(random_number_generator);
-    } while (temp[draw]);
-    temp[draw] = true;
-    result.push_back(indices[draw]);
-  }
+  //std::discrete_distribution<> weighted_dist(weights.begin(), weights.end());
+  //for (size_t i = 0; i < num_samples; ++i) {
+  //  size_t draw;
+  //  do {
+  //    draw = weighted_dist(random_number_generator);
+  //  } while (temp[draw]);
+  //  temp[draw] = true;
+  //  result.push_back(indices[draw]);
+  //}
 }
 
 void drawWithoutReplacementWeighted(std::vector<size_t>& result, std::mt19937_64& random_number_generator,
     size_t max_index, size_t num_samples, std::vector<double>& weights) {
 
-  result.reserve(num_samples);
+  //result.reserve(num_samples);
 
-  // Set all to not selected
-  std::vector<bool> temp;
-  temp.resize(max_index + 1, false);
+  //// Set all to not selected
+  //std::vector<bool> temp;
+  //temp.resize(max_index + 1, false);
 
-  std::discrete_distribution<> weighted_dist(weights.begin(), weights.end());
-  for (size_t i = 0; i < num_samples; ++i) {
-    size_t draw;
-    do {
-      draw = weighted_dist(random_number_generator);
-    } while (temp[draw]);
-    temp[draw] = true;
-    result.push_back(draw);
-  }
+  //std::discrete_distribution<> weighted_dist(weights.begin(), weights.end());
+  //for (size_t i = 0; i < num_samples; ++i) {
+  //  size_t draw;
+  //  do {
+  //    draw = weighted_dist(random_number_generator);
+  //  } while (temp[draw]);
+  //  temp[draw] = true;
+  //  result.push_back(draw);
+  //}
 }
 
 double mostFrequentValue(std::unordered_map<double, size_t>& class_count, std::mt19937_64 random_number_generator) {

@@ -39,9 +39,9 @@
 
 #include "utility.h"
 #include "Forest.h"
-#include "DataChar.h"
+//#include "DataChar.h"
 #include "DataDouble.h"
-#include "DataFloat.h"
+//#include "DataFloat.h"
 
 Forest::Forest() :
     verbose_out(0), num_trees(DEFAULT_NUM_TREE), mtry(0), min_node_size(0), num_variables(0), num_independent_variables(
@@ -74,10 +74,10 @@ void Forest::initCpp(std::string dependent_variable_name, MemoryMode memory_mode
     data = new DataDouble();
     break;
   case MEM_FLOAT:
-    data = new DataFloat();
+	  data = new DataDouble();//new DataFloat();
     break;
   case MEM_CHAR:
-    data = new DataChar();
+	  data = new DataDouble();//new DataChar();
     break;
   }
 

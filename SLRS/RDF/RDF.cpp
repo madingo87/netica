@@ -2,30 +2,26 @@
 
 #include "stdafx.h"
 
-#include "RDF.h"
-
 #include "DataDouble.h"
 #include "Forest.h"
 #include "ForestClassification.h"
 
 extern "C" __declspec(dllexport) int predictRDF(const char* input, const char* forest_file);
-int RDFWrapperLib::predictRDF(const char* input, const char* forest_file)
+int predictRDF(const char* input, const char* forest_file)
 {
 	ForestClassification* forest = new ForestClassification();
 	DataDouble* data = new DataDouble();
 
-	std::string header_line = "f1 f2 Class";
-	data->loadFromStringWhitespace(input,header_line);
+	bool error = data->loadFromStringWhitespace(input, "f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f13 f14 f15 f16 f17 f18 f19 f20 f21 f22 f23 f24 Class");
 
 	forest->loadFromFile(forest_file);
 	forest->predict();
 
-	int out = prediction(forest->getPredictions());
-
-	return out;
+	std::vector<double> first = forest->getPredictions()[0];
+	return (int)first[0];
 }
 
-double RDFWrapperLib::prediction(std::vector<std::vector<double>> predictions) {
+double prediction(std::vector<std::vector<double>> predictions) {
 
 	std::vector<double> first = predictions[0];
 	double sec = first[0];
