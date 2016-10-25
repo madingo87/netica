@@ -57,6 +57,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <OutputPath>bin\Debug\</OutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CodeAnalysisIgnoreGeneratedCode>false</CodeAnalysisIgnoreGeneratedCode>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -204,9 +205,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NetWrapper\NetWrapper.vcxproj">
-      <Project>{6933d071-bcdc-4f5d-831d-db72f74cde8f}</Project>
-      <Name>NetWrapper</Name>
+    <ProjectReference Include="..\RDF\RDF.vcxproj">
+      <Project>{3beda9e3-b787-423e-b1f7-84e6339b506f}</Project>
+      <Name>RDF</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

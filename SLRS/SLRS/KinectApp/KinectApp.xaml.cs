@@ -78,6 +78,10 @@ namespace SLRS
 
         public KinectApp()
         {
+            predictRDF(
+                        new StringBuilder("0.06403509 0.06392294 0.06392294 0.06409131 0.06381119 0.06369983 0.06414763 0.06409131 0.06403509 0.06403509 0.06409131 0.06426056 0.06403509 0.06420404 0.06426056 0.06409131 0.0643739 0.06431718 0.06397896 0.06397896 0.06414763 0.06392294 0.06386702 0.06375546 1"),
+                        new StringBuilder(@"C:\temp\ranger.forest"));
+
             this.kinectSensor = KinectSensor.GetDefault();
 
             this.depthFrameDescription = this.kinectSensor.DepthFrameSource.FrameDescription;
@@ -90,39 +94,31 @@ namespace SLRS
 
             //rdfTrainData.WriteLine("f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f13 f14 f15 f16 f17 f18 f19 f20 f21 f22 f23 f24 f25 f26 f27 f28 f29 f30 f31 f32 f33 f34 f35 f36 f37 f38 f39 f40 f41 f42 f43 f44 f45 f46 f47 f48 Class");
             rdfTrainData.WriteLine("f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f13 f14 f15 f16 f17 f18 f19 f20 f21 f22 f23 f24 Class");
-            offsets = new int[8];
-            offsets[0] = -1;
-            offsets[1] = -(depthFrameDescription.Width + 1); ;
-            offsets[2] = -depthFrameDescription.Width;
-            offsets[3] = -(depthFrameDescription.Width - 1);
-            offsets[4] = 1;
-            offsets[5] = depthFrameDescription.Width - 1; ;
-            offsets[6] = depthFrameDescription.Width;
-            offsets[7] = depthFrameDescription.Width + 1;
-            //offsets[0] = -1;
-            //offsets[1] = -2;
-            //offsets[2] = -3;
-            //offsets[3] = -(depthFrameDescription.Width + 1);
-            //offsets[4] = -(2 * depthFrameDescription.Width + 2);
-            //offsets[5] = -(3 * depthFrameDescription.Width + 3);
-            //offsets[6] = -(depthFrameDescription.Width);
-            //offsets[7] = -(2 * depthFrameDescription.Width);
-            //offsets[8] = -(3 * depthFrameDescription.Width);
-            //offsets[9] = -(depthFrameDescription.Width - 1);
-            //offsets[10] = -(2 * depthFrameDescription.Width - 2);
-            //offsets[11] = -(3 * depthFrameDescription.Width - 3);
-            //offsets[12] = 1;
-            //offsets[13] = 2;
-            //offsets[14] = 3;
-            //offsets[15] = (depthFrameDescription.Width + 1);
-            //offsets[16] = (2 * depthFrameDescription.Width + 2);
-            //offsets[17] = (3 * depthFrameDescription.Width + 3);
-            //offsets[18] = (depthFrameDescription.Width);
-            //offsets[19] = (2 * depthFrameDescription.Width);
-            //offsets[20] = (3 * depthFrameDescription.Width);
-            //offsets[21] = (depthFrameDescription.Width - 1);
-            //offsets[22] = (2 * depthFrameDescription.Width - 2);
-            //offsets[23] = (3 * depthFrameDescription.Width - 3); 
+            offsets = new int[24];
+            offsets[0] = -2;
+            offsets[1] = -4;
+            offsets[2] = -6;
+            offsets[3] = -(2 * depthFrameDescription.Width + 2);
+            offsets[4] = -(4 * depthFrameDescription.Width + 4);
+            offsets[5] = -(6 * depthFrameDescription.Width + 6);
+            offsets[6] = -(2 * depthFrameDescription.Width);
+            offsets[7] = -(4 * depthFrameDescription.Width);
+            offsets[8] = -(6 * depthFrameDescription.Width);
+            offsets[9] = -(2 * depthFrameDescription.Width - 2);
+            offsets[10] = -(4 * depthFrameDescription.Width - 4);
+            offsets[11] = -(6 * depthFrameDescription.Width - 6);
+            offsets[12] = 2;
+            offsets[13] = 4;
+            offsets[14] = 6;
+            offsets[15] = (2 * depthFrameDescription.Width + 2);
+            offsets[16] = (4 * depthFrameDescription.Width + 4);
+            offsets[17] = (6 * depthFrameDescription.Width + 6);
+            offsets[18] = (2 * depthFrameDescription.Width);
+            offsets[19] = (4 * depthFrameDescription.Width);
+            offsets[20] = (6 * depthFrameDescription.Width);
+            offsets[21] = (2 * depthFrameDescription.Width - 2);
+            offsets[22] = (4 * depthFrameDescription.Width - 4);
+            offsets[23] = (6 * depthFrameDescription.Width - 6); 
 
             this.colorFrameDescription = this.kinectSensor.ColorFrameSource.CreateFrameDescription(ColorImageFormat.Bgra);
             this.colorFrameReader = this.kinectSensor.ColorFrameSource.OpenReader();
@@ -473,14 +469,14 @@ namespace SLRS
             }
         }
 
-        [DllImport("NetWrapper.dll")]
-        private unsafe static extern int classifyPx(float* input, float* output);
+        [DllImport("RDF.dll")]
+        private unsafe static extern int predictRDF(StringBuilder input, StringBuilder forest_file);
 
         DepthSpacePoint pl_old;
         DepthSpacePoint pr_old;
         private int windowSize = 70;
         private int depthFrameSelector = 0;
-        private int depthFrameThreshold = 10;
+        private int depthFrameThreshold = 8; 
         private int depthFrameIndexL = 0;
         private int depthFrameIndexR = 0;
         private void depthFrameReader_FrameArrived(object sender, DepthFrameArrivedEventArgs e)
@@ -566,7 +562,7 @@ namespace SLRS
                 depthData = new StreamWriter(file, true);
             }
 
-            int distanceFactor = 80;
+            int distanceFactor = 120;
             int index = 0;
 
             for (int y = -frameSize; y < frameSize; y++)
@@ -579,34 +575,7 @@ namespace SLRS
 
                     bool isNearPalm = depth < initDepth + distanceFactor && depth > initDepth - distanceFactor;
                     bool isSkin = true;
-
-                    //TEST ======================================
-                    float[] output = new float[1];
-                    output[0] = 0;
-                    if (isNearPalm)
-                    {
-                        float[] input = new float[offsets.Length];
-                        for (int i = 0; i < offsets.Length; i++)
-                        {
-                            if ((offset + offsets[i] > 217088 || offset + offsets[i] < 0))
-                            {
-                                input[i] = 0;
-                                continue;
-                            }
-                            ushort thisDepth = frameData[offset + offsets[i]] != 0 ? frameData[offset + offsets[i]] : depth;
-                            input[i] = (depth - initDepth) / thisDepth;
-                            //ushort thisDepth = frameData[offset + offsets[i]];
-                            //input[i] = (thisDepth - depth) / 1000.0f;
-                        }
-                        fixed (float* inp = input)
-                        {
-                            fixed (float* outp = output)
-                            {
-                                classifyPx(inp, outp);
-                            }
-                        }
-                    }
-                    //test ende!! ================================
+                    bool skipSegmentation = false;
 
                     // For Skincolor selection
                     if ((bool)chk_skin.IsChecked)
@@ -616,20 +585,26 @@ namespace SLRS
                         isSkin = isSkinColor(colorPoint);
                     }
 
+                    var isHand = predictRDF(
+                        new StringBuilder("0.06403509 0.06392294 0.06392294 0.06409131 0.06381119 0.06369983 0.06414763 0.06409131 0.06403509 0.06403509 0.06409131 0.06426056 0.06403509 0.06420404 0.06426056 0.06409131 0.0643739 0.06431718 0.06397896 0.06397896 0.06414763 0.06392294 0.06386702 0.06375546 1"),
+                        new StringBuilder(@"C:\temp\ranger.forest"));
+
                     if (rec)
                     {
                         // Record RDF
-                        if ((bool)chk_recRDF.IsChecked) // && isNearPalm --> reduces time per frame (only for classification)
+                        if ((bool)chk_recRDF.IsChecked) 
                         {
                             string featStr = "";
                             foreach (var o in offsets)
                             {
                                 ushort thisDepth = frameData[offset + o] != 0 ? frameData[offset + o] : depth;
-                                var entry = (depth - initDepth) / thisDepth;
-                                //var entry = (thisDepth - depth) / 1000.0f;
-                                featStr += (entry.ToString().Replace(',','.') + " ");
+                                if (thisDepth == 0) skipSegmentation = true;
+                                float entry = (float)(depth - initDepth) / (float)thisDepth;
+                                featStr += (entry.ToString().Replace(',', '.') + " ");
+                                if (featStr.Contains("0 0 0 0 0 0 0 0") && !isSkin)
+                                    skipSegmentation = true;
                             }
-                            rdfTrainData.WriteLine(String.Format("{0}{1}", featStr, (isSkin && isNearPalm) ? "1" : "0"));
+                            if (!skipSegmentation) rdfTrainData.WriteLine(String.Format("{0}{1}", featStr, isSkin ? "1" : "0"));
                         }
 
                         // Record PointCloud
@@ -642,11 +617,7 @@ namespace SLRS
 
                     // Handle UI
                     // if this depth is near to the initpoint (handpalm) //if ...and adapt depth for visualization in UI
-                    if (output[0] > 0.3)
-                        depth = ushort.MaxValue;
-                    else
-                        depth = 0;
-                    //depth = isNearPalm && isSkin ? (ushort)(depth + ((depth - initDepth) * 10)) : (ushort)0;
+                    depth = isSkin && isNearPalm ? (ushort)(depth + ((depth - initDepth) * 10)) : (ushort)0; 
                     depthPixels[index++] = (byte)(depth / MapDepthToByte);
                 }
             }

@@ -406,10 +406,10 @@ void Tree::bootstrap() {
 
 void Tree::bootstrapWeighted() {
 
-//// Use fraction (default 63.21%) of the samples
-//  size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
-//
-//// Reserve space, reserve a little more to be save)
+// Use fraction (default 63.21%) of the samples
+  size_t num_samples_inbag = (size_t) num_samples * sample_fraction;
+
+// Reserve space, reserve a little more to be save)
 //  sampleIDs[0].reserve(num_samples_inbag);
 //  oob_sampleIDs.reserve(num_samples * (exp(-sample_fraction) + 0.1));
 //
@@ -424,26 +424,26 @@ void Tree::bootstrapWeighted() {
 //    sampleIDs[0].push_back(draw);
 //    ++inbag_counts[draw];
 //  }
-//
-//  // Save OOB samples. In holdout mode these are the cases with 0 weight.
-//  if (holdout) {
-//    for (size_t s = 0; s < (*case_weights).size(); ++s) {
-//      if ((*case_weights)[s] == 0) {
-//        oob_sampleIDs.push_back(s);
-//      }
-//    }
-//  } else {
-//    for (size_t s = 0; s < inbag_counts.size(); ++s) {
-//      if (inbag_counts[s] == 0) {
-//        oob_sampleIDs.push_back(s);
-//      }
-//    }
-//  }
-//  num_samples_oob = oob_sampleIDs.size();
-//
-//  if (!keep_inbag) {
-//    inbag_counts.clear();
-//  }
+
+  // Save OOB samples. In holdout mode these are the cases with 0 weight.
+  if (holdout) {
+    for (size_t s = 0; s < (*case_weights).size(); ++s) {
+      if ((*case_weights)[s] == 0) {
+        oob_sampleIDs.push_back(s);
+      }
+    }
+  } else {
+    for (size_t s = 0; s < inbag_counts.size(); ++s) {
+      if (inbag_counts[s] == 0) {
+        oob_sampleIDs.push_back(s);
+      }
+    }
+  }
+  num_samples_oob = oob_sampleIDs.size();
+
+  if (!keep_inbag) {
+    inbag_counts.clear();
+  }
 }
 
 void Tree::bootstrapWithoutReplacement() {

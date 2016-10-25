@@ -38,6 +38,8 @@
 #include <utility>
 #include <vector>
 
+#include <numeric>
+
 #include "utility.h"
 #include "globals.h"
 #include "Data.h"
@@ -164,7 +166,7 @@ void drawWithoutReplacementKnuth(std::vector<size_t>& result, std::mt19937_64& r
 void drawWithoutReplacementWeighted(std::vector<size_t>& result, std::mt19937_64& random_number_generator,
     std::vector<size_t>& indices, size_t num_samples, std::vector<double>& weights) {
 
-  //result.reserve(num_samples);
+  result.reserve(num_samples);
 
   //// Set all to not selected
   //std::vector<bool> temp;
@@ -184,7 +186,7 @@ void drawWithoutReplacementWeighted(std::vector<size_t>& result, std::mt19937_64
 void drawWithoutReplacementWeighted(std::vector<size_t>& result, std::mt19937_64& random_number_generator,
     size_t max_index, size_t num_samples, std::vector<double>& weights) {
 
-  //result.reserve(num_samples);
+  result.reserve(num_samples);
 
   //// Set all to not selected
   //std::vector<bool> temp;

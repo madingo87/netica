@@ -283,7 +283,7 @@ void ForestClassification::loadFromFileInternal(std::ifstream& infile) {
 
   // Read treetype
   TreeType treetype;
-  infile.read((char*) &treetype, sizeof(treetype));
+  infile.read((char*)&treetype, sizeof(treetype));
   if (treetype != TREE_CLASSIFICATION) {
     throw std::runtime_error("Wrong treetype. Loaded file is not a classification forest.");
   }
@@ -311,8 +311,7 @@ void ForestClassification::loadFromFileInternal(std::ifstream& infile) {
     }
 
     // Create tree
-    Tree* tree = new TreeClassification(child_nodeIDs, split_varIDs, split_values, &class_values, &response_classIDs,
-        &is_ordered_variable);
+    Tree* tree = new TreeClassification(child_nodeIDs, split_varIDs, split_values, &class_values, &response_classIDs, &is_ordered_variable);
     trees.push_back(tree);
   }
 }

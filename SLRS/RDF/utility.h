@@ -33,10 +33,10 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
-#include <numeric>
 #include <random>
 #include <unordered_set>
 #include <unordered_map>
+#include <numeric>
 
 #ifdef R_BUILD
 #include <Rinternals.h>
@@ -95,7 +95,7 @@ template<typename T>
 inline void readVector1D(std::vector<T>& result, std::ifstream& file) {
   // Read length
   size_t length;
-  file.read((char*) &length, sizeof(length));
+  file.read((char*)&length, sizeof(length));
   result.resize(length);
   file.read((char*) result.data(), length * sizeof(T));
 }

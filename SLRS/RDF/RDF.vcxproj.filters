@@ -21,16 +21,10 @@
     <ClInclude Include="resource.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="globals.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="version.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="Forest.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="ForestClassification.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="globals.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="Tree.h">
@@ -39,13 +33,19 @@
     <ClInclude Include="TreeClassification.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="utility.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="version.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
     <ClInclude Include="Data.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="DataDouble.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="utility.h">
+    <ClInclude Include="Forest.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
@@ -59,6 +59,12 @@
     <ClCompile Include="Stdafx.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="Data.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="DataDouble.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
     <ClCompile Include="Forest.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
@@ -69,12 +75,6 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="TreeClassification.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="Data.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="DataDouble.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="utility.cpp">

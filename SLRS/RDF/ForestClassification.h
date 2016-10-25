@@ -42,8 +42,6 @@ public:
   ForestClassification();
   virtual ~ForestClassification();
 
-  void predictInternal();
-
   void loadForest(size_t dependent_varID, size_t num_trees,
       std::vector<std::vector<std::vector<size_t>> >& forest_child_nodeIDs,
       std::vector<std::vector<size_t>>& forest_split_varIDs, std::vector<std::vector<double>>& forest_split_values,
@@ -56,6 +54,7 @@ public:
 protected:
   void initInternal(std::string status_variable_name);
   void growInternal();
+  void predictInternal();
   void computePredictionErrorInternal();
   void writeOutputInternal();
   void writeConfusionFile();

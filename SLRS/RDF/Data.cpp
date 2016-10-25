@@ -99,7 +99,6 @@ bool Data::loadFromFile(std::string filename) {
   return result;
 }
 
-
 bool Data::loadFromFileWhitespace(std::ifstream& input_file, std::string header_line) {
 
   // Read header
@@ -169,7 +168,6 @@ bool Data::loadFromStringWhitespace(std::string input, std::string header_line) 
 	num_rows = row;
 	return error;
 }
-
 
 bool Data::loadFromFileOther(std::ifstream& input_file, std::string header_line, char seperator) {
 

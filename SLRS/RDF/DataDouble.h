@@ -33,7 +33,7 @@ wright@imbs.uni-luebeck.de
 #include "utility.h"
 #include "Data.h"
 
-class DataDouble : public Data {
+class DataDouble: public Data {
 public:
   DataDouble();
   DataDouble(double* data, std::vector<std::string> variable_names, size_t num_rows, size_t num_cols) :

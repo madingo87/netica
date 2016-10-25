@@ -4,3 +4,4 @@
 *.suo
 *.db
 *.tlog
+/depricated/

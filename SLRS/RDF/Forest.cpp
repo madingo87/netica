@@ -39,9 +39,7 @@
 
 #include "utility.h"
 #include "Forest.h"
-//#include "DataChar.h"
 #include "DataDouble.h"
-//#include "DataFloat.h"
 
 Forest::Forest() :
     verbose_out(0), num_trees(DEFAULT_NUM_TREE), mtry(0), min_node_size(0), num_variables(0), num_independent_variables(
@@ -58,7 +56,7 @@ Forest::~Forest() {
   }
 }
 
-void Forest::initCpp(std::string dependent_variable_name, MemoryMode memory_mode, std::string input_file, uint mtry,
+void Forest::initCpp(std::string dependent_variable_name, MemoryMode memory_mode, Data* input_data, uint mtry, //std::string input_file
     std::string output_prefix, uint num_trees, std::ostream* verbose_out, uint seed, uint num_threads,
     std::string load_forest_filename, ImportanceMode importance_mode, uint min_node_size,
     std::string split_select_weights_file, std::vector<std::string>& always_split_variable_names,
@@ -73,21 +71,22 @@ void Forest::initCpp(std::string dependent_variable_name, MemoryMode memory_mode
   case MEM_DOUBLE:
     data = new DataDouble();
     break;
-  case MEM_FLOAT:
-	  data = new DataDouble();//new DataFloat();
-    break;
-  case MEM_CHAR:
-	  data = new DataDouble();//new DataChar();
-    break;
+  //case MEM_FLOAT:
+  //  data = new DataFloat();
+  //  break;
+  //case MEM_CHAR:
+  //  data = new DataChar();
+  //  break;
   }
 
-  // Load data
-  *verbose_out << "Loading input file: " << input_file << "." << std::endl;
-  bool rounding_error = data->loadFromFile(input_file);
-  if (rounding_error) {
-    *verbose_out << "Warning: Rounding or Integer overflow occurred. Use FLOAT or DOUBLE precision to avoid this."
-        << std::endl;
-  }
+  // Load data --> loaded MANUALLY
+  //*verbose_out << "Loading input file: " << input_file << "." << std::endl;
+  //bool rounding_error = data->loadFromFile(input_file);
+  //if (rounding_error) {
+  //  *verbose_out << "Warning: Rounding or Integer overflow occurred. Use FLOAT or DOUBLE precision to avoid this."
+  //      << std::endl;
+  //}
+  this->data = input_data;
 
   // Set prediction mode
   bool prediction_mode = false;
@@ -739,8 +738,8 @@ void Forest::loadFromFile(std::string filename) {
   }
 
 // Read dependent_varID and num_trees
-  infile.read((char*) &dependent_varID, sizeof(dependent_varID));
-  infile.read((char*) &num_trees, sizeof(num_trees));
+  infile.read((char*)&dependent_varID, sizeof(dependent_varID));
+  infile.read((char*) &num_trees, sizeof(num_trees));	
 
 // Read is_ordered_variable
   readVector1D(is_ordered_variable, infile);

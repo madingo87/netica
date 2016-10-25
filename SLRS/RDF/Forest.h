@@ -49,8 +49,10 @@ public:
   Forest();
   virtual ~Forest();
 
+  void predict();
+
   // Init from c++ main or Rcpp from R
-  void initCpp(std::string dependent_variable_name, MemoryMode memory_mode, std::string input_file, uint mtry,
+  void initCpp(std::string dependent_variable_name, MemoryMode memory_mode, Data* input_data, uint mtry, //std::string input_file
       std::string output_prefix, uint num_trees, std::ostream* verbose_out, uint seed, uint num_threads,
       std::string load_forest_filename, ImportanceMode importance_mode, uint min_node_size,
       std::string split_select_weights_file, std::vector<std::string>& always_split_variable_names,
@@ -75,14 +77,6 @@ public:
 
   // Grow or predict
   void run(bool verbose);
-
-  // Load forest from file
-  void loadFromFile(std::string filename);
-  virtual void loadFromFileInternal(std::ifstream& infile) = 0;
-
-  // Predict using existing tree from file and data as prediction data
-  void predict();
-  virtual void predictInternal() = 0;
 
   // Write results to output files
   void writeOutput();
@@ -160,7 +154,9 @@ protected:
   void grow();
   virtual void growInternal() = 0;
 
-
+  // Predict using existing tree from file and data as prediction data
+  //void predict();  --> needs to be public
+  virtual void predictInternal() = 0;
 
   void computePredictionError();
   virtual void computePredictionErrorInternal() = 0;
@@ -171,6 +167,10 @@ protected:
   void growTreesInThread(uint thread_idx, std::vector<double>* variable_importance);
   void predictTreesInThread(uint thread_idx, const Data* prediction_data, bool oob_prediction);
   void computeTreePermutationImportanceInThread(uint thread_idx, std::vector<double>* importance, std::vector<double>* variance);
+
+  // Load forest from file
+  void loadFromFile(std::string filename);
+  virtual void loadFromFileInternal(std::ifstream& infile) = 0;
 
   // Set split select weights and variables to be always considered for splitting
   void setSplitWeightVector(std::vector<std::vector<double>>& split_select_weights);
