@@ -48,6 +48,9 @@
     <ClInclude Include="Forest.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="RDF.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RDF.cpp">

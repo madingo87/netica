@@ -76,11 +76,23 @@ namespace SLRS
         private int maxTestData = 10;
         private int maxTrainData = 50;
 
+        [DllImport("RDF.dll")]
+        private unsafe static extern IntPtr initRDF(StringBuilder forest_file);
+
+        [DllImport("RDF.dll")]
+        private unsafe static extern int predictRDF(StringBuilder input, IntPtr Forest);
+
+        [DllImport("RDF.dll")]
+        private unsafe static extern void createForest(StringBuilder input_data);
+
+
         public KinectApp()
         {
-            predictRDF(
-                        new StringBuilder("0.06403509 0.06392294 0.06392294 0.06409131 0.06381119 0.06369983 0.06414763 0.06409131 0.06403509 0.06403509 0.06409131 0.06426056 0.06403509 0.06420404 0.06426056 0.06409131 0.0643739 0.06431718 0.06397896 0.06397896 0.06414763 0.06392294 0.06386702 0.06375546 1"),
-                        new StringBuilder(@"C:\temp\ranger.forest"));
+            IntPtr forest = initRDF(new StringBuilder(@"C:\temp\tree\ranger.forest"));
+
+            //createForest(new StringBuilder(@"C:\temp\tree\trainData.dat"));
+            int pred = predictRDF( new StringBuilder("0.06403509 0.06392294 0.06392294 0.06409131 0.06381119 0.06369983 0.06414763 0.06409131 0.06403509 0.06403509 0.06409131 0.06426056 0.06403509 0.06420404 0.06426056 0.06409131 0.0643739 0.06431718 0.06397896 0.06397896 0.06414763 0.06392294 0.06386702 0.06375546 1"),
+                        forest);
 
             this.kinectSensor = KinectSensor.GetDefault();
 
@@ -469,9 +481,6 @@ namespace SLRS
             }
         }
 
-        [DllImport("RDF.dll")]
-        private unsafe static extern int predictRDF(StringBuilder input, StringBuilder forest_file);
-
         DepthSpacePoint pl_old;
         DepthSpacePoint pr_old;
         private int windowSize = 70;
@@ -585,9 +594,9 @@ namespace SLRS
                         isSkin = isSkinColor(colorPoint);
                     }
 
-                    var isHand = predictRDF(
-                        new StringBuilder("0.06403509 0.06392294 0.06392294 0.06409131 0.06381119 0.06369983 0.06414763 0.06409131 0.06403509 0.06403509 0.06409131 0.06426056 0.06403509 0.06420404 0.06426056 0.06409131 0.0643739 0.06431718 0.06397896 0.06397896 0.06414763 0.06392294 0.06386702 0.06375546 1"),
-                        new StringBuilder(@"C:\temp\ranger.forest"));
+                    //var isHand = predictRDF(
+                    //    new StringBuilder("0.06403509 0.06392294 0.06392294 0.06409131 0.06381119 0.06369983 0.06414763 0.06409131 0.06403509 0.06403509 0.06409131 0.06426056 0.06403509 0.06420404 0.06426056 0.06409131 0.0643739 0.06431718 0.06397896 0.06397896 0.06414763 0.06392294 0.06386702 0.06375546 1"),
+                    //    new StringBuilder(@"C:\temp\ranger.forest"));
 
                     if (rec)
                     {

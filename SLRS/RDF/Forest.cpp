@@ -56,6 +56,95 @@ Forest::~Forest() {
   }
 }
 
+void Forest::initCpp(std::string dependent_variable_name, MemoryMode memory_mode, std::string input_file, uint mtry,
+	std::string output_prefix, uint num_trees, std::ostream* verbose_out, uint seed, uint num_threads,
+	std::string load_forest_filename, ImportanceMode importance_mode, uint min_node_size,
+	std::string split_select_weights_file, std::vector<std::string>& always_split_variable_names,
+	std::string status_variable_name, bool sample_with_replacement, std::vector<std::string>& unordered_variable_names,
+	bool memory_saving_splitting, SplitRule splitrule, std::string case_weights_file, bool predict_all,
+	double sample_fraction, double alpha, double minprop, bool holdout, PredictionType prediction_type) {
+
+	this->verbose_out = verbose_out;
+
+	// Initialize data with memmode
+	switch (memory_mode) {
+	case MEM_DOUBLE:
+		data = new DataDouble();
+		break;
+		//case MEM_FLOAT:
+		//  data = new DataFloat();
+		//  break;
+		//case MEM_CHAR:
+		//  data = new DataChar();
+		//  break;
+	}
+
+	// Load data
+	*verbose_out << "Loading input file: " << input_file << "." << std::endl;
+	bool rounding_error = data->loadFromFile(input_file);
+	if (rounding_error) {
+	  *verbose_out << "Warning: Rounding or Integer overflow occurred. Use FLOAT or DOUBLE precision to avoid this."
+	      << std::endl;
+	}
+
+	// Set prediction mode
+	bool prediction_mode = false;
+	if (!load_forest_filename.empty()) {
+		prediction_mode = true;
+	}
+
+	// Call other init function
+	init(dependent_variable_name, memory_mode, data, mtry, output_prefix, num_trees, seed, num_threads, importance_mode,
+		min_node_size, status_variable_name, prediction_mode, sample_with_replacement, unordered_variable_names,
+		memory_saving_splitting, splitrule, predict_all, sample_fraction, alpha, minprop, holdout, prediction_type);
+
+	if (prediction_mode) {
+		loadFromFile(load_forest_filename);
+	}
+	// Set variables to be always considered for splitting
+	if (!always_split_variable_names.empty()) {
+		setAlwaysSplitVariables(always_split_variable_names);
+	}
+
+	// TODO: Read 2d weights for tree-wise split select weights
+	// Load split select weights from file
+	if (!split_select_weights_file.empty()) {
+		std::vector<std::vector<double>> split_select_weights;
+		split_select_weights.resize(1);
+		loadDoubleVectorFromFile(split_select_weights[0], split_select_weights_file);
+		if (split_select_weights[0].size() != num_variables - 1) {
+			throw std::runtime_error("Number of split select weights is not equal to number of independent variables.");
+		}
+		setSplitWeightVector(split_select_weights);
+	}
+
+	// Load case weights from file
+	if (!case_weights_file.empty()) {
+		loadDoubleVectorFromFile(case_weights, case_weights_file);
+		if (case_weights.size() != num_samples - 1) {
+			throw std::runtime_error("Number of case weights is not equal to number of samples.");
+		}
+	}
+
+	// Sample from non-zero weights in holdout mode
+	if (holdout && !case_weights.empty()) {
+		size_t nonzero_weights = 0;
+		for (auto& weight : case_weights) {
+			if (weight > 0) {
+				++nonzero_weights;
+			}
+		}
+		this->sample_fraction = this->sample_fraction * ((double)nonzero_weights / (double)num_samples);
+	}
+
+	// Check if all catvars are coded in integers starting at 1
+	if (!unordered_variable_names.empty()) {
+		std::string error_message = checkUnorderedVariables(data, unordered_variable_names);
+		if (!error_message.empty()) {
+			throw std::runtime_error(error_message);
+		}
+	}
+}
 void Forest::initCpp(std::string dependent_variable_name, MemoryMode memory_mode, Data* input_data, uint mtry, //std::string input_file
     std::string output_prefix, uint num_trees, std::ostream* verbose_out, uint seed, uint num_threads,
     std::string load_forest_filename, ImportanceMode importance_mode, uint min_node_size,

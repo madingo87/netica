@@ -82,6 +82,7 @@
     <ClInclude Include="Forest.h" />
     <ClInclude Include="ForestClassification.h" />
     <ClInclude Include="globals.h" />
+    <ClInclude Include="RDF.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Stdafx.h" />
     <ClInclude Include="Tree.h" />

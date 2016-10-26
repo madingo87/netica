@@ -1,4 +1,4 @@
-﻿Der Buildvorgang wurde am 25.10.2016 19:10:19 gestartet.
+﻿Der Buildvorgang wurde am 26.10.2016 11:42:14 gestartet.
      1>Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\RDF\RDF.vcxproj" auf Knoten "2", Rebuild Ziel(e).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /AI"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\\" /AI"C:\Program Files (x86)\Windows Kits\8.1\References\CommonConfiguration\Neutral" /AI"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\Facades\\" /Zi /clr /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDLL /D _UNICODE /D UNICODE /EHa /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yc"stdafx.h" /Fp"Debug\RDF.pch" /Fo"Debug\\" /Fd"Debug\vc120.pdb" /TP /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\mscorlib.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Data.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Xml.dll" /analyze- /errorReport:prompt /clr:nostdlib Stdafx.cpp
@@ -30,10 +30,11 @@
          Code wird generiert...
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDLL /D _UNICODE /D UNICODE /EHa /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /TP /analyze- /errorReport:prompt Forest.cpp ForestClassification.cpp RDF.cpp
          Forest.cpp
-     1>Forest.cpp(880): warning C4244: 'Initialisierung': Konvertierung von 'double' in 'uint', möglicher Datenverlust
+     1>Forest.cpp(969): warning C4244: 'Initialisierung': Konvertierung von 'double' in 'uint', möglicher Datenverlust
          ForestClassification.cpp
      1>ForestClassification.cpp(74): warning C4244: 'Initialisierung': Konvertierung von 'double' in 'unsigned long', möglicher Datenverlust
          RDF.cpp
+     1>RDF.cpp(43): warning C4244: 'return': Konvertierung von 'double' in 'int', möglicher Datenverlust
          Code wird generiert...
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /Zi /clr /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDLL /D _UNICODE /D UNICODE /EHa /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /TP /analyze- /errorReport:prompt "C:\Users\Martin\AppData\Local\Temp\.NETFramework,Version=v4.5.AssemblyAttributes.cpp"
          .NETFramework,Version=v4.5.AssemblyAttributes.cpp
@@ -58,4 +59,4 @@
 
 Build erfolgreich.
 
-Verstrichene Zeit 00:00:07.60
+Verstrichene Zeit 00:00:07.67

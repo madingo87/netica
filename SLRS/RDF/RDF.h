@@ -2,14 +2,11 @@
 
 #pragma once
 
-#include <vector>
-#include <stdio.h>
-
-class RDFWrapperLib
+class RDF
 {
 	public:
-		static __declspec(dllexport) int predictRDF(const char*  input, const char*  forest_file);
+		//__declspec(dllexport) __stdcall RDF(const char*  input, const char*  forest_file);
+		static __declspec(dllexport) int __stdcall predictRDF(const char* input, const char* forest_file);
+		static __declspec(dllexport) void __stdcall createForest(const char* input_file);
 	private:
-		static double prediction(std::vector<std::vector<double>> predictions);
-
 };
