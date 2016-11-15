@@ -24,15 +24,15 @@ namespace SLRS
     /// </summary>
     public partial class PCDEval : Window
     {
-        string pcdPath = @"C:\temp\SLRS\pcd\";
-        string vfhPath = @"C:\temp\SLRS\vfh\";
-        string kfhPath = @"C:\temp\SLRS\kfh\";
-        string ctdPath = @"C:\temp\SLRS\hands\";
+        string pcdPath = @"C:\temp\PCD\pcd\";
+        string vfhPath = @"C:\temp\PCD\vfh\";
+        string kfhPath = @"C:\temp\PCD\kfh\";
+        string ctdPath = @"C:\temp\PCD\hands\";
 
         public PCDEval()
         {
             InitializeComponent();
-            lbl_file.Content = @"C:\temp\SLRS\";
+            lbl_file.Content = @"C:\temp\PCD\";
         }
 
         [DllImport("PCDWrapperLib.dll", CallingConvention = CallingConvention.Cdecl)]
@@ -243,7 +243,7 @@ namespace SLRS
             //Create Single File
             StreamReader srLeft = new StreamReader(ctdPath + "cntkDataLeft.ctd");
             StreamReader srRight = new StreamReader(ctdPath + "cntkDataRight.ctd");
-            StreamWriter sw = new StreamWriter(ctdPath + "cntkAllData.ctd", false);
+            StreamWriter sw = new StreamWriter(@"c:\temp\cntkAllData.ctd", false);
 
             while (!srLeft.EndOfStream)
             {

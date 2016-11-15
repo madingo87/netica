@@ -32,8 +32,8 @@
             </Viewbox>
             <Label Name="lbl_fpsDepth" Content="0" Grid.Row="1" HorizontalContentAlignment="Right" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="449,20,0,0" Background="White" Width="60"/>
             <Ellipse Name="ellipseSkinColor" Fill="#000" HorizontalAlignment="Left" Height="40" Margin="475,59,0,0" Grid.Row="1" Stroke="White" VerticalAlignment="Top" Width="40"/>
-            <CheckBox Content="Rec RDF Data" HorizontalAlignment="Left" Margin="433,140,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Name="chk_recRDF" IsChecked="false"/>
-            <CheckBox Content="Rec PCD Data" HorizontalAlignment="Left" Margin="433,170,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Name="chk_recPCD" IsChecked="True"/>
+            <CheckBox IsEnabled="False"  Content="Rec RDF Training Data" HorizontalAlignment="Left" Margin="433,129,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Name="chk_recRDFTrainData" IsChecked="false"/>
+            <CheckBox Content="Rec Depth Data" HorizontalAlignment="Left" Margin="433,170,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Name="chk_recDepth" IsChecked="True"/>
             <CheckBox Content="Use Skincolor Detection" HorizontalAlignment="Left" Margin="433,110,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Name="chk_skin" IsChecked="false"/>
         </Grid>
 
@@ -53,7 +53,7 @@
             <Button Grid.Row="1" Name="btn_record" Margin="30" Content="Begin Record" FontSize="25px" Click="btn_record_click" Grid.Column="1"/>
 
             <Label Grid.Row="2" Content="{Binding StatusText}" FontSize="25px" FontWeight="Bold" Grid.Column="1" Margin="20" />
-            <RadioButton Content="Angle" HorizontalAlignment="Left" Margin="91,229,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Name="radio_angle" GroupName="Mode"/>
+            <RadioButton IsEnabled="False" Content="Angle" HorizontalAlignment="Left" Margin="91,229,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Name="radio_angle" GroupName="Mode"/>
             <RadioButton Content="Distance" HorizontalAlignment="Left" Margin="250,229,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Name="radio_distance" GroupName="Mode" IsChecked="True"/>
         </Grid>
     </Grid>

@@ -50,10 +50,10 @@ namespace SLRS
             pcdEval.Show();
         }
 
-        private void btn_live_Click(object sender, RoutedEventArgs e)
+        private void btn_rdf_Click(object sender, RoutedEventArgs e)
         {
-            LiveWindow lw = new LiveWindow();
-            lw.Show();
+            RDFManager rdf = new RDFManager();
+            rdf.Show();
         }
 
         

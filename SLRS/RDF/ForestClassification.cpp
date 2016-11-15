@@ -211,26 +211,26 @@ void ForestClassification::writeConfusionFile() {
   outfile << "Overall OOB prediction error (Fraction missclassified): " << overall_prediction_error << std::endl;
   outfile << std::endl;
   outfile << "Class specific prediction errors:" << std::endl;
-  outfile << "           ";
+  outfile << "           \t";
   for (auto& class_value : class_values) {
-    outfile << "     " << class_value;
+    outfile << "     \t" << class_value;
   }
   outfile << std::endl;
   for (auto& predicted_value : class_values) {
-    outfile << "predicted " << predicted_value << "     ";
+    outfile << "predicted " << predicted_value << "     \t";
     for (auto& real_value : class_values) {
       size_t value = classification_table[std::make_pair(real_value, predicted_value)];
       outfile << value;
       if (value < 10) {
-        outfile << "     ";
+        outfile << "     \t";
       } else if (value < 100) {
-        outfile << "    ";
+        outfile << "    \t";
       } else if (value < 1000) {
-        outfile << "   ";
+        outfile << "   \t";
       } else if (value < 10000) {
-        outfile << "  ";
+        outfile << "  \t";
       } else if (value < 100000) {
-        outfile << " ";
+        outfile << " \t";
       }
     }
     outfile << std::endl;

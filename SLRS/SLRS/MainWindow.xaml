@@ -9,6 +9,6 @@
         <Button Name="btn_LRA" Content="LRA / Konverter"    Click="btn_lra"         HorizontalAlignment="Left" VerticalAlignment="Top"          Margin="20,100,0,0" Width="180" Height="60"  />
         <Button Name="btn_graph" Content="Errorgraph"   Click="btn_graph_click"     HorizontalAlignment="Left" VerticalAlignment="Top"          Margin="240,100,0,0" Width="180" Height="60" />
         <Button Name="btn_pcl" Content="Evaluate PointCloud"   Click="btn_pcl_click" HorizontalAlignment="Left" VerticalAlignment="Top"         Margin="20,180,0,0" Width="180" Height="60" />
-        <Button Name="btn_live" Content="Live System"    Click="btn_live_Click" HorizontalAlignment="Left" VerticalAlignment="Top"             Margin="20,260,0,0" Width="400" Height="60"/>
+        <Button Name="btn_rdf"  IsEnabled="False" Content="RDF Manager"    Click="btn_rdf_Click" HorizontalAlignment="Left" VerticalAlignment="Top"             Margin="20,260,0,0" Width="180" Height="60"/>
     </Grid>
 </Window>

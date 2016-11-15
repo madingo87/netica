@@ -14,12 +14,10 @@ C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\bin\Debug
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\bin\Debug\MathNet.Numerics.xml
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\bin\Debug\Microsoft.Kinect.xml
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\SLRS.csprojResolveAssemblyReference.cache
-C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\Live\LiveWindow.baml
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\NNEvaluation\EvaluationWindow.baml
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\LRA\LRA.baml
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\MainWindow.baml
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\PCDEvaluation\PCDEval.baml
-C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\Live\LiveWindow.g.cs
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\NNEvaluation\EvaluationWindow.g.cs
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\NNEvaluation\Graph.g.cs
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\KinectApp\KinectApp.g.cs
@@ -36,3 +34,9 @@ C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\SLRS.csproj.GenerateResource.Cache
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\SLRS.exe
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\SLRS.pdb
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\RDF\RDFManager.baml
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\Debug\RDF\RDFManager.g.cs
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\bin\Debug\Emgu.CV.dll
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\bin\Debug\Emgu.Util.dll
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\bin\Debug\Emgu.CV.xml
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\bin\Debug\Emgu.Util.xml

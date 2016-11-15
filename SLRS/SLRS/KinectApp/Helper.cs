@@ -60,7 +60,7 @@ namespace SLRS
         #endregion
 
         static float constant = 1.0f / CameraParams.fx;
-        public static Point3D depthToPCD(int x, int y, float depthVal)
+        public static Point3D depthToPCD(float x, float y, float depthVal)
         {
             Point3D point = new Point3D();
             point.Z = 0.001f * depthVal; // 1.0f / (depthVal);	 	

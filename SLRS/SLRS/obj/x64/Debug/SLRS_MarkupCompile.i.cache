@@ -10,11 +10,11 @@ none
 false
 TRACE;DEBUG;WIN64
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\App.xaml
-7-1697008027
+7-1572154905
 
-16-242966377
-21-998440637
-Live\LiveWindow.xaml;NNEvaluation\EvaluationWindow.xaml;NNEvaluation\Graph.xaml;KinectApp\KinectApp.xaml;LRA\LRA.xaml;MainWindow.xaml;PCDEvaluation\PCDEval.xaml;
+16-2084355446
+28737343057
+NNEvaluation\EvaluationWindow.xaml;NNEvaluation\Graph.xaml;KinectApp\KinectApp.xaml;LRA\LRA.xaml;MainWindow.xaml;PCDEvaluation\PCDEval.xaml;RDF\RDFManager.xaml;
 
 False
 

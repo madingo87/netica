@@ -17,8 +17,13 @@ using System.Globalization;
 using System.IO;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using Microsoft.Kinect;
+
+using Emgu.CV;
+using Emgu.CV.Structure; 
+
 using System.Windows.Media.Media3D;
+using Microsoft.Kinect;
+using System.Drawing.Imaging;
 
 
 namespace SLRS
@@ -52,7 +57,6 @@ namespace SLRS
         private DrawingImage imageSource;
         private DrawingImage leftHandImage;
         private DrawingImage rightHandImage;
-        int[] offsets;
 
         private CameraSpacePoint leftHandPostition;
         private CameraSpacePoint rightHandPostition;
@@ -63,9 +67,9 @@ namespace SLRS
         private CoordinateMapper coordinateMapper = null;
         private Body[] bodies = null;
 
-        private StreamWriter swData = new StreamWriter(@"c:/temp/SLRS/handsTrainData.txt", true);
-        private StreamWriter depthData = new StreamWriter(@"c:/temp/SLRS/testData.txt", true);
-        StreamWriter rdfTrainData = new StreamWriter(@"c:/temp/SLRS/rdfTrainData.dat", false);
+        private StreamWriter distanceData = new StreamWriter(@"c:/temp/distanceTrainData.txt", true);
+        //private StreamWriter depthData; // = new StreamWriter(@"c:/temp/SLRS/depthData.txt", true);
+        private StreamWriter pcdData;
 
         private int sequenceID = 0; 
         private int gestureNumber = 0;
@@ -76,24 +80,8 @@ namespace SLRS
         private int maxTestData = 10;
         private int maxTrainData = 50;
 
-        [DllImport("RDF.dll")]
-        private unsafe static extern IntPtr initRDF(StringBuilder forest_file);
-
-        [DllImport("RDF.dll")]
-        private unsafe static extern int predictRDF(StringBuilder input, IntPtr Forest);
-
-        [DllImport("RDF.dll")]
-        private unsafe static extern void createForest(StringBuilder input_data);
-
-
         public KinectApp()
         {
-            IntPtr forest = initRDF(new StringBuilder(@"C:\temp\tree\ranger.forest"));
-
-            //createForest(new StringBuilder(@"C:\temp\tree\trainData.dat"));
-            int pred = predictRDF( new StringBuilder("0.06403509 0.06392294 0.06392294 0.06409131 0.06381119 0.06369983 0.06414763 0.06409131 0.06403509 0.06403509 0.06409131 0.06426056 0.06403509 0.06420404 0.06426056 0.06409131 0.0643739 0.06431718 0.06397896 0.06397896 0.06414763 0.06392294 0.06386702 0.06375546 1"),
-                        forest);
-
             this.kinectSensor = KinectSensor.GetDefault();
 
             this.depthFrameDescription = this.kinectSensor.DepthFrameSource.FrameDescription;
@@ -103,34 +91,6 @@ namespace SLRS
             this.depthBitmapRight = new WriteableBitmap(windowSize, windowSize, 96.0, 96.0, PixelFormats.Gray8, null);
 
             this.depthPixels = new byte[windowSize * windowSize];
-
-            //rdfTrainData.WriteLine("f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f13 f14 f15 f16 f17 f18 f19 f20 f21 f22 f23 f24 f25 f26 f27 f28 f29 f30 f31 f32 f33 f34 f35 f36 f37 f38 f39 f40 f41 f42 f43 f44 f45 f46 f47 f48 Class");
-            rdfTrainData.WriteLine("f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f13 f14 f15 f16 f17 f18 f19 f20 f21 f22 f23 f24 Class");
-            offsets = new int[24];
-            offsets[0] = -2;
-            offsets[1] = -4;
-            offsets[2] = -6;
-            offsets[3] = -(2 * depthFrameDescription.Width + 2);
-            offsets[4] = -(4 * depthFrameDescription.Width + 4);
-            offsets[5] = -(6 * depthFrameDescription.Width + 6);
-            offsets[6] = -(2 * depthFrameDescription.Width);
-            offsets[7] = -(4 * depthFrameDescription.Width);
-            offsets[8] = -(6 * depthFrameDescription.Width);
-            offsets[9] = -(2 * depthFrameDescription.Width - 2);
-            offsets[10] = -(4 * depthFrameDescription.Width - 4);
-            offsets[11] = -(6 * depthFrameDescription.Width - 6);
-            offsets[12] = 2;
-            offsets[13] = 4;
-            offsets[14] = 6;
-            offsets[15] = (2 * depthFrameDescription.Width + 2);
-            offsets[16] = (4 * depthFrameDescription.Width + 4);
-            offsets[17] = (6 * depthFrameDescription.Width + 6);
-            offsets[18] = (2 * depthFrameDescription.Width);
-            offsets[19] = (4 * depthFrameDescription.Width);
-            offsets[20] = (6 * depthFrameDescription.Width);
-            offsets[21] = (2 * depthFrameDescription.Width - 2);
-            offsets[22] = (4 * depthFrameDescription.Width - 4);
-            offsets[23] = (6 * depthFrameDescription.Width - 6); 
 
             this.colorFrameDescription = this.kinectSensor.ColorFrameSource.CreateFrameDescription(ColorImageFormat.Bgra);
             this.colorFrameReader = this.kinectSensor.ColorFrameSource.OpenReader();
@@ -228,9 +188,9 @@ namespace SLRS
 
                     if (sequenceID == maxTrainData)
                     {
-                        swData.Flush();
-                        swData.Close();
-                        swData = new StreamWriter(@"c:/temp/SLRS/handsTestData.txt", true);
+                        distanceData.Flush();
+                        distanceData.Close();
+                        distanceData = new StreamWriter(@"c:/temp/distanceTestData.txt", true);
                     }   
 
                     if (sequenceID == (maxTrainData + maxTestData))
@@ -240,9 +200,9 @@ namespace SLRS
                             sequenceID = 0;
                             gestureNumber++;
 
-                            swData.Flush();
-                            swData.Close();
-                            swData = new StreamWriter(@"c:/temp/SLRS/handsTrainData.txt", true);
+                            distanceData.Flush();
+                            distanceData.Close();
+                            distanceData = new StreamWriter(@"c:/temp/distanceTrainData.txt", true);
                         }
                         else
                         {
@@ -297,16 +257,10 @@ namespace SLRS
         {
             try
             {
-                if (rdfTrainData != null)
+                if (distanceData != null)
                 {
-                    rdfTrainData.Flush();
-                    rdfTrainData.Close();
-                }
-
-                if (swData != null)
-                {
-                    swData.Flush();
-                    swData.Close();
+                    distanceData.Flush();
+                    distanceData.Close();
                 }
             }
             catch (IOException ex)
@@ -385,7 +339,6 @@ namespace SLRS
                 this.ellipseSkinColor.Fill = new System.Windows.Media.SolidColorBrush(color);
             }
         }
-        int colorThreshold = 50;
         private unsafe bool isSkinColor(ColorSpacePoint point)
         {
             int offset = ((colorFrameDescription.Width * ((int)point.Y) + ((int)point.X)) * BytesPerPixel);
@@ -403,7 +356,7 @@ namespace SLRS
                 //var bri = color.GetBrightness(); //0-100
 
                 //if (hue > skinColorHue - colorThreshold && hue < skinColorHue + colorThreshold)
-                if (hue > 290 && hue < 345)
+                if (hue > 280 && hue < 350)
                     return true;
 
                 return false;
@@ -483,9 +436,9 @@ namespace SLRS
 
         DepthSpacePoint pl_old;
         DepthSpacePoint pr_old;
-        private int windowSize = 70;
+        private int windowSize = int.Parse(Properties.Resources.DepthHandFrame);
         private int depthFrameSelector = 0;
-        private int depthFrameThreshold = 8; 
+        private int depthFrameThreshold = 5; 
         private int depthFrameIndexL = 0;
         private int depthFrameIndexR = 0;
         private void depthFrameReader_FrameArrived(object sender, DepthFrameArrivedEventArgs e)
@@ -551,28 +504,27 @@ namespace SLRS
                 }
             }
         }
-        // Note: In order to see the full range of depth (including the less reliable far field depth) we are setting maxDepth (ushort.MaxValue) to the extreme potential depth threshold
-        // If you wish to filter by reliable depth distance, use:  depthFrame.DepthMaxReliableDistance
+
+        ushort[] currentFrame;
+        ushort[] previousFrame = new ushort[int.Parse(Properties.Resources.DepthHandFrame) * int.Parse(Properties.Resources.DepthHandFrame)];
         private unsafe void ProcessDepthFrameData(IntPtr depthFrameData, int frameSize, ushort minDepth, ushort maxDepth, DepthSpacePoint p, bool rec, bool left)
         {
             ushort* frameData = (ushort*)depthFrameData; // depth frame data is a 16 bit value
             ushort initDepth = frameData[depthFrameDescription.Width * ((int)p.Y) + ((int)p.X)];
 
-            if (rec && (bool)chk_recPCD.IsChecked)
+            if (rec && (bool)chk_recDepth.IsChecked)
             {
                 string file = "";
-
                 //FileCode: [left/right]_[gestureNumber]_[sequence]_[sequneceIndex]
-                if (left)
-                    file = String.Format("c:/temp/SLRS/pcd/dd_left_{0:00}_{1:00}_{2:00}.pcd", gestureNumber, sequenceID, depthFrameIndexL++);
-                else
-                    file = String.Format("c:/temp/SLRS/pcd/dd_right_{0:00}_{1:00}_{2:00}.pcd", gestureNumber, sequenceID, depthFrameIndexR++);
+                if (left)   file = String.Format("c:/temp/PCD/pcd/dd_left_{0:00}_{1:00}_{2:00}.pcd", gestureNumber, sequenceID, depthFrameIndexL++);
+                else        file = String.Format("c:/temp/PCD/pcd/dd_right_{0:00}_{1:00}_{2:00}.pcd", gestureNumber, sequenceID, depthFrameIndexR++);
 
-                depthData = new StreamWriter(file, true);
+                pcdData = new StreamWriter(file, false);
             }
 
-            int distanceFactor = 120;
+            int distanceFactor = 80;
             int index = 0;
+            currentFrame = new ushort[windowSize * windowSize];
 
             for (int y = -frameSize; y < frameSize; y++)
             {
@@ -583,67 +535,44 @@ namespace SLRS
                     ushort depth = frameData[offset];
 
                     bool isNearPalm = depth < initDepth + distanceFactor && depth > initDepth - distanceFactor;
-                    bool isSkin = true;
-                    bool skipSegmentation = false;
 
-                    // For Skincolor selection
-                    if ((bool)chk_skin.IsChecked)
-                    {
-                        DepthSpacePoint depthPoint = new DepthSpacePoint() { X = p.X + x, Y = p.Y + y };
-                        ColorSpacePoint colorPoint = coordinateMapper.MapDepthPointToColorSpace(depthPoint, depth);
-                        isSkin = isSkinColor(colorPoint);
-                    }
-
-                    //var isHand = predictRDF(
-                    //    new StringBuilder("0.06403509 0.06392294 0.06392294 0.06409131 0.06381119 0.06369983 0.06414763 0.06409131 0.06403509 0.06403509 0.06409131 0.06426056 0.06403509 0.06420404 0.06426056 0.06409131 0.0643739 0.06431718 0.06397896 0.06397896 0.06414763 0.06392294 0.06386702 0.06375546 1"),
-                    //    new StringBuilder(@"C:\temp\ranger.forest"));
-
-                    if (rec)
-                    {
-                        // Record RDF
-                        if ((bool)chk_recRDF.IsChecked) 
-                        {
-                            string featStr = "";
-                            foreach (var o in offsets)
-                            {
-                                ushort thisDepth = frameData[offset + o] != 0 ? frameData[offset + o] : depth;
-                                if (thisDepth == 0) skipSegmentation = true;
-                                float entry = (float)(depth - initDepth) / (float)thisDepth;
-                                featStr += (entry.ToString().Replace(',', '.') + " ");
-                                if (featStr.Contains("0 0 0 0 0 0 0 0") && !isSkin)
-                                    skipSegmentation = true;
-                            }
-                            if (!skipSegmentation) rdfTrainData.WriteLine(String.Format("{0}{1}", featStr, isSkin ? "1" : "0"));
-                        }
-
-                        // Record PointCloud
-                        if ((bool)chk_recPCD.IsChecked)
-                        {
-                            var point = Helper.depthToPCD((int)p.X + x, (int)p.Y + y, depth);
-                            depthData.WriteLine(String.Format("{0} {1} {2}", point.X.ToString().Replace(',', '.'), point.Y.ToString().Replace(',', '.'), point.Z.ToString().Replace(',', '.')));
-                        }
-                    }
-
-                    // Handle UI
-                    // if this depth is near to the initpoint (handpalm) //if ...and adapt depth for visualization in UI
-                    depth = isSkin && isNearPalm ? (ushort)(depth + ((depth - initDepth) * 10)) : (ushort)0; 
+                    depth = isNearPalm ? (ushort)(depth + (depth - initDepth) * 10) : (ushort)0;
+                    currentFrame[index] = (ushort)(depth / MapDepthToByte);//depth;
                     depthPixels[index++] = (byte)(depth / MapDepthToByte);
+
+                    //  ==== Record DepthData for nextStep (Segmentation)
+                    if ((bool)chk_recDepth.IsChecked && rec)
+                    {
+                        if (isNearPalm)
+                        {
+                            var point = Helper.depthToPCD(p.X + (float)x, p.Y + (float)y, depth);
+                            pcdData.WriteLine(String.Format("{0} {1} {2}", point.X.ToString().Replace(',', '.'), point.Y.ToString().Replace(',', '.'), point.Z.ToString().Replace(',', '.')));
+                            pcdData.Flush();
+                        }
+                    }
                 }
             }
 
-            if (rec)
+            if ((bool)chk_recDepth.IsChecked && rec)
+                pcdData.Close();
+
+            //============== OF ========
+            Image<Gray, byte> prevImg = new Image<Gray, byte>(arrayToBitmap(previousFrame, frameSize * 2, frameSize * 2));
+            Image<Gray, byte> currentImg = new Image<Gray, byte>(arrayToBitmap(currentFrame, frameSize * 2, frameSize * 2));
+            Image<Gray, float> flowX = new Image<Gray, float>(new System.Drawing.Size(frameSize * 2, frameSize * 2));
+            Image<Gray, float> flowY = new Image<Gray, float>(new System.Drawing.Size(frameSize * 2, frameSize * 2));
+            var winSize = new System.Drawing.Size(5, 5);
+            try
             {
-                if ((bool)chk_recPCD.IsChecked)
-                {
-                    depthData.Flush();
-                    depthData.Close();
-                }
-                if ((bool)chk_recRDF.IsChecked)
-                {
-                    rdfTrainData.Flush();
-                }
+                OpticalFlow.LK(prevImg, currentImg, winSize, flowX, flowY);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
 
+            //============== OF ========
+            previousFrame = currentFrame;
         }
         #endregion //*******************
 
@@ -780,8 +709,8 @@ namespace SLRS
                 entry += String.Format(" {0:0.000000}", allData[i++]);
 
             entry = entry.Replace(',', '.');
-            swData.WriteLine(entry);
-            swData.Flush();            
+            distanceData.WriteLine(entry);
+            distanceData.Flush();            
         }
 
         int resizer = 10;
@@ -885,6 +814,19 @@ namespace SLRS
                 drawingContext.DrawLine(orientationPen, p3, p5);
             }
             
+        }
+
+        private Bitmap arrayToBitmap(ushort[] array, int height, int width)
+        {
+            //var bytes = (from value in array select (byte)(value/MapDepthToByte)).ToArray();
+            var bytes = (from value in array select (byte)value).ToArray();
+            Bitmap bmp = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format8bppIndexed);
+            BitmapData bmpData = bmp.LockBits(new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.WriteOnly, bmp.PixelFormat);
+            Marshal.Copy(bytes, 0, bmpData.Scan0, bytes.Length);
+            bmp.UnlockBits(bmpData);
+            //bmp.Save(@"C:\temp\TestImage.bmp", ImageFormat.Bmp);
+
+            return bmp;
         }
     }
 }
