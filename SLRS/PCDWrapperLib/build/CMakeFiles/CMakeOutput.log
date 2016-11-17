@@ -7,10 +7,10 @@ Id flags:
 The output was:
 0
 Microsoft (R)-Buildmodul, Version 12.0.40629.0
-[Microsoft .NET Framework, Version 4.0.30319.34209]
+[Microsoft .NET Framework, Version 4.0.30319.42000]
 Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
 
-Der Buildvorgang wurde am 19.09.2016 17:28:38 gestartet.
+Der Buildvorgang wurde am 17.11.2016 21:23:00 gestartet.
 Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\3.6.1\CompilerIdC\CompilerIdC.vcxproj" auf Knoten "1" (Standardziele).
 PrepareForBuild:
   Das Verzeichnis "Debug\" wird erstellt.
@@ -36,7 +36,7 @@ Der Buildvorgang wurde erfolgreich ausgefÅhrt.
     0 Warnung(en)
     0 Fehler
 
-Verstrichene Zeit 00:00:00.42
+Verstrichene Zeit 00:00:06.76
 
 
 Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.exe"
@@ -46,17 +46,17 @@ Compilation of the C compiler identification source "CMakeCCompilerId.c" produce
 The C compiler identification is MSVC, found in "C:/Users/Martin/Documents/Visual Studio 2013/Projects/netica/SLRS/PCDWrapperLib/build/CMakeFiles/3.6.1/CompilerIdC/CompilerIdC.exe"
 
 Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
-Compiler: C:/Program Files (x86)/Microsoft Visual Studio 12.0/VC/bin/amd64/cl.exe 
+Compiler:  
 Build flags: 
 Id flags: 
 
 The output was:
 0
 Microsoft (R)-Buildmodul, Version 12.0.40629.0
-[Microsoft .NET Framework, Version 4.0.30319.34209]
+[Microsoft .NET Framework, Version 4.0.30319.42000]
 Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
 
-Der Buildvorgang wurde am 19.09.2016 17:28:39 gestartet.
+Der Buildvorgang wurde am 17.11.2016 21:23:07 gestartet.
 Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\3.6.1\CompilerIdCXX\CompilerIdCXX.vcxproj" auf Knoten "1" (Standardziele).
 PrepareForBuild:
   Das Verzeichnis "Debug\" wird erstellt.
@@ -82,7 +82,7 @@ Der Buildvorgang wurde erfolgreich ausgefÅhrt.
     0 Warnung(en)
     0 Fehler
 
-Verstrichene Zeit 00:00:00.45
+Verstrichene Zeit 00:00:00.62
 
 
 Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.exe"
@@ -94,157 +94,157 @@ The CXX compiler identification is MSVC, found in "C:/Users/Martin/Documents/Vis
 Determining if the C compiler works passed with the following output:
 Change Dir: C:/Users/Martin/Documents/Visual Studio 2013/Projects/netica/SLRS/PCDWrapperLib/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"C:/Program Files (x86)/MSBuild/12.0/bin/MSBuild.exe" "cmTC_54961.vcxproj" "/p:Configuration=Debug" "/p:VisualStudioVersion=12.0"
+Run Build Command:"C:/Program Files (x86)/MSBuild/12.0/bin/MSBuild.exe" "cmTC_7e81c.vcxproj" "/p:Configuration=Debug" "/p:VisualStudioVersion=12.0"
 Microsoft (R)-Buildmodul, Version 12.0.40629.0
-[Microsoft .NET Framework, Version 4.0.30319.34209]
+[Microsoft .NET Framework, Version 4.0.30319.42000]
 Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
 
-Der Buildvorgang wurde am 19.09.2016 17:28:40 gestartet.
-Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_54961.vcxproj" auf Knoten "1" (Standardziele).
+Der Buildvorgang wurde am 17.11.2016 21:23:08 gestartet.
+Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_7e81c.vcxproj" auf Knoten "1" (Standardziele).
 PrepareForBuild:
-  Das Verzeichnis "cmTC_54961.dir\Debug\" wird erstellt.
+  Das Verzeichnis "cmTC_7e81c.dir\Debug\" wird erstellt.
   Das Verzeichnis "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\Debug\" wird erstellt.
-  Das Verzeichnis "cmTC_54961.dir\Debug\cmTC_54961.tlog\" wird erstellt.
+  Das Verzeichnis "cmTC_7e81c.dir\Debug\cmTC_7e81c.tlog\" wird erstellt.
 InitializeBuildStatus:
-  "cmTC_54961.dir\Debug\cmTC_54961.tlog\unsuccessfulbuild" wird erstellt, da "AlwaysCreate" angegeben wurde.
+  "cmTC_7e81c.dir\Debug\cmTC_7e81c.tlog\unsuccessfulbuild" wird erstellt, da "AlwaysCreate" angegeben wurde.
 ClCompile:
-  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTC_54961.dir\Debug\\" /Fd"cmTC_54961.dir\Debug\vc120.pdb" /Gd /TC /errorReport:queue "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\testCCompiler.c"
+  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTC_7e81c.dir\Debug\\" /Fd"cmTC_7e81c.dir\Debug\vc120.pdb" /Gd /TC /errorReport:queue "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\testCCompiler.c"
   Microsoft (R) C/C++-Optimierungscompiler Version 18.00.40629 fÅr x64
   Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
   
-  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTC_54961.dir\Debug\\" /Fd"cmTC_54961.dir\Debug\vc120.pdb" /Gd /TC /errorReport:queue "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\testCCompiler.c"
+  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTC_7e81c.dir\Debug\\" /Fd"cmTC_7e81c.dir\Debug\vc120.pdb" /Gd /TC /errorReport:queue "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\testCCompiler.c"
   
   testCCompiler.c
 Link:
-  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:QUEUE /OUT:"C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\Debug\cmTC_54961.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/Martin/Documents/Visual Studio 2013/Projects/netica/SLRS/PCDWrapperLib/build/CMakeFiles/CMakeTmp/Debug/cmTC_54961.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/Martin/Documents/Visual Studio 2013/Projects/netica/SLRS/PCDWrapperLib/build/CMakeFiles/CMakeTmp/Debug/cmTC_54961.lib" /MACHINE:X64  /machine:x64 cmTC_54961.dir\Debug\testCCompiler.obj
-  cmTC_54961.vcxproj -> C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\Debug\cmTC_54961.exe
+  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:QUEUE /OUT:"C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\Debug\cmTC_7e81c.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/Martin/Documents/Visual Studio 2013/Projects/netica/SLRS/PCDWrapperLib/build/CMakeFiles/CMakeTmp/Debug/cmTC_7e81c.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/Martin/Documents/Visual Studio 2013/Projects/netica/SLRS/PCDWrapperLib/build/CMakeFiles/CMakeTmp/Debug/cmTC_7e81c.lib" /MACHINE:X64  /machine:x64 cmTC_7e81c.dir\Debug\testCCompiler.obj
+  cmTC_7e81c.vcxproj -> C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\Debug\cmTC_7e81c.exe
 FinalizeBuildStatus:
-  Die Datei "cmTC_54961.dir\Debug\cmTC_54961.tlog\unsuccessfulbuild" wird gelîscht.
-  Aktualisieren des Timestamps von "cmTC_54961.dir\Debug\cmTC_54961.tlog\cmTC_54961.lastbuildstate".
-Die Erstellung von Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_54961.vcxproj" ist abgeschlossen (Standardziele).
+  Die Datei "cmTC_7e81c.dir\Debug\cmTC_7e81c.tlog\unsuccessfulbuild" wird gelîscht.
+  Aktualisieren des Timestamps von "cmTC_7e81c.dir\Debug\cmTC_7e81c.tlog\cmTC_7e81c.lastbuildstate".
+Die Erstellung von Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_7e81c.vcxproj" ist abgeschlossen (Standardziele).
 
 Der Buildvorgang wurde erfolgreich ausgefÅhrt.
     0 Warnung(en)
     0 Fehler
 
-Verstrichene Zeit 00:00:00.72
+Verstrichene Zeit 00:00:00.75
 
 
 Detecting C compiler ABI info compiled with the following output:
 Change Dir: C:/Users/Martin/Documents/Visual Studio 2013/Projects/netica/SLRS/PCDWrapperLib/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"C:/Program Files (x86)/MSBuild/12.0/bin/MSBuild.exe" "cmTC_181d0.vcxproj" "/p:Configuration=Debug" "/p:VisualStudioVersion=12.0"
+Run Build Command:"C:/Program Files (x86)/MSBuild/12.0/bin/MSBuild.exe" "cmTC_2ea2d.vcxproj" "/p:Configuration=Debug" "/p:VisualStudioVersion=12.0"
 Microsoft (R)-Buildmodul, Version 12.0.40629.0
-[Microsoft .NET Framework, Version 4.0.30319.34209]
+[Microsoft .NET Framework, Version 4.0.30319.42000]
 Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
 
-Der Buildvorgang wurde am 19.09.2016 17:28:40 gestartet.
-Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_181d0.vcxproj" auf Knoten "1" (Standardziele).
+Der Buildvorgang wurde am 17.11.2016 21:23:09 gestartet.
+Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_2ea2d.vcxproj" auf Knoten "1" (Standardziele).
 PrepareForBuild:
-  Das Verzeichnis "cmTC_181d0.dir\Debug\" wird erstellt.
+  Das Verzeichnis "cmTC_2ea2d.dir\Debug\" wird erstellt.
   Das Verzeichnis "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\Debug\" wird erstellt.
-  Das Verzeichnis "cmTC_181d0.dir\Debug\cmTC_181d0.tlog\" wird erstellt.
+  Das Verzeichnis "cmTC_2ea2d.dir\Debug\cmTC_2ea2d.tlog\" wird erstellt.
 InitializeBuildStatus:
-  "cmTC_181d0.dir\Debug\cmTC_181d0.tlog\unsuccessfulbuild" wird erstellt, da "AlwaysCreate" angegeben wurde.
+  "cmTC_2ea2d.dir\Debug\cmTC_2ea2d.tlog\unsuccessfulbuild" wird erstellt, da "AlwaysCreate" angegeben wurde.
 ClCompile:
-  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTC_181d0.dir\Debug\\" /Fd"cmTC_181d0.dir\Debug\vc120.pdb" /Gd /TC /errorReport:queue "C:\Program Files\CMake\share\cmake-3.6\Modules\CMakeCCompilerABI.c"
+  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTC_2ea2d.dir\Debug\\" /Fd"cmTC_2ea2d.dir\Debug\vc120.pdb" /Gd /TC /errorReport:queue "C:\Program Files\CMake\share\cmake-3.6\Modules\CMakeCCompilerABI.c"
   Microsoft (R) C/C++-Optimierungscompiler Version 18.00.40629 fÅr x64
   Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
   
-  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTC_181d0.dir\Debug\\" /Fd"cmTC_181d0.dir\Debug\vc120.pdb" /Gd /TC /errorReport:queue "C:\Program Files\CMake\share\cmake-3.6\Modules\CMakeCCompilerABI.c"
+  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTC_2ea2d.dir\Debug\\" /Fd"cmTC_2ea2d.dir\Debug\vc120.pdb" /Gd /TC /errorReport:queue "C:\Program Files\CMake\share\cmake-3.6\Modules\CMakeCCompilerABI.c"
   
   CMakeCCompilerABI.c
 Link:
-  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:QUEUE /OUT:"C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\Debug\cmTC_181d0.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/Martin/Documents/Visual Studio 2013/Projects/netica/SLRS/PCDWrapperLib/build/CMakeFiles/CMakeTmp/Debug/cmTC_181d0.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/Martin/Documents/Visual Studio 2013/Projects/netica/SLRS/PCDWrapperLib/build/CMakeFiles/CMakeTmp/Debug/cmTC_181d0.lib" /MACHINE:X64  /machine:x64 cmTC_181d0.dir\Debug\CMakeCCompilerABI.obj
-  cmTC_181d0.vcxproj -> C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\Debug\cmTC_181d0.exe
+  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:QUEUE /OUT:"C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\Debug\cmTC_2ea2d.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/Martin/Documents/Visual Studio 2013/Projects/netica/SLRS/PCDWrapperLib/build/CMakeFiles/CMakeTmp/Debug/cmTC_2ea2d.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/Martin/Documents/Visual Studio 2013/Projects/netica/SLRS/PCDWrapperLib/build/CMakeFiles/CMakeTmp/Debug/cmTC_2ea2d.lib" /MACHINE:X64  /machine:x64 cmTC_2ea2d.dir\Debug\CMakeCCompilerABI.obj
+  cmTC_2ea2d.vcxproj -> C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\Debug\cmTC_2ea2d.exe
 FinalizeBuildStatus:
-  Die Datei "cmTC_181d0.dir\Debug\cmTC_181d0.tlog\unsuccessfulbuild" wird gelîscht.
-  Aktualisieren des Timestamps von "cmTC_181d0.dir\Debug\cmTC_181d0.tlog\cmTC_181d0.lastbuildstate".
-Die Erstellung von Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_181d0.vcxproj" ist abgeschlossen (Standardziele).
+  Die Datei "cmTC_2ea2d.dir\Debug\cmTC_2ea2d.tlog\unsuccessfulbuild" wird gelîscht.
+  Aktualisieren des Timestamps von "cmTC_2ea2d.dir\Debug\cmTC_2ea2d.tlog\cmTC_2ea2d.lastbuildstate".
+Die Erstellung von Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_2ea2d.vcxproj" ist abgeschlossen (Standardziele).
 
 Der Buildvorgang wurde erfolgreich ausgefÅhrt.
     0 Warnung(en)
     0 Fehler
 
-Verstrichene Zeit 00:00:00.55
+Verstrichene Zeit 00:00:00.65
 
 
 Determining if the CXX compiler works passed with the following output:
 Change Dir: C:/Users/Martin/Documents/Visual Studio 2013/Projects/netica/SLRS/PCDWrapperLib/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"C:/Program Files (x86)/MSBuild/12.0/bin/MSBuild.exe" "cmTC_86472.vcxproj" "/p:Configuration=Debug" "/p:VisualStudioVersion=12.0"
+Run Build Command:"C:/Program Files (x86)/MSBuild/12.0/bin/MSBuild.exe" "cmTC_e735f.vcxproj" "/p:Configuration=Debug" "/p:VisualStudioVersion=12.0"
 Microsoft (R)-Buildmodul, Version 12.0.40629.0
-[Microsoft .NET Framework, Version 4.0.30319.34209]
+[Microsoft .NET Framework, Version 4.0.30319.42000]
 Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
 
-Der Buildvorgang wurde am 19.09.2016 17:28:41 gestartet.
-Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_86472.vcxproj" auf Knoten "1" (Standardziele).
+Der Buildvorgang wurde am 17.11.2016 21:23:11 gestartet.
+Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_e735f.vcxproj" auf Knoten "1" (Standardziele).
 PrepareForBuild:
-  Das Verzeichnis "cmTC_86472.dir\Debug\" wird erstellt.
+  Das Verzeichnis "cmTC_e735f.dir\Debug\" wird erstellt.
   Das Verzeichnis "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\Debug\" wird erstellt.
-  Das Verzeichnis "cmTC_86472.dir\Debug\cmTC_86472.tlog\" wird erstellt.
+  Das Verzeichnis "cmTC_e735f.dir\Debug\cmTC_e735f.tlog\" wird erstellt.
 InitializeBuildStatus:
-  "cmTC_86472.dir\Debug\cmTC_86472.tlog\unsuccessfulbuild" wird erstellt, da "AlwaysCreate" angegeben wurde.
+  "cmTC_e735f.dir\Debug\cmTC_e735f.tlog\unsuccessfulbuild" wird erstellt, da "AlwaysCreate" angegeben wurde.
 ClCompile:
-  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /GR /Fo"cmTC_86472.dir\Debug\\" /Fd"cmTC_86472.dir\Debug\vc120.pdb" /Gd /TP /errorReport:queue "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\testCXXCompiler.cxx"
+  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /GR /Fo"cmTC_e735f.dir\Debug\\" /Fd"cmTC_e735f.dir\Debug\vc120.pdb" /Gd /TP /errorReport:queue "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\testCXXCompiler.cxx"
   Microsoft (R) C/C++-Optimierungscompiler Version 18.00.40629 fÅr x64
   Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
   
-  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /GR /Fo"cmTC_86472.dir\Debug\\" /Fd"cmTC_86472.dir\Debug\vc120.pdb" /Gd /TP /errorReport:queue "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\testCXXCompiler.cxx"
+  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /GR /Fo"cmTC_e735f.dir\Debug\\" /Fd"cmTC_e735f.dir\Debug\vc120.pdb" /Gd /TP /errorReport:queue "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\testCXXCompiler.cxx"
   
   testCXXCompiler.cxx
 Link:
-  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:QUEUE /OUT:"C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\Debug\cmTC_86472.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/Martin/Documents/Visual Studio 2013/Projects/netica/SLRS/PCDWrapperLib/build/CMakeFiles/CMakeTmp/Debug/cmTC_86472.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/Martin/Documents/Visual Studio 2013/Projects/netica/SLRS/PCDWrapperLib/build/CMakeFiles/CMakeTmp/Debug/cmTC_86472.lib" /MACHINE:X64  /machine:x64 cmTC_86472.dir\Debug\testCXXCompiler.obj
-  cmTC_86472.vcxproj -> C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\Debug\cmTC_86472.exe
+  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:QUEUE /OUT:"C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\Debug\cmTC_e735f.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/Martin/Documents/Visual Studio 2013/Projects/netica/SLRS/PCDWrapperLib/build/CMakeFiles/CMakeTmp/Debug/cmTC_e735f.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/Martin/Documents/Visual Studio 2013/Projects/netica/SLRS/PCDWrapperLib/build/CMakeFiles/CMakeTmp/Debug/cmTC_e735f.lib" /MACHINE:X64  /machine:x64 cmTC_e735f.dir\Debug\testCXXCompiler.obj
+  cmTC_e735f.vcxproj -> C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\Debug\cmTC_e735f.exe
 FinalizeBuildStatus:
-  Die Datei "cmTC_86472.dir\Debug\cmTC_86472.tlog\unsuccessfulbuild" wird gelîscht.
-  Aktualisieren des Timestamps von "cmTC_86472.dir\Debug\cmTC_86472.tlog\cmTC_86472.lastbuildstate".
-Die Erstellung von Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_86472.vcxproj" ist abgeschlossen (Standardziele).
+  Die Datei "cmTC_e735f.dir\Debug\cmTC_e735f.tlog\unsuccessfulbuild" wird gelîscht.
+  Aktualisieren des Timestamps von "cmTC_e735f.dir\Debug\cmTC_e735f.tlog\cmTC_e735f.lastbuildstate".
+Die Erstellung von Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_e735f.vcxproj" ist abgeschlossen (Standardziele).
 
 Der Buildvorgang wurde erfolgreich ausgefÅhrt.
     0 Warnung(en)
     0 Fehler
 
-Verstrichene Zeit 00:00:00.64
+Verstrichene Zeit 00:00:00.60
 
 
 Detecting CXX compiler ABI info compiled with the following output:
 Change Dir: C:/Users/Martin/Documents/Visual Studio 2013/Projects/netica/SLRS/PCDWrapperLib/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"C:/Program Files (x86)/MSBuild/12.0/bin/MSBuild.exe" "cmTC_76a15.vcxproj" "/p:Configuration=Debug" "/p:VisualStudioVersion=12.0"
+Run Build Command:"C:/Program Files (x86)/MSBuild/12.0/bin/MSBuild.exe" "cmTC_83dd5.vcxproj" "/p:Configuration=Debug" "/p:VisualStudioVersion=12.0"
 Microsoft (R)-Buildmodul, Version 12.0.40629.0
-[Microsoft .NET Framework, Version 4.0.30319.34209]
+[Microsoft .NET Framework, Version 4.0.30319.42000]
 Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
 
-Der Buildvorgang wurde am 19.09.2016 17:28:42 gestartet.
-Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_76a15.vcxproj" auf Knoten "1" (Standardziele).
+Der Buildvorgang wurde am 17.11.2016 21:23:11 gestartet.
+Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_83dd5.vcxproj" auf Knoten "1" (Standardziele).
 PrepareForBuild:
-  Das Verzeichnis "cmTC_76a15.dir\Debug\" wird erstellt.
+  Das Verzeichnis "cmTC_83dd5.dir\Debug\" wird erstellt.
   Das Verzeichnis "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\Debug\" wird erstellt.
-  Das Verzeichnis "cmTC_76a15.dir\Debug\cmTC_76a15.tlog\" wird erstellt.
+  Das Verzeichnis "cmTC_83dd5.dir\Debug\cmTC_83dd5.tlog\" wird erstellt.
 InitializeBuildStatus:
-  "cmTC_76a15.dir\Debug\cmTC_76a15.tlog\unsuccessfulbuild" wird erstellt, da "AlwaysCreate" angegeben wurde.
+  "cmTC_83dd5.dir\Debug\cmTC_83dd5.tlog\unsuccessfulbuild" wird erstellt, da "AlwaysCreate" angegeben wurde.
 ClCompile:
-  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /GR /Fo"cmTC_76a15.dir\Debug\\" /Fd"cmTC_76a15.dir\Debug\vc120.pdb" /Gd /TP /errorReport:queue "C:\Program Files\CMake\share\cmake-3.6\Modules\CMakeCXXCompilerABI.cpp"
+  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /GR /Fo"cmTC_83dd5.dir\Debug\\" /Fd"cmTC_83dd5.dir\Debug\vc120.pdb" /Gd /TP /errorReport:queue "C:\Program Files\CMake\share\cmake-3.6\Modules\CMakeCXXCompilerABI.cpp"
   Microsoft (R) C/C++-Optimierungscompiler Version 18.00.40629 fÅr x64
   Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
   
-  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /GR /Fo"cmTC_76a15.dir\Debug\\" /Fd"cmTC_76a15.dir\Debug\vc120.pdb" /Gd /TP /errorReport:queue "C:\Program Files\CMake\share\cmake-3.6\Modules\CMakeCXXCompilerABI.cpp"
+  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /GR /Fo"cmTC_83dd5.dir\Debug\\" /Fd"cmTC_83dd5.dir\Debug\vc120.pdb" /Gd /TP /errorReport:queue "C:\Program Files\CMake\share\cmake-3.6\Modules\CMakeCXXCompilerABI.cpp"
   
   CMakeCXXCompilerABI.cpp
 Link:
-  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:QUEUE /OUT:"C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\Debug\cmTC_76a15.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/Martin/Documents/Visual Studio 2013/Projects/netica/SLRS/PCDWrapperLib/build/CMakeFiles/CMakeTmp/Debug/cmTC_76a15.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/Martin/Documents/Visual Studio 2013/Projects/netica/SLRS/PCDWrapperLib/build/CMakeFiles/CMakeTmp/Debug/cmTC_76a15.lib" /MACHINE:X64  /machine:x64 cmTC_76a15.dir\Debug\CMakeCXXCompilerABI.obj
-  cmTC_76a15.vcxproj -> C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\Debug\cmTC_76a15.exe
+  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:QUEUE /OUT:"C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\Debug\cmTC_83dd5.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/Martin/Documents/Visual Studio 2013/Projects/netica/SLRS/PCDWrapperLib/build/CMakeFiles/CMakeTmp/Debug/cmTC_83dd5.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/Martin/Documents/Visual Studio 2013/Projects/netica/SLRS/PCDWrapperLib/build/CMakeFiles/CMakeTmp/Debug/cmTC_83dd5.lib" /MACHINE:X64  /machine:x64 cmTC_83dd5.dir\Debug\CMakeCXXCompilerABI.obj
+  cmTC_83dd5.vcxproj -> C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\Debug\cmTC_83dd5.exe
 FinalizeBuildStatus:
-  Die Datei "cmTC_76a15.dir\Debug\cmTC_76a15.tlog\unsuccessfulbuild" wird gelîscht.
-  Aktualisieren des Timestamps von "cmTC_76a15.dir\Debug\cmTC_76a15.tlog\cmTC_76a15.lastbuildstate".
-Die Erstellung von Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_76a15.vcxproj" ist abgeschlossen (Standardziele).
+  Die Datei "cmTC_83dd5.dir\Debug\cmTC_83dd5.tlog\unsuccessfulbuild" wird gelîscht.
+  Aktualisieren des Timestamps von "cmTC_83dd5.dir\Debug\cmTC_83dd5.tlog\cmTC_83dd5.lastbuildstate".
+Die Erstellung von Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_83dd5.vcxproj" ist abgeschlossen (Standardziele).
 
 Der Buildvorgang wurde erfolgreich ausgefÅhrt.
     0 Warnung(en)
     0 Fehler
 
-Verstrichene Zeit 00:00:00.48
+Verstrichene Zeit 00:00:00.85
 
 
 
@@ -252,40 +252,40 @@ Verstrichene Zeit 00:00:00.48
 Detecting CXX [] compiler features compiled with the following output:
 Change Dir: C:/Users/Martin/Documents/Visual Studio 2013/Projects/netica/SLRS/PCDWrapperLib/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"C:/Program Files (x86)/MSBuild/12.0/bin/MSBuild.exe" "cmTC_ebdc5.vcxproj" "/p:Configuration=Debug" "/p:VisualStudioVersion=12.0"
+Run Build Command:"C:/Program Files (x86)/MSBuild/12.0/bin/MSBuild.exe" "cmTC_3c94a.vcxproj" "/p:Configuration=Debug" "/p:VisualStudioVersion=12.0"
 Microsoft (R)-Buildmodul, Version 12.0.40629.0
-[Microsoft .NET Framework, Version 4.0.30319.34209]
+[Microsoft .NET Framework, Version 4.0.30319.42000]
 Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
 
-Der Buildvorgang wurde am 19.09.2016 17:28:43 gestartet.
-Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_ebdc5.vcxproj" auf Knoten "1" (Standardziele).
+Der Buildvorgang wurde am 17.11.2016 21:23:13 gestartet.
+Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_3c94a.vcxproj" auf Knoten "1" (Standardziele).
 PrepareForBuild:
-  Das Verzeichnis "cmTC_ebdc5.dir\Debug\" wird erstellt.
+  Das Verzeichnis "cmTC_3c94a.dir\Debug\" wird erstellt.
   Das Verzeichnis "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\Debug\" wird erstellt.
-  Das Verzeichnis "cmTC_ebdc5.dir\Debug\cmTC_ebdc5.tlog\" wird erstellt.
+  Das Verzeichnis "cmTC_3c94a.dir\Debug\cmTC_3c94a.tlog\" wird erstellt.
 InitializeBuildStatus:
-  "cmTC_ebdc5.dir\Debug\cmTC_ebdc5.tlog\unsuccessfulbuild" wird erstellt, da "AlwaysCreate" angegeben wurde.
+  "cmTC_3c94a.dir\Debug\cmTC_3c94a.tlog\unsuccessfulbuild" wird erstellt, da "AlwaysCreate" angegeben wurde.
 ClCompile:
-  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /GR /Fo"cmTC_ebdc5.dir\Debug\\" /Fd"cmTC_ebdc5.dir\Debug\vc120.pdb" /Gd /TP /errorReport:queue "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\feature_tests.cxx"
+  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /GR /Fo"cmTC_3c94a.dir\Debug\\" /Fd"cmTC_3c94a.dir\Debug\vc120.pdb" /Gd /TP /errorReport:queue "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\feature_tests.cxx"
   Microsoft (R) C/C++-Optimierungscompiler Version 18.00.40629 fÅr x64
   Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
   
-  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /GR /Fo"cmTC_ebdc5.dir\Debug\\" /Fd"cmTC_ebdc5.dir\Debug\vc120.pdb" /Gd /TP /errorReport:queue "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\feature_tests.cxx"
+  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /GR /Fo"cmTC_3c94a.dir\Debug\\" /Fd"cmTC_3c94a.dir\Debug\vc120.pdb" /Gd /TP /errorReport:queue "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\feature_tests.cxx"
   
   feature_tests.cxx
 Link:
-  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:QUEUE /OUT:"C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\Debug\cmTC_ebdc5.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/Martin/Documents/Visual Studio 2013/Projects/netica/SLRS/PCDWrapperLib/build/CMakeFiles/CMakeTmp/Debug/cmTC_ebdc5.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/Martin/Documents/Visual Studio 2013/Projects/netica/SLRS/PCDWrapperLib/build/CMakeFiles/CMakeTmp/Debug/cmTC_ebdc5.lib" /MACHINE:X64  /machine:x64 cmTC_ebdc5.dir\Debug\feature_tests.obj
-  cmTC_ebdc5.vcxproj -> C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\Debug\cmTC_ebdc5.exe
+  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:QUEUE /OUT:"C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\Debug\cmTC_3c94a.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/Martin/Documents/Visual Studio 2013/Projects/netica/SLRS/PCDWrapperLib/build/CMakeFiles/CMakeTmp/Debug/cmTC_3c94a.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/Martin/Documents/Visual Studio 2013/Projects/netica/SLRS/PCDWrapperLib/build/CMakeFiles/CMakeTmp/Debug/cmTC_3c94a.lib" /MACHINE:X64  /machine:x64 cmTC_3c94a.dir\Debug\feature_tests.obj
+  cmTC_3c94a.vcxproj -> C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\Debug\cmTC_3c94a.exe
 FinalizeBuildStatus:
-  Die Datei "cmTC_ebdc5.dir\Debug\cmTC_ebdc5.tlog\unsuccessfulbuild" wird gelîscht.
-  Aktualisieren des Timestamps von "cmTC_ebdc5.dir\Debug\cmTC_ebdc5.tlog\cmTC_ebdc5.lastbuildstate".
-Die Erstellung von Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_ebdc5.vcxproj" ist abgeschlossen (Standardziele).
+  Die Datei "cmTC_3c94a.dir\Debug\cmTC_3c94a.tlog\unsuccessfulbuild" wird gelîscht.
+  Aktualisieren des Timestamps von "cmTC_3c94a.dir\Debug\cmTC_3c94a.tlog\cmTC_3c94a.lastbuildstate".
+Die Erstellung von Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_3c94a.vcxproj" ist abgeschlossen (Standardziele).
 
 Der Buildvorgang wurde erfolgreich ausgefÅhrt.
     0 Warnung(en)
     0 Fehler
 
-Verstrichene Zeit 00:00:00.54
+Verstrichene Zeit 00:00:00.92
 
 
     Feature record: CXX_FEATURE:1cxx_alias_templates

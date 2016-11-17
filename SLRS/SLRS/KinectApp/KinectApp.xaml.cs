@@ -18,9 +18,6 @@ using System.IO;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
-using Emgu.CV;
-using Emgu.CV.Structure; 
-
 using System.Windows.Media.Media3D;
 using Microsoft.Kinect;
 using System.Drawing.Imaging;

@@ -1,39 +1,39 @@
 Determining if the include file pthread.h exists failed with the following output:
 Change Dir: C:/Users/Martin/Documents/Visual Studio 2013/Projects/netica/SLRS/PCDWrapperLib/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"C:/Program Files (x86)/MSBuild/12.0/bin/MSBuild.exe" "cmTC_a153b.vcxproj" "/p:Configuration=Debug" "/p:VisualStudioVersion=12.0"
+Run Build Command:"C:/Program Files (x86)/MSBuild/12.0/bin/MSBuild.exe" "cmTC_14e01.vcxproj" "/p:Configuration=Debug" "/p:VisualStudioVersion=12.0"
 Microsoft (R)-Buildmodul, Version 12.0.40629.0
-[Microsoft .NET Framework, Version 4.0.30319.34209]
+[Microsoft .NET Framework, Version 4.0.30319.42000]
 Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
 
-Der Buildvorgang wurde am 19.09.2016 17:28:44 gestartet.
-Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_a153b.vcxproj" auf Knoten "1" (Standardziele).
+Der Buildvorgang wurde am 17.11.2016 21:23:15 gestartet.
+Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_14e01.vcxproj" auf Knoten "1" (Standardziele).
 PrepareForBuild:
-  Das Verzeichnis "cmTC_a153b.dir\Debug\" wird erstellt.
+  Das Verzeichnis "cmTC_14e01.dir\Debug\" wird erstellt.
   Das Verzeichnis "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\Debug\" wird erstellt.
-  Das Verzeichnis "cmTC_a153b.dir\Debug\cmTC_a153b.tlog\" wird erstellt.
+  Das Verzeichnis "cmTC_14e01.dir\Debug\cmTC_14e01.tlog\" wird erstellt.
 InitializeBuildStatus:
-  "cmTC_a153b.dir\Debug\cmTC_a153b.tlog\unsuccessfulbuild" wird erstellt, da "AlwaysCreate" angegeben wurde.
+  "cmTC_14e01.dir\Debug\cmTC_14e01.tlog\unsuccessfulbuild" wird erstellt, da "AlwaysCreate" angegeben wurde.
 ClCompile:
-  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTC_a153b.dir\Debug\\" /Fd"cmTC_a153b.dir\Debug\vc120.pdb" /Gd /TC /errorReport:queue "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\CheckIncludeFile.c"
+  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTC_14e01.dir\Debug\\" /Fd"cmTC_14e01.dir\Debug\vc120.pdb" /Gd /TC /errorReport:queue "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\CheckIncludeFile.c"
   Microsoft (R) C/C++-Optimierungscompiler Version 18.00.40629 fr x64
   Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
   
-  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTC_a153b.dir\Debug\\" /Fd"cmTC_a153b.dir\Debug\vc120.pdb" /Gd /TC /errorReport:queue "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\CheckIncludeFile.c"
+  cl /c /Zi /W3 /WX- /Od /Ob0 /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTC_14e01.dir\Debug\\" /Fd"cmTC_14e01.dir\Debug\vc120.pdb" /Gd /TC /errorReport:queue "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\CheckIncludeFile.c"
   
   CheckIncludeFile.c
-C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\CheckIncludeFile.c(1): fatal error C1083: Datei (Include) kann nicht ge”ffnet werden: "pthread.h": No such file or directory [C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_a153b.vcxproj]
-Die Erstellung des Projekts "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_a153b.vcxproj" ist abgeschlossen (Standardziele) -- FEHLER.
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\CheckIncludeFile.c(1): fatal error C1083: Datei (Include) kann nicht ge”ffnet werden: "pthread.h": No such file or directory [C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_14e01.vcxproj]
+Die Erstellung des Projekts "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_14e01.vcxproj" ist abgeschlossen (Standardziele) -- FEHLER.
 
 Fehler beim Buildvorgang.
 
-"C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_a153b.vcxproj" (Standardziel) (1) ->
+"C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_14e01.vcxproj" (Standardziel) (1) ->
 (ClCompile Ziel) -> 
-  C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\CheckIncludeFile.c(1): fatal error C1083: Datei (Include) kann nicht ge”ffnet werden: "pthread.h": No such file or directory [C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_a153b.vcxproj]
+  C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\CheckIncludeFile.c(1): fatal error C1083: Datei (Include) kann nicht ge”ffnet werden: "pthread.h": No such file or directory [C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\CMakeFiles\CMakeTmp\cmTC_14e01.vcxproj]
 
     0 Warnung(en)
     1 Fehler
 
-Verstrichene Zeit 00:00:00.29
+Verstrichene Zeit 00:00:01.30
 
 
