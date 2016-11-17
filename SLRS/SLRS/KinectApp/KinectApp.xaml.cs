@@ -47,9 +47,7 @@ namespace SLRS
         private const int MapDepthToByte = 8000 / 256;
         private WriteableBitmap depthBitmapLeft = null;
         private WriteableBitmap depthBitmapRight = null;
-        private WriteableBitmap flowBitmapLeft = null;
-        private WriteableBitmap flowBitmapRight = null;        
-        
+
         private ColorFrameReader colorFrameReader = null;
         private FrameDescription colorFrameDescription = null;
         private WriteableBitmap colorBitmap = null;
@@ -68,7 +66,6 @@ namespace SLRS
         private Body[] bodies = null;
 
         private StreamWriter distanceData = new StreamWriter(@"c:/temp/distanceTrainData.txt", true);
-        //private StreamWriter depthData; // = new StreamWriter(@"c:/temp/SLRS/depthData.txt", true);
         private StreamWriter pcdData;
 
         private int sequenceID = 0; 
@@ -89,8 +86,6 @@ namespace SLRS
             this.depthFrameReader.FrameArrived += depthFrameReader_FrameArrived;
             this.depthBitmapLeft = new WriteableBitmap(windowSize, windowSize, 96.0, 96.0, PixelFormats.Gray8, null);
             this.depthBitmapRight = new WriteableBitmap(windowSize, windowSize, 96.0, 96.0, PixelFormats.Gray8, null);
-            this.flowBitmapLeft = new WriteableBitmap(windowSize, windowSize, 96.0, 96.0, PixelFormats.Gray8, null);
-            this.flowBitmapRight = new WriteableBitmap(windowSize, windowSize, 96.0, 96.0, PixelFormats.Gray8, null);
 
             this.depthPixels = new byte[windowSize * windowSize];
 
@@ -135,14 +130,7 @@ namespace SLRS
         {
             get { return this.depthBitmapRight; }
         }
-        public ImageSource LeftOFSource
-        {
-            get { return this.flowBitmapLeft; }
-        }
-        public ImageSource RightOFSource
-        {
-            get { return this.flowBitmapRight; }
-        }
+
         public ImageSource ImageSource
         {
             get { return this.imageSource; }
@@ -442,7 +430,7 @@ namespace SLRS
 
         DepthSpacePoint pl_old;
         DepthSpacePoint pr_old;
-        private int windowSize = int.Parse(Properties.Resources.DepthHandFrame);
+        private int windowSize = Helper.DepthFrameWidth;
         private int depthFrameSelector = 0;
         private int depthFrameThreshold = 5; 
         private int depthFrameIndexL = 0;
@@ -458,16 +446,14 @@ namespace SLRS
                         if ((this.depthFrameDescription.Width * this.depthFrameDescription.Height) == (depthBuffer.Size / this.depthFrameDescription.BytesPerPixel))
                         {
                             //Frame handler
-                            if (btn_record.Content.Equals("Stop"))
-                            {
-                                lbl_fpsDepth.Content = Convert.ToUInt64(lbl_fpsBody.Content) + 1;
-                                depthFrameSelector++;
-                            }
-                            bool record = depthFrameSelector == depthFrameThreshold;
-                            if (record) depthFrameSelector = 0;
-
                             depthFrameSelector++;
-                            if (depthFrameSelector != depthFrameThreshold) return;  //########### LÖSCHEN (nut für test)
+                            if (depthFrameSelector != depthFrameThreshold) return;
+
+                            depthFrameSelector = 0;
+                                
+                            bool record = btn_record.Content.Equals("Stop");
+                            if (record)
+                                lbl_fpsDepth.Content = Convert.ToUInt64(lbl_fpsBody.Content) + 1;                                                           
 
                             int frame = windowSize / 2;
                             DepthSpacePoint pl = coordinateMapper.MapCameraPointToDepthSpace(leftHandPostition);
@@ -503,11 +489,6 @@ namespace SLRS
             }
         }
 
-        byte[] currentFrame;
-        byte[] previousFrameL = new byte[int.Parse(Properties.Resources.DepthHandFrame) * int.Parse(Properties.Resources.DepthHandFrame)];
-        byte[] previousFrameR = new byte[int.Parse(Properties.Resources.DepthHandFrame) * int.Parse(Properties.Resources.DepthHandFrame)];
-        System.Drawing.PointF[] prevFeat = new System.Drawing.PointF[int.Parse(Properties.Resources.DepthHandFrame) * int.Parse(Properties.Resources.DepthHandFrame)];
-        System.Drawing.PointF[] testPts = new System.Drawing.PointF[] { new System.Drawing.PointF(20, 20), new System.Drawing.PointF(30, 30) };
         private unsafe void ProcessDepthFrameData(IntPtr depthFrameData, int frameSize, ushort minDepth, ushort maxDepth, DepthSpacePoint p, bool rec, bool left)
         {
             ushort* frameData = (ushort*)depthFrameData; // depth frame data is a 16 bit value
@@ -525,7 +506,6 @@ namespace SLRS
 
             int distanceFactor = 80;
             int index = 0;
-            currentFrame = new byte[windowSize * windowSize];
 
             for (int y = -frameSize; y < frameSize; y++)
             {
@@ -536,9 +516,6 @@ namespace SLRS
                     ushort depth = frameData[offset];
 
                     bool isNearPalm = depth < initDepth + distanceFactor && depth > initDepth - distanceFactor;         
-                    depth = isNearPalm ? (ushort)(depth + (depth - initDepth) * 10) : (ushort)0;
-                    depthPixels[index] = currentFrame[index] = (byte)(depth / MapDepthToByte);
-                    index++;
 
                     //  ==== Record DepthData for nextStep (Segmentation)
                     if ((bool)chk_recDepth.IsChecked && rec)
@@ -550,40 +527,17 @@ namespace SLRS
                             pcdData.Flush();
                         }
                     }
+
+                    //show depth image
+                    depth = isNearPalm ? (ushort)(depth + (depth - initDepth) * 5) : (ushort)0;
+                    depthPixels[index] = (byte)(depth / MapDepthToByte);
+                    index++;
                 }
             }
 
             if ((bool)chk_recDepth.IsChecked && rec)
                 pcdData.Close();
 
-            //============== Opt Flow ========
-            var thisPreviousFrame = left ? previousFrameL : previousFrameR;
-            Image<Gray, byte> prevImg = new Image<Gray, byte>(arrayToBitmap(thisPreviousFrame, frameSize * 2, frameSize * 2));
-            Image<Gray, byte> currentImg = new Image<Gray, byte>(arrayToBitmap(currentFrame, frameSize * 2, frameSize * 2));
-            Image<Gray, float> flowX = new Image<Gray, float>(new System.Drawing.Size(frameSize * 2, frameSize * 2));
-            Image<Gray, float> flowY = new Image<Gray, float>(new System.Drawing.Size(frameSize * 2, frameSize * 2));
-            var winSize = new System.Drawing.Size(5, 5);
-
-            try
-            {                
-                currentImg = currentImg.SmoothMedian(5);
-                OpticalFlow.LK(prevImg, currentImg, winSize, flowX, flowY);
-                var bytes = (flowX.Convert<Gray, byte>() + flowY.Convert<Gray, byte>()).Bytes;
-                var flow = new Image<Gray,byte>(frameSize * 2, frameSize * 2, new Gray (bytes.Sum(e => e) / bytes.Length));
-
-                if (left)
-                {
-                    previousFrameL = currentFrame;
-                    this.flowBitmapLeft.WritePixels(new Int32Rect(0, 0, flow.Bitmap.Width, flow.Bitmap.Height), flow.Bytes, flow.Bitmap.Width, 0);
-                }
-                else
-                {
-                    previousFrameR = currentFrame;
-                    this.flowBitmapRight.WritePixels(new Int32Rect(0, 0, flow.Bitmap.Width, flow.Bitmap.Height), flow.Bytes, flow.Bitmap.Width, 0);
-                }
-            }
-            catch { Console.WriteLine("Optical Flow Exception"); }
-            //============== OF ========
         }
         #endregion //*******************
 
@@ -825,19 +779,6 @@ namespace SLRS
                 drawingContext.DrawLine(orientationPen, p3, p5);
             }
             
-        }
-
-        private Bitmap arrayToBitmap(byte[] array, int height, int width)
-        {
-            //var bytes = (from value in array select (byte)(value/MapDepthToByte)).ToArray();
-            //var bytes = (from value in array select (byte)value).ToArray();
-            Bitmap bmp = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format8bppIndexed);
-            BitmapData bmpData = bmp.LockBits(new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.WriteOnly, bmp.PixelFormat);
-            Marshal.Copy(array, 0, bmpData.Scan0, array.Length);
-            bmp.UnlockBits(bmpData);
-            //bmp.Save(@"C:\temp\TestImage.bmp", ImageFormat.Bmp);
-
-            return bmp;
         }
     }
 }

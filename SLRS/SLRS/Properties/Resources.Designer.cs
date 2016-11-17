@@ -61,15 +61,6 @@ namespace SLRS.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die 60 ähnelt.
-        /// </summary>
-        internal static string DepthHandFrame {
-            get {
-                return ResourceManager.GetString("DepthHandFrame", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Kinect Ready :) ähnelt.
         /// </summary>
         internal static string KinectReady {

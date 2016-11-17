@@ -37,7 +37,7 @@ namespace SLRS {
     /// <summary>
     /// LRA
     /// </summary>
-    public partial class LRA : System.Windows.Window, System.Windows.Markup.IComponentConnector {
+    public partial class FinalDataCreator : System.Windows.Window, System.Windows.Markup.IComponentConnector {
         
         
         #line 6 "..\..\..\..\LRA\LRA.xaml"

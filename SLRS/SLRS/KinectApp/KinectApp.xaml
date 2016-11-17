@@ -23,22 +23,16 @@
             <Viewbox Grid.Row="0" Grid.Column="0" Margin="25" >
                 <Image Source="{Binding ImageSource}" />
             </Viewbox>
-            <Label Name="lbl_fpsBody" Content="0" Grid.Row="0" HorizontalContentAlignment="Right" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,40,60" Background="White" Width="60"/>
-            <Label Name="lbl_fpsDepth" Content="0" Grid.Row="1" HorizontalContentAlignment="Right" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="877,10,0,0" Background="White" Width="60"/>
-            <Ellipse Name="ellipseSkinColor" Fill="#000" HorizontalAlignment="Left" Height="40" Margin="837,48,0,0" Grid.Row="1" Stroke="White" VerticalAlignment="Top" Width="40"/>
-            <CheckBox Content="Rec PCD Data" HorizontalAlignment="Left" Margin="795,178,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Name="chk_recDepth" IsChecked="True"/>
-            <CheckBox Content="Use Skincolor Detection" HorizontalAlignment="Left" Margin="795,99,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Name="chk_skin" IsChecked="false"/>
-            <Viewbox Grid.Row="1" Width="150" Height="150" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="30,25,0,0">
+            <Label Name="lbl_fpsBody" Content="0" Grid.Row="0" HorizontalContentAlignment="Left" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,40,60" Background="White" Width="60"/>
+            <Label Name="lbl_fpsDepth" Content="0" Grid.Row="1" HorizontalContentAlignment="Left" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="747,161,0,0" Background="White" Width="60"/>
+            <Ellipse Name="ellipseSkinColor" Fill="#000" HorizontalAlignment="Left" Height="40" Margin="750,28,0,0" Grid.Row="1" Stroke="White" VerticalAlignment="Top" Width="120"/>
+            <CheckBox Content="Rec PCD Data" HorizontalAlignment="Left" Margin="746,190,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Name="chk_recDepth" IsChecked="True"/>
+            <CheckBox Content="Use Skincolor Detection" HorizontalAlignment="Left" Margin="740,73,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Name="chk_skin" IsChecked="false"/>
+            <Viewbox Grid.Row="1" Width="180" Height="180" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="120,25,0,0">
                 <Image Source="{Binding LeftHandSource}"  />
             </Viewbox>
-            <Viewbox Grid.Row="1" Width="150" Height="150" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,25,400,0">
+            <Viewbox Grid.Row="1" Width="180" Height="180" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,25,392,0">
                 <Image Source="{Binding RightHandSource}"  />
-            </Viewbox>
-            <Viewbox Grid.Row="1" Width="150" Height="150" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="198,24,0,0">
-                <Image Source="{Binding LeftOFSource}"  />
-            </Viewbox>
-            <Viewbox Grid.Row="1" Width="150" Height="150" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,25,235,0">
-                <Image Source="{Binding RightOFSource}"  />
             </Viewbox>
         </Grid>
 
@@ -57,7 +51,7 @@
 
             <Button Grid.Row="1" Name="btn_record" Margin="30" Content="Begin Record" FontSize="25px" Click="btn_record_click" Grid.Column="1"/>
 
-            <Label Grid.Row="2" Content="{Binding StatusText}" FontSize="25px" FontWeight="Bold" Grid.Column="1" Margin="20" />
+            <Label Grid.Row="2" Content="{Binding StatusText}" FontSize="25px" FontWeight="Bold" Margin="19,58,21,-18" />
             <RadioButton IsEnabled="False" Content="Angle" HorizontalAlignment="Left" Margin="91,229,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Name="radio_angle" GroupName="Mode"/>
             <RadioButton Content="Distance" HorizontalAlignment="Left" Margin="250,229,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Name="radio_distance" GroupName="Mode" IsChecked="True"/>
         </Grid>

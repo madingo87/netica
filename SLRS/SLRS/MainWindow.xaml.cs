@@ -32,7 +32,7 @@ namespace SLRS
 
         private void btn_lra(object sender, RoutedEventArgs e)
         {
-            LRA lraWindow = new LRA();
+            FinalDataCreator lraWindow = new FinalDataCreator();
             lraWindow.Show();
             //this.Close();
         }
@@ -48,15 +48,7 @@ namespace SLRS
         {
             PCDEval pcdEval = new PCDEval();
             pcdEval.Show();
-        }
-
-        private void btn_rdf_Click(object sender, RoutedEventArgs e)
-        {
-            RDFManager rdf = new RDFManager();
-            rdf.Show();
-        }
-
-        
+        }        
     }
 }
 

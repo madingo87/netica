@@ -135,9 +135,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="RDF\RDFManager.xaml.cs">
-      <DependentUpon>RDFManager.xaml</DependentUpon>
-    </Compile>
     <Page Include="NNEvaluation\EvaluationWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -150,7 +147,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="LRA\LRA.xaml">
+    <Page Include="FinalDataCreator\FinalDataCreator.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -172,8 +169,8 @@
     <Compile Include="KinectApp\KinectApp.xaml.cs">
       <DependentUpon>KinectApp.xaml</DependentUpon>
     </Compile>
-    <Compile Include="LRA\LRA.xaml.cs">
-      <DependentUpon>LRA.xaml</DependentUpon>
+    <Compile Include="FinalDataCreator\FinalDataCreator.xaml.cs">
+      <DependentUpon>FinalDataCreator.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -182,10 +179,6 @@
     <Page Include="PCDEvaluation\PCDEval.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="RDF\RDFManager.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
