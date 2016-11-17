@@ -5,7 +5,7 @@
         Title="Sign Language Recognition System" 
         Closing="Window_Closing" 
         Width="1400" 
-        Height="900">
+        Height="888">
 
     <Grid Margin="10" Name="grid">
         <Grid.ColumnDefinitions>
@@ -24,17 +24,22 @@
                 <Image Source="{Binding ImageSource}" />
             </Viewbox>
             <Label Name="lbl_fpsBody" Content="0" Grid.Row="0" HorizontalContentAlignment="Right" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,40,60" Background="White" Width="60"/>
-            <Viewbox Grid.Row="1" Width="150" Height="150" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="100,20,0,0">
+            <Label Name="lbl_fpsDepth" Content="0" Grid.Row="1" HorizontalContentAlignment="Right" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="877,10,0,0" Background="White" Width="60"/>
+            <Ellipse Name="ellipseSkinColor" Fill="#000" HorizontalAlignment="Left" Height="40" Margin="837,48,0,0" Grid.Row="1" Stroke="White" VerticalAlignment="Top" Width="40"/>
+            <CheckBox Content="Rec PCD Data" HorizontalAlignment="Left" Margin="795,178,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Name="chk_recDepth" IsChecked="True"/>
+            <CheckBox Content="Use Skincolor Detection" HorizontalAlignment="Left" Margin="795,99,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Name="chk_skin" IsChecked="false"/>
+            <Viewbox Grid.Row="1" Width="150" Height="150" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="30,25,0,0">
                 <Image Source="{Binding LeftHandSource}"  />
             </Viewbox>
-            <Viewbox Grid.Row="1" Width="150" Height="150" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,20,100,0">
+            <Viewbox Grid.Row="1" Width="150" Height="150" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,25,400,0">
                 <Image Source="{Binding RightHandSource}"  />
             </Viewbox>
-            <Label Name="lbl_fpsDepth" Content="0" Grid.Row="1" HorizontalContentAlignment="Right" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="449,20,0,0" Background="White" Width="60"/>
-            <Ellipse Name="ellipseSkinColor" Fill="#000" HorizontalAlignment="Left" Height="40" Margin="475,59,0,0" Grid.Row="1" Stroke="White" VerticalAlignment="Top" Width="40"/>
-            <CheckBox IsEnabled="False"  Content="Rec RDF Training Data" HorizontalAlignment="Left" Margin="433,129,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Name="chk_recRDFTrainData" IsChecked="false"/>
-            <CheckBox Content="Rec Depth Data" HorizontalAlignment="Left" Margin="433,170,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Name="chk_recDepth" IsChecked="True"/>
-            <CheckBox Content="Use Skincolor Detection" HorizontalAlignment="Left" Margin="433,110,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Name="chk_skin" IsChecked="false"/>
+            <Viewbox Grid.Row="1" Width="150" Height="150" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="198,24,0,0">
+                <Image Source="{Binding LeftOFSource}"  />
+            </Viewbox>
+            <Viewbox Grid.Row="1" Width="150" Height="150" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,25,235,0">
+                <Image Source="{Binding RightOFSource}"  />
+            </Viewbox>
         </Grid>
 
         <!-- Right Column -->
