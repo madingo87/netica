@@ -1,10 +1,10 @@
-﻿Der Buildvorgang wurde am 17.11.2016 21:27:34 gestartet.
-     1>Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\ZERO_CHECK.vcxproj" auf Knoten "2", Rebuild Ziel(e).
+﻿Der Buildvorgang wurde am 18.11.2016 13:59:22 gestartet.
+     1>Projekt "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\ZERO_CHECK.vcxproj" auf Knoten "2", Build Ziel(e).
      1>CustomBuild:
          Checking Build System
          CMake does not need to re-run because C:/Users/Martin/Documents/Visual Studio 2013/Projects/netica/SLRS/PCDWrapperLib/build/CMakeFiles/generate.stamp is up-to-date.
-     1>Die Erstellung des Projekts "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\ZERO_CHECK.vcxproj" ist abgeschlossen, Rebuild Ziel(e).
+     1>Die Erstellung des Projekts "C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\PCDWrapperLib\build\ZERO_CHECK.vcxproj" ist abgeschlossen, Build Ziel(e).
 
 Build erfolgreich.
 
-Verstrichene Zeit 00:00:01.33
+Verstrichene Zeit 00:00:00.13

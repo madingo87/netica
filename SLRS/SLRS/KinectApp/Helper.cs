@@ -59,7 +59,8 @@ namespace SLRS
         */
         #endregion
 
-        public static int DepthFrameWidth = 80; 
+        public static int DepthFrameWidth = 70;
+        public static int ColorFrameWidth = 100; 
 
         static float constant = 1.0f / CameraParams.fx;
         public static Point3D depthToPCD(float x, float y, float depthVal)

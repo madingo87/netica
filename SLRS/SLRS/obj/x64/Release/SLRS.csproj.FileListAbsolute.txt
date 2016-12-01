@@ -1,13 +1,9 @@
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\bin\x64\Release\SLRS.exe.config
-C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\Release\Live\LiveWindow.baml
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\Release\NNEvaluation\EvaluationWindow.baml
-C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\Release\LRA\LRA.baml
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\Release\MainWindow.baml
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\Release\PCDEvaluation\PCDEval.baml
-C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\Release\Live\LiveWindow.g.cs
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\Release\NNEvaluation\EvaluationWindow.g.cs
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\Release\KinectApp\KinectApp.g.cs
-C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\Release\LRA\LRA.g.cs
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\Release\MainWindow.g.cs
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\Release\PCDEvaluation\PCDEval.g.cs
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\Release\App.g.cs
@@ -32,3 +28,7 @@ C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\R
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\Release\SLRS.csproj.GenerateResource.Cache
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\Release\SLRS.exe
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\Release\SLRS.pdb
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\bin\x64\Release\OxyPlot.dll
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\bin\x64\Release\OxyPlot.Wpf.dll
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\Release\FinalDataCreator\FinalDataCreator.baml
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\Release\FinalDataCreator\FinalDataCreator.g.cs

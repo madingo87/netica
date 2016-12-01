@@ -24,15 +24,21 @@
                 <Image Source="{Binding ImageSource}" />
             </Viewbox>
             <Label Name="lbl_fpsBody" Content="0" Grid.Row="0" HorizontalContentAlignment="Left" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,40,60" Background="White" Width="60"/>
-            <Label Name="lbl_fpsDepth" Content="0" Grid.Row="1" HorizontalContentAlignment="Left" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="747,161,0,0" Background="White" Width="60"/>
-            <Ellipse Name="ellipseSkinColor" Fill="#000" HorizontalAlignment="Left" Height="40" Margin="750,28,0,0" Grid.Row="1" Stroke="White" VerticalAlignment="Top" Width="120"/>
-            <CheckBox Content="Rec PCD Data" HorizontalAlignment="Left" Margin="746,190,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Name="chk_recDepth" IsChecked="True"/>
-            <CheckBox Content="Use Skincolor Detection" HorizontalAlignment="Left" Margin="740,73,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Name="chk_skin" IsChecked="false"/>
-            <Viewbox Grid.Row="1" Width="180" Height="180" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="120,25,0,0">
+            <Label Name="lbl_fpsDepth" Content="0" Grid.Row="1" HorizontalContentAlignment="Left" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="797,161,0,0" Background="White" Width="60"/>
+            <Ellipse Name="ellipseSkinColor" Fill="#000" HorizontalAlignment="Left" Height="40" Margin="800,28,0,0" Grid.Row="1" Stroke="White" VerticalAlignment="Top" Width="120"/>
+            <CheckBox Content="Rec PCD Data" HorizontalAlignment="Left" Margin="796,190,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Name="chk_recDepth" IsChecked="True"/>
+            <CheckBox Content="Use Skincolor Detection" HorizontalAlignment="Left" Margin="790,73,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Name="chk_skin" IsChecked="false"/>
+            <Viewbox Grid.Row="1" Width="180" Height="180" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="200,25,0,0">
                 <Image Source="{Binding LeftHandSource}"  />
             </Viewbox>
-            <Viewbox Grid.Row="1" Width="180" Height="180" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,25,392,0">
+            <Viewbox Grid.Row="1" Width="180" Height="180" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15,25,0,0">
+                <Image Source="{Binding LeftColorHandSource}"  />
+            </Viewbox>
+            <Viewbox Grid.Row="1" Width="180" Height="180" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,25,360,0">
                 <Image Source="{Binding RightHandSource}"  />
+            </Viewbox>
+            <Viewbox Grid.Row="1" Width="180" Height="180" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="596,25,0,0">
+                <Image Source="{Binding RightColorHandSource}"  />
             </Viewbox>
         </Grid>
 

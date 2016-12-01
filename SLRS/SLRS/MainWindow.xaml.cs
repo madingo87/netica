@@ -32,7 +32,7 @@ namespace SLRS
 
         private void btn_lra(object sender, RoutedEventArgs e)
         {
-            FinalDataCreator lraWindow = new FinalDataCreator();
+            Tools lraWindow = new Tools();
             lraWindow.Show();
             //this.Close();
         }

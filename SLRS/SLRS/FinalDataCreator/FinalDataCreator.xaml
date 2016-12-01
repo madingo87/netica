@@ -1,9 +1,0 @@
-﻿<Window x:Class="SLRS.FinalDataCreator"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="" Height="184" Width="502">
-    <Grid>
-        <Button Content="Hands Testdaten extrahieren" Name="btn_extract" HorizontalAlignment="Right" Margin="0,27,251,0" VerticalAlignment="Top" Width="210" Click="extractTestData_Click" Height="94"/>
-        <Button Content="LSTM Daten zusammenfassen" Name="btn_convert" HorizontalAlignment="Right" Margin="0,29,29,0" VerticalAlignment="Top" Width="210" Click="convertToLSTMData_Click" Height="94"/>
-    </Grid>
-</Window>

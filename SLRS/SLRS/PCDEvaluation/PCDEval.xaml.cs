@@ -94,32 +94,66 @@ namespace SLRS
 
             foreach (var file in files)
             {
-                var filename = file.FullName.Split('\\').Last().Split('.').First();
-                var vfhFile = vfhPath + filename + ".vfh";
-                var kfhFile = kfhPath + filename + ".kfh";
+                try
+                {
+                    if (file.Length > 0)
+                    {
+                        var filename = file.FullName.Split('\\').Last().Split('.').First();
+                        var vfhFile = vfhPath + filename + ".vfh";
+                        var kfhFile = kfhPath + filename + ".kfh";
 
-                var res = exportVFH(file.FullName, vfhFile);
-                addMessage("Histogramm erstellt (\"" + vfhFile + "\") [Returncode: " + res + "]");
+                        //pcd datei-header ggf hinzufügen
+                        addHeader(file.FullName);
+                        //if (addHeader(file))
+                        //addMessage("Header bereits vorhanden!");
+                        //else
+                        //addMessage("Header hinzugefügt!");
 
-                createKFH(vfhFile, kfhFile);
-                addMessage("KFH Datei erstellt: \"" + kfhFile + "\"");
-                var t = DateTime.Now - time;
-                time = DateTime.Now;
-                addMessage(String.Format("--- Time needed: {0}.{1} s\n", t.Seconds, t.Milliseconds));
+                        var res = exportVFH(file.FullName, vfhFile);
+                        //addMessage("Histogramm erstellt (\"" + vfhFile + "\") [Returncode: " + res + "]");
+
+                        createKFH(vfhFile, kfhFile);
+                        //addMessage("KFH Datei erstellt: \"" + kfhFile + "\"");
+                        var t = DateTime.Now - time;
+                        time = DateTime.Now;
+                        addMessage(String.Format("-- (" + kfhFile + ") - [{0}.{1} s]", t.Seconds, t.Milliseconds));
+                    }
+                    else
+                    {
+                        if (file.FullName.Contains("left"))
+                        {
+                            //dann lösche datei mit right + filename
+                            var vfhFilePath = vfhPath + file.FullName.Split('\\').Last().Split('.').First() + ".vfh";
+                            var kfhFilePath = kfhPath + file.FullName.Split('\\').Last().Split('.').First() + ".kfh";
+                            new FileInfo(vfhFilePath.Replace("left", "right")).Delete();
+                            new FileInfo(kfhFilePath.Replace("left", "right")).Delete();
+                            new FileInfo(file.FullName.Replace("left", "right")).Delete();
+                            file.Delete();
+                            files.ToList().Remove(file);
+                        }
+                        else
+                        {
+                            //dann lösche im nachgang die zugehörigen left datei
+                            var vfhFilePath = vfhPath + file.FullName.Split('\\').Last().Split('.').First() + ".vfh";
+                            var kfhFilePath = kfhPath + file.FullName.Split('\\').Last().Split('.').First() + ".kfh";
+                            new FileInfo(vfhFilePath.Replace("right", "left")).Delete();
+                            new FileInfo(kfhFilePath.Replace("right", "left")).Delete();
+                            new FileInfo(file.FullName.Replace("right", "left")).Delete();
+                            file.Delete();
+                            files.ToList().Remove(file);
+                        }
+                    }
+                }
+                catch
+                { }
             }
+        
             createCTD();
             addMessage(String.Format("\nKonvertierung abgeschlossen ==> CTD Dateien erstellt! ( {0:HH:mm:ss} )\n", DateTime.Now));
-
         }
 
         private int exportVFH(string file, string exportFile)
         {
-            //pcd datei-header ggf hinzufügen
-            if (addHeader(file))
-                addMessage("Header bereits vorhanden!");
-            else
-                addMessage("Header hinzugefügt!");
-
             int res = evaluate(file, exportFile, false, plot);
 
             if (print)
@@ -232,7 +266,7 @@ namespace SLRS
                     }
                     swRight.WriteLine(line);
                 }
-                addMessage(file.Name + " konvertiert");
+                //addMessage(file.Name + " konvertiert");
             }
 
             swLeft.Flush();
@@ -243,7 +277,7 @@ namespace SLRS
             //Create Single File
             StreamReader srLeft = new StreamReader(ctdPath + "cntkDataLeft.ctd");
             StreamReader srRight = new StreamReader(ctdPath + "cntkDataRight.ctd");
-            StreamWriter sw = new StreamWriter(@"c:\temp\cntkAllData.ctd", false);
+            StreamWriter sw = new StreamWriter(@"c:\temp\handsData.ctd", false);
 
             while (!srLeft.EndOfStream)
             {
@@ -316,7 +350,7 @@ namespace SLRS
                 sw.Close();
             }
 
-            return false;
+            return false;         
         }
 
         private void checkDirs()
