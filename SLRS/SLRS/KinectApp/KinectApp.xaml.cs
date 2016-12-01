@@ -65,6 +65,7 @@ namespace SLRS
         private Body[] bodies = null;
 
         private StreamWriter distanceData = new StreamWriter(@"c:/temp/distanceTrainData.txt", true);
+        private StreamWriter colorData = new StreamWriter(@"c:/temp/color/data/colorMap.map", true);
         private StreamWriter pcdData;
 
         private int sequenceID = 0; 
@@ -109,8 +110,8 @@ namespace SLRS
             rightHandPostition = new CameraSpacePoint();
             pl_old = new DepthSpacePoint() { X = depthFrameDescription.Width / 2, Y = depthFrameDescription.Height / 2 };
             pr_old = new DepthSpacePoint() { X = depthFrameDescription.Width / 2, Y = depthFrameDescription.Height / 2 };
-            cpl_old = new ColorSpacePoint() { X = colorFrameDescription.Width / 2, Y = colorFrameDescription.Height / 2 };
-            cpr_old = new ColorSpacePoint() { X = colorFrameDescription.Width / 2, Y = colorFrameDescription.Height / 2 };
+            cpl_old = new ColorSpacePoint() { X = colorFrameDescription.Width / 1.1f, Y = colorFrameDescription.Height / 1.8f };
+            cpr_old = new ColorSpacePoint() { X = colorFrameDescription.Width / 1.1f, Y = colorFrameDescription.Height / 2.2f };
 
             this.coordinateMapper = this.kinectSensor.CoordinateMapper;
 
@@ -178,6 +179,8 @@ namespace SLRS
                     btn_record.Content = "Start";
                     depthFrameIndexL = 0;
                     depthFrameIndexR = 0;
+                    colorFrameIndexL = 0;
+                    colorFrameIndexR = 0;
 
                     break;
 
@@ -191,6 +194,8 @@ namespace SLRS
                     sequenceID++;
                     depthFrameIndexL = 0;
                     depthFrameIndexR = 0;
+                    colorFrameIndexL = 0;
+                    colorFrameIndexR = 0;
 
                     if (sequenceID == maxTrainData)
                     {
@@ -264,7 +269,9 @@ namespace SLRS
             try
             {
                 distanceData.Flush();
-                distanceData.Close();                
+                distanceData.Close();
+                colorData.Flush();
+                colorData.Close();    
             }
             catch 
             {
@@ -382,11 +389,16 @@ namespace SLRS
             IntPtr ptr = Marshal.AllocHGlobal(bytes.Length);
             Marshal.Copy(bytes, 0, ptr, bytes.Length);
             var bmp = new Bitmap(colorWindowSize, colorWindowSize, colorWindowSize*BytesPerPixel, System.Drawing.Imaging.PixelFormat.Format32bppArgb, ptr);
-            if (left)
-                bmp.Save(@"c:\temp\colorHandL" + index++ + ".png");
-            else
-                bmp.Save(@"c:\temp\colorHandR" + index++ + ".png");
+            string path;
+            path = left ?       
+                path = String.Format(@"c:/temp/color/data/colorHandL{0:000}_{1:000}_{2:00}.png", gestureNumber, sequenceID + addId, colorFrameIndexL++) :
+                path = String.Format(@"c:/temp/color/data/colorHandR{0:000}_{1:000}_{2:00}.png", gestureNumber, sequenceID + addId, colorFrameIndexR++);
+            bmp.Save(path);
             Marshal.FreeHGlobal(ptr);
+
+            path = "...\\" + path.Split('/').Last();
+            colorData.WriteLine(String.Format("{0}\t{1}", path, gestureNumber)));
+            colorData.Flush();
         }
 
         float skinColorHue = 0.0f;
