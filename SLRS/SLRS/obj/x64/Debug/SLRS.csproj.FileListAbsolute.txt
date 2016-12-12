@@ -47,5 +47,5 @@ C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\D
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\Debug\SLRS.csproj.GenerateResource.Cache
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\Debug\SLRS.exe
 C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\Debug\SLRS.pdb
-C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\Debug\Tools\FinalDataCreator.baml
-C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\Debug\Tools\FinalDataCreator.g.cs
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\Debug\Tools\Tools.baml
+C:\Users\Martin\Documents\Visual Studio 2013\Projects\netica\SLRS\SLRS\obj\x64\Debug\Tools\Tools.g.cs

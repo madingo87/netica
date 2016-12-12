@@ -12,6 +12,8 @@
         <Button Content="Write Mappings" Name="btn_writeMappings" HorizontalAlignment="Left" Margin="446,383,0,0" VerticalAlignment="Top" Width="129" Height="32" Click="btn_write_mappings_click"/>
         <TextBox HorizontalAlignment="Left" Name="mappingsCount" Height="20" Margin="538,327,0,0" TextWrapping="Wrap" VerticalAlignment="Top" TextAlignment="Left" Width="35"/>
         <Label Content="Tests/Wort:" HorizontalAlignment="Left" Margin="466,323,0,0" VerticalAlignment="Top" Width="72" Height="24"/>
+        <Button Content="Evaluate RDF" FontWeight="Bold" FontSize="14px" HorizontalAlignment="Left" Margin="453,494,0,0" VerticalAlignment="Top" Width="119" Height="66" Click="btn_evalRDF_click"/>
+        <CheckBox Content="Color Mapping" HorizontalAlignment="Left" Margin="473,416,0,0" VerticalAlignment="Top" Name="chk_colorMap"/>
 
     </Grid>
 </Window>

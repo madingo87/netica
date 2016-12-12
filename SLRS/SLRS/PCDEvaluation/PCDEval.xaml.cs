@@ -24,6 +24,7 @@ namespace SLRS
     /// </summary>
     public partial class PCDEval : Window
     {
+        string outPath = @"C:\temp\PCD\";
         string pcdPath = @"C:\temp\PCD\pcd\";
         string vfhPath = @"C:\temp\PCD\vfh\";
         string kfhPath = @"C:\temp\PCD\kfh\";
@@ -51,6 +52,7 @@ namespace SLRS
                 var dir = fInfo.DirectoryName.Remove(fInfo.DirectoryName.IndexOf(parentDir));
                 lbl_file.Content = dir;
 
+                outPath = dir;
                 pcdPath = dir + "pcd\\";
                 vfhPath = dir + "vfh\\";
                 kfhPath = dir + "kfh\\";
@@ -92,6 +94,7 @@ namespace SLRS
             var dirInfo = new DirectoryInfo(pcdPath);
             var files = dirInfo.GetFiles("*.pcd");
 
+            int showCount = 0;
             foreach (var file in files)
             {
                 try
@@ -116,7 +119,10 @@ namespace SLRS
                         //addMessage("KFH Datei erstellt: \"" + kfhFile + "\"");
                         var t = DateTime.Now - time;
                         time = DateTime.Now;
-                        addMessage(String.Format("-- (" + kfhFile + ") - [{0}.{1} s]", t.Seconds, t.Milliseconds));
+
+                        if (showCount % 30 == 0)
+                            addMessage(String.Format("-- (" + kfhFile + ") - [{0}.{1} s]", t.Seconds, t.Milliseconds));
+                        showCount++;
                     }
                     else
                     {
@@ -207,13 +213,14 @@ namespace SLRS
                 }
             }
 
-            var mean = allEntries.Sum() / allEntries.Length;
-            var max = allEntries.Max<float>();
+            //var mean = allEntries.Sum() / allEntries.Length;
+            //var max = allEntries.Max<float>();
 
             StreamWriter sw = new StreamWriter(exportFile, false);
             foreach (var entry in allEntries)
             {
-                sw.Write((entry-mean) / max);
+                //sw.Write((entry-mean) / max);
+                sw.Write(entry);
                 sw.Write(" ");
             }
 
@@ -277,7 +284,7 @@ namespace SLRS
             //Create Single File
             StreamReader srLeft = new StreamReader(ctdPath + "cntkDataLeft.ctd");
             StreamReader srRight = new StreamReader(ctdPath + "cntkDataRight.ctd");
-            StreamWriter sw = new StreamWriter(@"c:\temp\handsData.ctd", false);
+            StreamWriter sw = new StreamWriter(outPath + "handsData.ctd", false);
 
             while (!srLeft.EndOfStream)
             {

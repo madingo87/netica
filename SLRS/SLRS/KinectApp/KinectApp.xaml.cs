@@ -49,7 +49,7 @@ namespace SLRS
         private WriteableBitmap colorBitmapLeft = null;
         private WriteableBitmap colorBitmapRight = null;
 
-        private int globalFrameThreshold = 7;
+        private int globalFrameThreshold = 6;
 
         private BodyFrameReader bodyFrameReader = null;
         private DrawingGroup bodyDrawingGroup;
@@ -65,7 +65,7 @@ namespace SLRS
         private Body[] bodies = null;
 
         private StreamWriter distanceData = new StreamWriter(@"c:/temp/distanceTrainData.txt", true);
-        private StreamWriter colorData = new StreamWriter(@"c:/temp/color/data/colorMap.map", true);
+        private StreamWriter colorData = new StreamWriter(@"c:/temp/color/colorMap.map", true);
         private StreamWriter pcdData;
 
         private int sequenceID = 0; 
@@ -75,8 +75,8 @@ namespace SLRS
         #endregion
 
         private int maxTestData = 0;
-        private int maxTrainData = 10;
-        int addId = 160; 
+        private int maxTrainData = 20;
+        int addId = 120; 
 
         public KinectApp()
         {
@@ -291,6 +291,8 @@ namespace SLRS
         private int colorFrameIndexR = 0;
         private int colorFrameSelector = 0;
         //private int colorFrameThreshold = 5;
+        private bool[] validPixelL = new bool[Helper.ColorFrameWidth * Helper.ColorFrameWidth];
+        private bool[] validPixelR = new bool[Helper.ColorFrameWidth * Helper.ColorFrameWidth];
         private void colorFrameReader_FrameArrived(object sender, ColorFrameArrivedEventArgs e)
         {
             using (ColorFrame colorFrame = e.FrameReference.AcquireFrame())
@@ -344,7 +346,7 @@ namespace SLRS
                         // === Links
                         if (handLeft.X <= frame || handLeft.X >= colorFrameDescription.Width - frame || handLeft.Y <= frame || handLeft.Y >= colorFrameDescription.Height - frame)
                             handLeft = cpl_old;
-                        processColorFrameData(colorFrameData, handLeft, frame);
+                        processColorFrameData(colorFrameData, handLeft, frame, true);
                         this.colorBitmapLeft.WritePixels(
                             new Int32Rect(0, 0, this.colorBitmapLeft.PixelWidth, this.colorBitmapLeft.PixelHeight),
                             this.colorPixels,
@@ -356,7 +358,7 @@ namespace SLRS
                         // === rechts
                         if (handRight.X <= frame || handRight.X >= colorFrameDescription.Width - frame || handRight.Y <= frame || handRight.Y >= colorFrameDescription.Height - frame)
                         handRight = cpr_old;
-                        processColorFrameData(colorFrameData, handRight, frame);
+                        processColorFrameData(colorFrameData, handRight, frame, false);
                         this.colorBitmapRight.WritePixels(
                             new Int32Rect(0, 0, this.colorBitmapRight.PixelWidth, this.colorBitmapRight.PixelHeight),
                             this.colorPixels,
@@ -369,36 +371,65 @@ namespace SLRS
             }
         }
 
-        private unsafe void processColorFrameData(byte[] colorFrameData, ColorSpacePoint p, int frameSize)
+        private unsafe void processColorFrameData(byte[] colorFrameData, ColorSpacePoint p, int frameSize, bool left)
         {
             int index = 0;
+            int validIndex = 0;
             for (int y = -frameSize; y < frameSize; y++)
             {
                 for (int x = -frameSize; x < frameSize; x++)
                 {
-                    int offset = colorFrameDescription.Width * ((int)p.Y + y)*BytesPerPixel + ((int)p.X + x)*BytesPerPixel; //BGRA
-                    colorPixels[index++] = colorFrameData[offset];
-                    colorPixels[index++] = colorFrameData[offset + 1];
-                    colorPixels[index++] = colorFrameData[offset + 2];
-                    colorPixels[index++] = colorFrameData[offset + 3];
+                    if ((left && validPixelL[validIndex]) || (!left && validPixelR[validIndex]))
+                    {
+                        int offset = colorFrameDescription.Width * ((int)p.Y + y) * BytesPerPixel + ((int)p.X + x) * BytesPerPixel; //BGRA
+                        colorPixels[index++] = colorFrameData[offset];
+                        colorPixels[index++] = colorFrameData[offset + 1];
+                        colorPixels[index++] = colorFrameData[offset + 2];
+                        colorPixels[index++] = colorFrameData[offset + 3];
+                    }
+                    else
+                    {
+                        colorPixels[index++] = 0;
+                        colorPixels[index++] = 0;
+                        colorPixels[index++] = 0;
+                        colorPixels[index++] = 255;
+                    }
+                    validIndex++;
                 }
             }
         }
         private unsafe void savePicture(byte[] bytes, ref int index, bool left)
         {
-            IntPtr ptr = Marshal.AllocHGlobal(bytes.Length);
-            Marshal.Copy(bytes, 0, ptr, bytes.Length);
-            var bmp = new Bitmap(colorWindowSize, colorWindowSize, colorWindowSize*BytesPerPixel, System.Drawing.Imaging.PixelFormat.Format32bppArgb, ptr);
-            string path;
-            path = left ?       
-                path = String.Format(@"c:/temp/color/data/colorHandL{0:000}_{1:000}_{2:00}.png", gestureNumber, sequenceID + addId, colorFrameIndexL++) :
-                path = String.Format(@"c:/temp/color/data/colorHandR{0:000}_{1:000}_{2:00}.png", gestureNumber, sequenceID + addId, colorFrameIndexR++);
-            bmp.Save(path);
-            Marshal.FreeHGlobal(ptr);
+            if (left)
+            {
+                IntPtr ptr = Marshal.AllocHGlobal(bytes.Length);
+                Marshal.Copy(bytes, 0, ptr, bytes.Length);
+                var bmp = new Bitmap(colorWindowSize, colorWindowSize, colorWindowSize * BytesPerPixel, System.Drawing.Imaging.PixelFormat.Format32bppArgb, ptr);
+                string path = String.Format(@"c:/temp/color/single/colorHandL{0:000}_{1:000}_{2:00}.png", gestureNumber, sequenceID + addId, colorFrameIndexL);
+                bmp.Save(path);
+                Marshal.FreeHGlobal(ptr);
 
-            path = "...\\" + path.Split('/').Last();
-            colorData.WriteLine(String.Format("{0}\t{1}", path, gestureNumber)));
-            colorData.Flush();
+                path = "...\\" + path.Split('/').Last();
+                colorData.WriteLine(String.Format("{0}\t{1}", path, gestureNumber));
+                colorData.Flush();
+
+                colorFrameIndexL++;
+            }
+            else 
+            {
+                IntPtr ptr = Marshal.AllocHGlobal(bytes.Length);
+                Marshal.Copy(bytes, 0, ptr, bytes.Length);
+                var bmp = new Bitmap(colorWindowSize, colorWindowSize, colorWindowSize * BytesPerPixel, System.Drawing.Imaging.PixelFormat.Format32bppArgb, ptr);
+                string path = String.Format(@"c:/temp/color/single/colorHandR{0:000}_{1:000}_{2:00}.png", gestureNumber, sequenceID + addId, colorFrameIndexR);
+                bmp.Save(path);
+                Marshal.FreeHGlobal(ptr);
+
+                path = "...\\" + path.Split('/').Last();
+                colorData.WriteLine(String.Format("{0}\t{1}", path, gestureNumber));
+                colorData.Flush();
+
+                colorFrameIndexR++;
+            }          
         }
 
         float skinColorHue = 0.0f;
@@ -532,6 +563,7 @@ namespace SLRS
         private int depthFrameIndexL = 0;
         private int depthFrameIndexR = 0;
         private int depthFrameSelector = 0;
+        int distanceFactor = 75;
         //private int depthFrameThreshold = 5;
         private void depthFrameReader_FrameArrived(object sender, DepthFrameArrivedEventArgs e)
         {
@@ -605,7 +637,6 @@ namespace SLRS
                 pcdData = new StreamWriter(file, false);
             }
 
-            int distanceFactor = 70;
             int index = 0;
 
             for (int y = -frameSize; y < frameSize; y++)
@@ -616,7 +647,8 @@ namespace SLRS
                     int offset = (depthFrameDescription.Width * ((int)p.Y + y) + ((int)p.X + x));
                     ushort depth = frameData[offset];
 
-                    bool isNearPalm = depth < initDepth + distanceFactor && depth > initDepth - distanceFactor;     
+                    bool isNearPalm = depth < initDepth + distanceFactor && depth > initDepth - distanceFactor;
+                    depth = isNearPalm ? (ushort)((initDepth + (depth - initDepth)) * 1) : (ushort)0;
 
                     //  ==== Record DepthData for nextStep (PCD)
                     if ((bool)chk_recDepth.IsChecked && rec)
@@ -632,8 +664,8 @@ namespace SLRS
                         }
                     }
 
-                    //show depth image
-                    depth = isNearPalm ? (ushort)(initDepth + (depth - initDepth) * 10) : (ushort)0;
+                    //depth = isNearPalm ? (ushort)(initDepth + (depth - initDepth) * 10) : (ushort)0;
+                    mapValidPixel(depth != 0, index, left);
                     depthPixels[index] = (byte)(depth / MapDepthToByte);
                     index++;
                 }
@@ -642,6 +674,23 @@ namespace SLRS
             if ((bool)chk_recDepth.IsChecked && rec)
                 pcdData.Close();
 
+        }
+        private void mapValidPixel(bool depthNotZero, int index, bool left)
+        {
+            int dimension = 3;
+            int line = (int)(index / 70);
+            int column = index % 70;
+            var startIndex = column * dimension + line * dimension * colorWindowSize;
+
+            for (int y = 0; y < dimension; y++)
+            {
+                for (int x = 0; x < dimension; x++)
+                {
+                    var tmpIdx = startIndex + colorWindowSize * y + x;
+                    if (left) validPixelL[tmpIdx] = depthNotZero;
+                    else validPixelR[tmpIdx] = depthNotZero;
+                }
+            }        
         }
         #endregion //*******************
 
@@ -767,9 +816,9 @@ namespace SLRS
 
         private void writeTrainingData(double[] allData) 
         {
-            var mean = allData.Sum() / allData.Length;
-            for (var i = 0; i < allData.Length; i++)
-                allData[i] -= mean;
+            //var mean = allData.Sum() / allData.Length;
+            //for (var i = 0; i < allData.Length; i++)
+            //    allData[i] -= mean;
 
             // seqID = xxxyyy, xxx = Label , yyy = sequence
             var entry = String.Format("{0:000}{1:000}\t|L {2}\t|F", gestureNumber, sequenceID+addId, Helper.gestureCode[gestureNumber]);

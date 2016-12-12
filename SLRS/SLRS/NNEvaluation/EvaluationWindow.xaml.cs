@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -24,6 +25,8 @@ namespace SLRS
         public EvaluationWindow()
         {
             InitializeComponent();
+            mappingFile = @"c:\CNTK\tests\Mappings.txt";
+            lbl_mapping.Content = mappingFile.Split('\\').Last(); 
         }
 
         string outputFile, mappingFile;
@@ -32,7 +35,7 @@ namespace SLRS
         {
             box_eval.Document.Blocks.Clear();
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-            dlg.InitialDirectory = @"c:\CNTK\nets\";
+            dlg.InitialDirectory = @"c:\CNTK\";
             var result = dlg.ShowDialog();
 
             if (result.HasValue && result.Value)
@@ -43,6 +46,7 @@ namespace SLRS
 
             btn_selectMappingFile.IsEnabled = true;
             btn_writeMappings.IsEnabled = true;
+
             var reader = new StreamReader(new FileStream(outputFile, FileMode.Open));
             char[] buf = new char[10];
             reader.BaseStream.Seek(-10, SeekOrigin.End);
@@ -61,7 +65,7 @@ namespace SLRS
         private void btn_select_mapping_click(object sender, RoutedEventArgs e)
         {
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-            dlg.InitialDirectory = @"c:\CNTK\nets\Data\";
+            dlg.InitialDirectory = @"c:\CNTK\tests\";
             var result = dlg.ShowDialog();
 
             if (result.HasValue && result.Value)
@@ -76,7 +80,7 @@ namespace SLRS
             var reader = new StreamReader(new FileStream(outputFile, FileMode.Open));
 
             var calculatedSequence = new List<string>();
-            var calculatedLatency = new List<KeyValuePair<string,int>>();
+            var calculatedLatency = new List<KeyValuePair<string, int>>();
             float countAll = 0;
             float countHit = 0;
             int latency = 0;
@@ -84,7 +88,7 @@ namespace SLRS
             while (!reader.EndOfStream)
             {
                 var line = reader.ReadLine();
-                if (line.Contains("==="))               
+                if (line.Contains("==="))
                 {
                     calculatedSequence.Clear();
                     latency = 0;
@@ -106,7 +110,7 @@ namespace SLRS
                         else
                             sequenceHit++;
                     }
-                                                  
+
                     // EVALUATION: berechnete Werte entsprechen zu einem drittel des erwarteten Labels und das ziellabel ist mindestens einmal in den letzten 5 Frames enthalten
                     //var hit = sequenceHit >= calculatedSequence.Count*0.33 && calculatedSequence.GetRange(calculatedSequence.Count-6,5).Contains(originalLabel);
                     var hit = originalLabel == calculatedSequence.Last();
@@ -115,7 +119,7 @@ namespace SLRS
                     else
                         latency = -1;
 
-                    calculatedLatency.Add(new KeyValuePair<string,int>(originalLabel,latency));
+                    calculatedLatency.Add(new KeyValuePair<string, int>(originalLabel, latency));
                 }
                 else
                 {
@@ -127,16 +131,16 @@ namespace SLRS
             reader.Close();
 
             float q = countHit / countAll;
-            double latOverall =  calculatedLatency.Sum(i => i.Value) / calculatedLatency.Count;
+            double latOverall = calculatedLatency.Sum(i => i.Value) / calculatedLatency.Count;
 
             box_eval.Document.Blocks.Add(new Paragraph(new Run(String.Format("Gesamt:\t{0}\nTreffer:\t{1}\nQuote:\t{2} %\n=================================\n",
-                countAll, countHit, q * 100, latOverall*100))));
+                countAll, countHit, q * 100, latOverall * 100))));
 
             var latencyOutput = "";
             var latencySum = 0.0;
             var latencyCount = 0;
             foreach (var lat in calculatedLatency)
-            {                
+            {
                 if (lat.Value >= 0)
                 {
                     latencyOutput += String.Format("'{0}' erkannt nach {1} Frames. (= {2} ms)\n", lat.Key, lat.Value, lat.Value * 100);//100ms (3*33ms bei 30 fps)
@@ -146,31 +150,20 @@ namespace SLRS
                 else
                     latencyOutput += String.Format("'{0}' nicht erkannt!\n", lat.Key);
             }
-            box_eval.Document.Blocks.Add(new Paragraph(new Run(String.Format("{0}\nDurchschnittliche Latenz aller erkannten Labels: {1:000.0} ms",latencyOutput, (latencySum/latencyCount)*100))));
+            box_eval.Document.Blocks.Add(new Paragraph(new Run(String.Format("{0}\nDurchschnittliche Latenz aller erkannten Labels: {1:000.0} ms", latencyOutput, (latencySum / latencyCount) * 100))));
+            
         }
 
         private void btn_write_mappings_click(object sender, RoutedEventArgs e)
         {
-            int mCount;
             string[] words;
             try
             {
-                mCount = Convert.ToInt32(mappingsCount.Text);
-                mappingsCount.ClearValue(TextBox.BackgroundProperty);               
-            }
-            catch
-            {
-                //MessageBox.Show("Bitte Anzahl (int) der Testdaten pro Wort eintragen!");
-                mappingsCount.Background = Brushes.OrangeRed;
-                return;
-            }
-            try
-            {
                 var mappings = new StreamReader(new FileStream(mappingFile, FileMode.Open));
-                lbl_mapping.ClearValue(TextBox.BackgroundProperty);  
+                lbl_mapping.ClearValue(TextBox.BackgroundProperty);
                 words = mappings.ReadToEnd().Split('\n');
                 for (var i = 0; i < words.Length; i++)
-                    words[i] = String.Format(" {0}\n",words[i].Trim().Replace('\r', ' '));
+                    words[i] = String.Format(" {0}\n", words[i].Trim().Replace('\r', ' '));
 
                 mappings.Close();
             }
@@ -180,54 +173,141 @@ namespace SLRS
                 return;
             }
 
-            try
-            {
-                var output = new FileStream(outputFile, FileMode.Open, FileAccess.ReadWrite);
-                lbl_output.ClearValue(TextBox.BackgroundProperty);  
+            int mCount;
+            //try
+            //{
+                mCount = Convert.ToInt32(mappingsCount.Text);
+                mappingsCount.ClearValue(TextBox.BackgroundProperty);
 
-                byte[] line = new byte[8];
-                output.Seek(-8, SeekOrigin.End);
-                output.Read(line, 0, 8);
-                var mappedEntry = Encoding.UTF8.GetString(line);
-                if (mappedEntry.Contains("mapped"))
+
+                if (chk_colorMap.IsChecked ?? false)
                 {
-                    MessageBox.Show("Bereits gemapped");
-                    return;
+                    OpenFileDialog fd = new OpenFileDialog();
+                    fd.Filter = "colorMap Files (*.map)|*.map|All files (*.*)|*.*";
+                    fd.InitialDirectory = @"C:\CNTK\tests\color_test";
+                    fd.ShowDialog();
+
+                    var sr = new StreamReader(fd.FileName);
+                    var mapData = new List<string>();
+                    while (!sr.EndOfStream)
+                    {
+                        var elements = sr.ReadLine().Split('_');
+                        mapData.Add(elements[0].Substring(13, 3) + elements[1]);
+                    }
+                    sr.Close();
+
+                    //var data = mapData.GroupBy(i => i).ToList();
+                    var entries = new List<string>();
+                    StreamReader srOut = new StreamReader(outputFile);
+                    while (!srOut.EndOfStream)
+                    {
+                        var line = srOut.ReadLine();
+                        if (!line.Contains("====") && !string.IsNullOrWhiteSpace(line))
+                            entries.Add(line.Remove(line.IndexOf('%')));
+                    }
+                    srOut.Close();
+
+                    //int wordIndex = 0, wordCount = 0;
+                    //int entryIndex = 0;
+                    int mapIndex = 0, codeIndex = 0;
+                    StreamWriter sw = new StreamWriter(outputFile.Replace("colorRawOutput.out", "colorData.txt"));
+                    foreach (var entry in entries)
+                    {
+                        if (int.Parse(mapData.ElementAt(mapIndex)) / 1000 > codeIndex)
+                            codeIndex++;
+
+                        sw.WriteLine(String.Format("{0:000000} |L {1} |F {2}", mapData.ElementAt(mapIndex), Helper.gestureCode[codeIndex], entry));
+                        sw.Flush();
+
+                        mapIndex++;
+                    }
+                    //foreach (var entry in data)
+                    //{
+
+                    //    var count = entry.ToList().Count;
+
+                    //    wordCount++;
+                    //    if (wordCount == mCount)
+                    //    {
+                    //        wordCount = 0;
+                    //        wordIndex++;
+                    //    }
+
+                    //    for (int i = 0; i < count - 1; i++)
+                    //    {
+                    //        sw.WriteLine(entries[entryIndex++].Replace("%", string.Empty).Trim());
+                    //    }
+                    //    sw.Write(entries[entryIndex++] + " " + words[wordIndex]);
+                    //    sw.WriteLine("=============================");
+                    //    sw.WriteLine();
+
+                    //    sw.Flush();
+                    //}
+                    sw.Close();
                 }
-                output.Seek(0, SeekOrigin.Begin);
-
-                var count = 0;
-                var index = 0;
-                byte[] word;
-
-                for (int i = 0; i < output.Length; i++)
+                else
                 {
-                    var thisByte = new byte[1] { (byte)output.ReadByte() };
-                    var thisChar = Encoding.UTF8.GetString(thisByte);
+                    try
+                    {
+                        var output = new FileStream(outputFile, FileMode.Open, FileAccess.ReadWrite);
+                        lbl_output.ClearValue(TextBox.BackgroundProperty);
 
-                    if (thisChar.Contains("%"))
-                    {                        
-                        word = Encoding.UTF8.GetBytes(words[index]);
+                        byte[] line = new byte[8];
+                        output.Seek(-8, SeekOrigin.End);
+                        output.Read(line, 0, 8);
+                        var mappedEntry = Encoding.UTF8.GetString(line);
+                        if (mappedEntry.Contains("mapped"))
+                        {
+                            MessageBox.Show("Bereits gemapped");
+                            return;
+                        }
+                        output.Seek(0, SeekOrigin.Begin);
+
+                        var count = 0;
+                        var index = 0;
+                        byte[] word;
+
+                        for (int i = 0; i < output.Length; i++)
+                        {
+                            var thisByte = new byte[1] { (byte)output.ReadByte() };
+                            var thisChar = Encoding.UTF8.GetString(thisByte);
+
+                            if (thisChar.Contains("%"))
+                            {
+                                word = Encoding.UTF8.GetBytes(words[index]);
+                                output.Write(word, 0, word.Length);
+
+                                count++;
+                                if (count % mCount == 0)
+                                    index++;
+                            }
+                        }
+
+                        word = Encoding.UTF8.GetBytes("\nmapped");
                         output.Write(word, 0, word.Length);
 
-                        count++;
-                        if (count % mCount == 0)
-                            index++;
+                        output.Flush();
+                        output.Close();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                        lbl_output.Background = Brushes.OrangeRed;
+                        return;
                     }
                 }
+            //}
+            //catch
+            //{
+            //    //MessageBox.Show("Bitte Anzahl (int) der Testdaten pro Wort eintragen!");
+            //    mappingsCount.Background = Brushes.OrangeRed;
+            //    return;
+            //}
+        }
 
-                word = Encoding.UTF8.GetBytes("\nmapped");
-                output.Write(word, 0, word.Length);
-
-                output.Flush();
-                output.Close();
-            } 
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-                lbl_output.Background = Brushes.OrangeRed;
-                return;
-            }
+        private void btn_evalRDF_click(object sender, RoutedEventArgs e)
+        {
+            
         }
     }
 }

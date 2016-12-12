@@ -121,7 +121,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Tools\FinalDataCreator.xaml">
+    <Page Include="Tools\Tools.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -143,8 +143,8 @@
     <Compile Include="KinectApp\KinectApp.xaml.cs">
       <DependentUpon>KinectApp.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Tools\FinalDataCreator.xaml.cs">
-      <DependentUpon>FinalDataCreator.xaml</DependentUpon>
+    <Compile Include="Tools\Tools.xaml.cs">
+      <DependentUpon>Tools.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
