@@ -75,8 +75,8 @@ namespace SLRS
         #endregion
 
         private int maxTestData = 0;
-        private int maxTrainData = 20;
-        int addId = 120; 
+        private int maxTrainData = 30;
+        int addId = 150; 
 
         public KinectApp()
         {
@@ -208,6 +208,7 @@ namespace SLRS
                     {
                         if (gestureNumber + 1 < Helper.gestureWord.Length)
                         {
+                            MessageBox.Show(" === !!! ===");
                             sequenceID = 0;
                             gestureNumber++;
 

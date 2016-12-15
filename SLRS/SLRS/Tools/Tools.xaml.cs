@@ -38,7 +38,7 @@ namespace SLRS
             //StreamWriter sw = new StreamWriter(@"C:\temp\finalTrainData.txt", false);
             StreamWriter sw = new StreamWriter(@"C:\temp\rnnTestData.txt", false);
 
-            int seqPerGesture = 20;
+            int seqPerGesture = 30;
             int gestureNo = 0;
             int sequenceNo = 0;
 

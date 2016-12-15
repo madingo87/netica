@@ -65,9 +65,9 @@ namespace SLRS
                 while (!reader.EndOfStream)
                 {
                     var line = reader.ReadLine();
-                    if (line.StartsWith("CNTKCommandTrainInfo: train :"))
+                    if (line.Contains("maxEpochs = "))
                     {
-                        epochs = Convert.ToInt16(line.Substring(line.IndexOf("train : ") + 8).Replace('.', ','));
+                        epochs = Convert.ToInt16(line.Substring(line.IndexOf("maxEpochs = ") + 12).Replace('.', ','));
                     }
                     if (line.StartsWith("Finished Epoch"))
                     {
@@ -75,16 +75,20 @@ namespace SLRS
                         if (hit % hitMax == 0)
                         {
                             line = line.ToLower();
-                            ceValue = line.Substring(line.IndexOf("ce =") + 5, 10).Replace('.', ',');
+                            ceValue = line.Substring(line.IndexOf("ce =") + 5, 10).Replace('.', ',');                       
                             if (String.IsNullOrWhiteSpace(firstCE)) firstCE = ceValue;
-                            errValue = line.Substring(line.IndexOf("err =") + 6, 10).Replace('.', ',');
-                            epochTime = line.Substring(line.IndexOf("epochtime") + 10, (line.Length - 1) - (line.IndexOf("epochtime") + 10)).Replace('.', ',');
 
+                            errValue = line.Substring(line.IndexOf("err = ") + 6, 11).Replace('.', ',');
+                            if (errValue.Contains("e"))
+                                errValue = convertExp(line.Substring(line.IndexOf("err = ") + 6, 15));
+                            else
+                                errValue.Trim();
+                                
+                            epochTime = line.Substring(line.IndexOf("epochtime") + 10, (line.Length - 1) - (line.IndexOf("epochtime") + 10)).Replace('.', ',');
                             epochSum += Convert.ToDouble(epochTime);
 
                             ceSeries.Points.Add(new DataPoint(hit,Convert.ToDouble(ceValue)));
                             errSeries.Points.Add(new DataPoint(hit, Convert.ToDouble(errValue)));
-
                         }
                     }
                 }
@@ -104,6 +108,21 @@ namespace SLRS
                 MessageBox.Show("Fehler beim Lesen der Datei!\n\n"+e.Message);
                 this.Close();
             }
+        }
+
+        private string convertExp(string expr)
+        {
+            //9.52925481e-005 -> 0.0000952925481
+            var exp = int.Parse(expr.Substring(expr.IndexOf('-')+1));
+            expr = expr.Remove(10);
+            expr = expr.Replace(".", string.Empty);
+
+            var zeros = "";
+            for (var i = 1; i < exp; i++)
+                zeros += "0";
+
+            var newExpr = string.Format("0,{0}{1}", zeros, expr);
+            return newExpr;
         }
 
         private void newGraph_Click(object sender, RoutedEventArgs e)
