@@ -131,10 +131,10 @@ namespace SLRS
             reader.Close();
 
             float q = countHit / countAll;
-            double latOverall = calculatedLatency.Sum(i => i.Value) / calculatedLatency.Count;
+            //double latOverall = calculatedLatency.Sum(i => i.Value) / calculatedLatency.Count;
 
             box_eval.Document.Blocks.Add(new Paragraph(new Run(String.Format("Gesamt:\t{0}\nTreffer:\t{1}\nQuote:\t{2} %\n=================================\n",
-                countAll, countHit, q * 100, latOverall * 100))));
+                countAll, countHit, q * 100))));
 
             var latencyOutput = "";
             var latencySum = 0.0;
@@ -143,14 +143,14 @@ namespace SLRS
             {
                 if (lat.Value >= 0)
                 {
-                    latencyOutput += String.Format("'{0}' erkannt nach {1} Frames. (= {2} ms)\n", lat.Key, lat.Value, lat.Value * 100);//100ms (3*33ms bei 30 fps)
+                    latencyOutput += String.Format("'{0}' erkannt nach {1} Frames. (= {2} ms)\n", lat.Key, lat.Value, lat.Value * 200);//200ms (6*33ms bei 30 fps)
                     latencySum += lat.Value;
                     latencyCount++;
                 }
                 else
                     latencyOutput += String.Format("'{0}' nicht erkannt!\n", lat.Key);
             }
-            box_eval.Document.Blocks.Add(new Paragraph(new Run(String.Format("{0}\nDurchschnittliche Latenz aller erkannten Labels: {1:000.0} ms", latencyOutput, (latencySum / latencyCount) * 100))));
+            box_eval.Document.Blocks.Add(new Paragraph(new Run(String.Format("{0}\nDurchschnittliche Latenz aller erkannten Labels: {1:000.0} ms", latencyOutput, (latencySum / latencyCount) * 200))));
             
         }
 
@@ -182,6 +182,48 @@ namespace SLRS
 
                 if (chk_colorMap.IsChecked ?? false)
                 {
+                    // ==== CREATE CNTK File
+                    //OpenFileDialog fd = new OpenFileDialog();
+                    //fd.Filter = "colorMap Files (*.map)|*.map|All files (*.*)|*.*";
+                    //fd.InitialDirectory = @"C:\CNTK\tests\color_test";
+                    //fd.ShowDialog();
+
+                    //var sr = new StreamReader(fd.FileName);
+                    //var mapData = new List<string>();
+                    //while (!sr.EndOfStream)
+                    //{
+                    //    var elements = sr.ReadLine().Split('_');
+                    //    mapData.Add(elements[0].Substring(13, 3) + elements[1]);
+                    //}
+                    //sr.Close();
+
+                    ////var data = mapData.GroupBy(i => i).ToList();
+                    //var entries = new List<string>();
+                    //StreamReader srOut = new StreamReader(outputFile);
+                    //while (!srOut.EndOfStream)
+                    //{
+                    //    var line = srOut.ReadLine();
+                    //    if (!line.Contains("====") && !string.IsNullOrWhiteSpace(line))
+                    //        entries.Add(line.Remove(line.IndexOf('%')));
+                    //}
+                    //srOut.Close();
+
+                    //int mapIndex = 0, codeIndex = 0;
+                    //StreamWriter sw = new StreamWriter(outputFile.Replace("colorRawOutput.out", "colorData.txt"));
+                    //foreach (var entry in entries)
+                    //{
+                    //    if (int.Parse(mapData.ElementAt(mapIndex)) / 1000 > codeIndex)
+                    //        codeIndex++;
+
+                    //    sw.WriteLine(String.Format("{0:000000} |L {1} |F {2}", mapData.ElementAt(mapIndex), Helper.gestureCode[codeIndex], entry));
+                    //    sw.Flush();
+
+                    //    mapIndex++;
+                    //}
+
+
+
+                    // === CREATE MAPPING FOR EVALUATION
                     OpenFileDialog fd = new OpenFileDialog();
                     fd.Filter = "colorMap Files (*.map)|*.map|All files (*.*)|*.*";
                     fd.InitialDirectory = @"C:\CNTK\tests\color_test";
@@ -192,57 +234,27 @@ namespace SLRS
                     while (!sr.EndOfStream)
                     {
                         var elements = sr.ReadLine().Split('_');
-                        mapData.Add(elements[0].Substring(13, 3) + elements[1]);
+                        mapData.Add(elements[0].Substring(13, 3));
                     }
                     sr.Close();
 
-                    //var data = mapData.GroupBy(i => i).ToList();
-                    var entries = new List<string>();
                     StreamReader srOut = new StreamReader(outputFile);
-                    while (!srOut.EndOfStream)
-                    {
-                        var line = srOut.ReadLine();
-                        if (!line.Contains("====") && !string.IsNullOrWhiteSpace(line))
-                            entries.Add(line.Remove(line.IndexOf('%')));
-                    }
+                    var entries = srOut.ReadToEnd().Split('\n');
                     srOut.Close();
 
-                    //int wordIndex = 0, wordCount = 0;
-                    //int entryIndex = 0;
-                    int mapIndex = 0, codeIndex = 0;
-                    StreamWriter sw = new StreamWriter(outputFile.Replace("colorRawOutput.out", "colorData.txt"));
+                    StreamWriter sw = new StreamWriter(outputFile.Replace("Output.out", "colorEvalData.out"));
+                    int wordIndex = 0;
+
+                    string line = "";
                     foreach (var entry in entries)
                     {
-                        if (int.Parse(mapData.ElementAt(mapIndex)) / 1000 > codeIndex)
-                            codeIndex++;
+                        line = entry;
+                        if (entry.Contains('%'))
+                            line = entry.Replace("%", "% " + Helper.gestureWord[int.Parse(mapData[wordIndex++])]);
 
-                        sw.WriteLine(String.Format("{0:000000} |L {1} |F {2}", mapData.ElementAt(mapIndex), Helper.gestureCode[codeIndex], entry));
+                        sw.Write(line);
                         sw.Flush();
-
-                        mapIndex++;
                     }
-                    //foreach (var entry in data)
-                    //{
-
-                    //    var count = entry.ToList().Count;
-
-                    //    wordCount++;
-                    //    if (wordCount == mCount)
-                    //    {
-                    //        wordCount = 0;
-                    //        wordIndex++;
-                    //    }
-
-                    //    for (int i = 0; i < count - 1; i++)
-                    //    {
-                    //        sw.WriteLine(entries[entryIndex++].Replace("%", string.Empty).Trim());
-                    //    }
-                    //    sw.Write(entries[entryIndex++] + " " + words[wordIndex]);
-                    //    sw.WriteLine("=============================");
-                    //    sw.WriteLine();
-
-                    //    sw.Flush();
-                    //}
                     sw.Close();
                 }
                 else

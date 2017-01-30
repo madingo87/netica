@@ -36,7 +36,7 @@ namespace SLRS
             var listColor = outData[2];
 
             //StreamWriter sw = new StreamWriter(@"C:\temp\finalTrainData.txt", false);
-            StreamWriter sw = new StreamWriter(@"C:\temp\rnnTestData.txt", false);
+            StreamWriter sw = new StreamWriter(@"C:\temp\finalTestData.txt", false);
 
             int seqPerGesture = 30;
             int gestureNo = 0;
